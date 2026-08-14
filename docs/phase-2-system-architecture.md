@@ -38,6 +38,29 @@ Separating measurement, processing, diagnostics, and communication keeps respons
 
 The anti-alias filter is part of the Analog Front End rather than a separate subsystem because it prepares the analog signal specifically for ADC conversion.
 
+## ARCH-003 — Explicit subsystem interfaces
+
+**Status:** Accepted
+
+The six logical subsystems shall communicate through explicitly defined interfaces. Physical sensing and analog interfaces shall be separated from digital processing and diagnostic interfaces so that sensing hardware can be replaced without unnecessary changes to downstream software.
+
+### Interface classes
+
+| Interface | Source → Destination | Information type |
+|---|---|---|
+| IF-01 | Actuator current → Current sensing | Physical electrical current |
+| IF-02 | Current sensing → Analog front end | Analog sensor voltage |
+| IF-03 | Analog front end → ADC acquisition | Conditioned analog voltage |
+| IF-04 | ADC acquisition → Signal processing | Timestamped digital samples |
+| IF-05 | Signal processing → Diagnostics | Calibrated current values and extracted features |
+| IF-06 | Diagnostics → Communication | Operating state, warning and fault information |
+| IF-07 | Communication → External device | UART / CAN / RS-485 data |
+| IF-08 (future) | Diagnostics → Protection system | Shutdown / control command |
+
+### Rationale
+
+Explicit interface definitions support modularity and make the architecture scalable. A future industrial current transducer may replace the ACS724 sensing subsystem provided the downstream analog interface remains compatible or is adapted by the AFE.
+
 ## System context
 
 ```text
@@ -74,8 +97,7 @@ Laboratory oscilloscope, multimeter, and bench power supply are external develop
 
 ## Open architecture work
 
-- Interface definitions
-- Signal and data flow
+- Signal and data definitions
 - Power architecture
 - Industrial scalability
 - Architecture verification
