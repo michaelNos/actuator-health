@@ -99,10 +99,32 @@ Separating raw measurements, engineering quantities, calculated features, and di
 
 At a nominal sampling rate of 100 kS/s, the sampling interval is 10 us. A known block-start time plus sample index is sufficient to reconstruct individual sample times while avoiding unnecessary timestamp storage for every sample.
 
+## ARCH-005 — Power-domain architecture
+
+**Status:** Accepted
+
+The Rev-1 system shall separate the actuator power domain from the monitoring-electronics power domain.
+
+The actuator shall be powered from an external low-voltage DC source.
+
+The current-sensor signal electronics, Analog Front End, and MCU shall operate from the low-voltage monitoring domain, nominally 5 V where applicable, and shall share a defined signal-ground reference.
+
+Local supply decoupling shall be provided at the sensing and analog circuitry.
+
+The actuator-current conductor and low-voltage sensor electronics shall remain galvanically separated through the current-sensing element.
+
+A later development stage shall investigate operation from a common external supply with protection, regulation, filtering, and measured supply-noise performance.
+
+### Rationale
+
+Separating the actuator and monitoring supplies establishes a controlled low-noise baseline for sensor and ADC validation. Motor switching, startup current, commutation, and load transients can disturb the actuator supply; keeping the sensitive measurement electronics on a separate supply initially prevents those disturbances from being unintentionally coupled into every measurement.
+
+The monitoring-side ACS724 output, AFE, and ADC require a common signal reference so that the sensor output voltage is interpreted correctly. The high-current conductor itself remains galvanically separated from this signal-ground domain through the Hall-effect sensing element.
+
 ## System context
 
 ```text
-External power source
+External actuator supply
         |
         v
 Actuator / motor ---- Mechanical load
@@ -129,12 +151,14 @@ Communication
         |
         v
 External PC / MATLAB / industrial controller
+
+Separate monitoring-electronics supply:
+5 V monitoring rail -> sensor electronics / AFE / MCU
 ```
 
 Laboratory oscilloscope, multimeter, and bench power supply are external development and verification tools.
 
 ## Open architecture work
 
-- Power architecture
 - Industrial scalability
 - Architecture verification
