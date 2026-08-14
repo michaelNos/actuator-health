@@ -61,6 +61,44 @@ The six logical subsystems shall communicate through explicitly defined interfac
 
 Explicit interface definitions support modularity and make the architecture scalable. A future industrial current transducer may replace the ACS724 sensing subsystem provided the downstream analog interface remains compatible or is adapted by the AFE.
 
+## ARCH-004 — Data representation and traceability
+
+**Status:** Accepted
+
+The acquisition and processing architecture shall preserve four distinct data levels:
+
+1. **Raw ADC samples** — direct ADC conversion results before calibration.
+2. **Calibrated current measurements** — samples converted into physical current units.
+3. **Calculated features** — time-domain and frequency-domain properties derived from windows or blocks of samples.
+4. **Diagnostic information** — operating states, warnings, and fault flags derived from measurements and features.
+
+Raw ADC data shall remain accessible for calibration, validation, and debugging.
+
+Deterministic sample timing shall be represented by a known sampling period and sample index. Acquisition blocks may carry an absolute or block-start timestamp rather than storing a separate timestamp with every individual sample.
+
+### Example data flow
+
+```text
+raw ADC samples
+       |
+       v
+calibrated current [A]
+       |
+       v
+features
+(mean / RMS / peak / ripple / spectrum)
+       |
+       v
+diagnostic state
+(NORMAL / WARNING / FAULT)
+```
+
+### Rationale
+
+Separating raw measurements, engineering quantities, calculated features, and diagnostic interpretation preserves traceability. It allows MATLAB analysis and validation to return to the original ADC samples rather than relying only on processed or classified outputs.
+
+At a nominal sampling rate of 100 kS/s, the sampling interval is 10 us. A known block-start time plus sample index is sufficient to reconstruct individual sample times while avoiding unnecessary timestamp storage for every sample.
+
 ## System context
 
 ```text
@@ -97,7 +135,6 @@ Laboratory oscilloscope, multimeter, and bench power supply are external develop
 
 ## Open architecture work
 
-- Signal and data definitions
 - Power architecture
 - Industrial scalability
 - Architecture verification
