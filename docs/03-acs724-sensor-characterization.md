@@ -19,23 +19,28 @@ The Phase 3 pull request remains a draft while the phase is being developed.
 
 ## 3.1 — Hall-effect current sensing
 
-**Status:** In progress
+**Status:** Complete / accepted
 
-Topics to establish:
+### SENS-001 — Rev-1 Hall-effect current-sensing principle
 
-- magnetic field produced by current,
-- Hall effect,
-- primary current conductor,
-- Hall sensing element,
-- galvanic isolation between the primary current path and low-voltage sensing electronics,
-- internal signal-conditioning role of the ACS724,
-- relationship between physical current and the analog output signal.
+**Status:** Accepted
 
-**Accepted Phase 3 decisions:** None yet.
+Rev-1 shall use the selected ACS724 Hall-effect current sensor as an in-series current transducer. Actuator current shall flow through the sensor primary conductor, while the low-voltage sensing electronics shall derive an analog output from the current-generated magnetic field. The primary current path and low-voltage sensing electronics shall remain galvanically isolated through the sensor architecture.
+
+### Rationale
+
+The ACS724 measures the magnetic field produced by current flowing through its low-resistance primary copper conductor. Its Hall sensing and internal signal-conditioning electronics convert that magnetic information into an analog output voltage without a direct conductive signal connection to the primary current path.
+
+This establishes two distinct electrical roles:
+
+- **Primary/current path:** carries the physical actuator current through the sensor.
+- **Measurement/signal side:** contains the low-voltage Hall sensing electronics and analog output that feed the later AFE and ADC stages.
+
+The ACS724 is therefore inserted in series with the actuator-current path; it is not used as an external clamp around an untouched conductor.
 
 ## 3.2 — Exact ACS724-05AU variant
 
-**Status:** TBD
+**Status:** In progress
 
 To document from primary sources:
 
