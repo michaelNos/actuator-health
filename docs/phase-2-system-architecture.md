@@ -1,6 +1,6 @@
 # Phase 2 — System Architecture
 
-**Status:** In progress  
+**Status:** Complete / baselined  
 **Project:** Actuator Health Monitoring System
 
 ## ARCH-001 — System boundary
@@ -143,6 +143,63 @@ A single-channel laboratory prototype is sufficient for the first DC-actuator im
 
 Known inter-channel timing is necessary when comparing phase relationships. Simultaneous sampling is preferred when exact phase comparison is required; precisely synchronized or characterized sequential acquisition may be used where its timing error is acceptable.
 
+## ARCH-007 — Architecture verification and traceability
+
+**Status:** Accepted
+
+Every accepted system requirement shall be mapped to at least one responsible subsystem or interface.
+
+Architecture verification shall confirm that the complete measurement path from sensing through acquisition, processing, diagnostics, and communication supports the Phase 1 requirements.
+
+During implementation, subsystem and end-to-end tests shall use controlled stimuli and measurable pass criteria.
+
+Verification evidence shall be retained where practical, including raw data, oscilloscope measurements, multimeter/reference measurements, firmware logs, and MATLAB results.
+
+Requirement traceability shall follow:
+
+```text
+Requirement
+    |
+    v
+Architecture
+    |
+    v
+Design
+    |
+    v
+Implementation
+    |
+    v
+Verification
+    |
+    v
+Measured result / evidence
+    |
+    v
+PASS / FAIL
+```
+
+### Phase 1 requirement-to-architecture coverage
+
+| Phase 1 need | Responsible architecture |
+|---|---|
+| Measure 0–5 A | Current sensing |
+| Preserve diagnostic content from DC through 10 kHz | Current sensing + AFE + ADC acquisition |
+| Nominal 100 kS/s acquisition | ADC acquisition |
+| Calibrated current-accuracy target | Current sensing + AFE + ADC + calibration |
+| Detect startup/inrush | Signal processing + diagnostics |
+| Detect overload | Signal processing + diagnostics |
+| Detect stall | Signal processing + diagnostics |
+| Preserve raw samples | ADC acquisition + data architecture |
+| Support MATLAB analysis | Communication + raw-data traceability |
+| UART / CAN / RS-485 | Communication |
+| Future shutdown | Diagnostics + IF-08 protection interface |
+| Future three-phase scalability | Replaceable sensing + multi-channel architecture |
+
+### Rationale
+
+Architecture verification at this stage does not claim that the final hardware already satisfies the performance requirements. It verifies that each accepted requirement has a defined implementation path through the architecture. Physical compliance will later be demonstrated through calculations, controlled laboratory tests, reference measurements, logged data, and end-to-end fault-injection tests.
+
 ## System context
 
 ```text
@@ -180,6 +237,10 @@ Separate monitoring-electronics supply:
 
 Laboratory oscilloscope, multimeter, and bench power supply are external development and verification tools.
 
-## Open architecture work
+## Phase 2 baseline summary
 
-- Architecture verification
+Phase 2 establishes a modular architecture with clear system boundaries, six logical subsystems, explicit interfaces, traceable data levels, separated actuator and monitoring power domains, a path to future multi-channel industrial sensing, and a verification framework connecting requirements to objective evidence.
+
+No implementation-level component values, filter topology, PCB layout, firmware architecture, or diagnostic thresholds are frozen by Phase 2 unless already established as Phase 1 constraints. Those topics are intentionally deferred to later design and validation phases.
+
+**Phase 2 status: COMPLETE / BASELINED**
