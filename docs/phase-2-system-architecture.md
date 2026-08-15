@@ -121,6 +121,28 @@ Separating the actuator and monitoring supplies establishes a controlled low-noi
 
 The monitoring-side ACS724 output, AFE, and ADC require a common signal reference so that the sensor output voltage is interpreted correctly. The high-current conductor itself remains galvanically separated from this signal-ground domain through the Hall-effect sensing element.
 
+## ARCH-006 — Industrial scalability
+
+**Status:** Accepted
+
+The architecture shall not assume that the system permanently contains only one current-measurement channel.
+
+Rev-1 shall implement one current channel for a low-voltage DC actuator.
+
+A future industrial implementation shall permit multiple isolated current-sensing channels, including three phase-current channels for a three-phase motor.
+
+Multi-channel acquisition shall preserve known inter-channel timing; simultaneous or appropriately synchronized acquisition shall be used when phase relationships are required.
+
+Sensor-specific scaling and calibration shall be isolated from downstream signal-processing and diagnostic functions so that alternative current transducers can be introduced without unnecessary redesign of those functions.
+
+Industrial voltage measurement may be added as a future extension but is not part of the Rev-1 baseline.
+
+### Rationale
+
+A single-channel laboratory prototype is sufficient for the first DC-actuator implementation, while industrial three-phase condition monitoring may require separate current information from L1, L2, and L3. Keeping channel handling and sensor calibration modular allows the acquisition architecture to scale without tying downstream algorithms to the ACS724 or to a permanently single-channel design.
+
+Known inter-channel timing is necessary when comparing phase relationships. Simultaneous sampling is preferred when exact phase comparison is required; precisely synchronized or characterized sequential acquisition may be used where its timing error is acceptable.
+
 ## System context
 
 ```text
@@ -160,5 +182,4 @@ Laboratory oscilloscope, multimeter, and bench power supply are external develop
 
 ## Open architecture work
 
-- Industrial scalability
 - Architecture verification
