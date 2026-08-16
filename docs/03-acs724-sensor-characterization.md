@@ -42,13 +42,27 @@ The ACS724 is therefore inserted in series with the actuator-current path; it is
 
 **Status:** In progress
 
-To document from primary sources:
+### SENS-002 — Rev-1 sensor operating range and polarity
 
-- unidirectional operating range,
-- zero-current output,
-- sensitivity,
-- output range,
-- supply dependence / ratiometric behaviour where applicable,
+**Status:** Accepted
+
+Rev-1 shall use the ACS724LLCTR-05AU within its specified **0 A to 5 A unidirectional sensing range**.
+
+At a nominal sensor supply of 5 V, the nominal zero-current output is **0.5 V** and the nominal sensitivity is **800 mV/A**.
+
+The unidirectional range means the specified measurement range is intended for one current polarity, which matches the normal current direction of the Rev-1 DC actuator. This does not imply that a DC-motor current waveform is constant: startup transients, commutation ripple, load variation and other time-varying components may still be present and are part of the waveform we intend to measure.
+
+A current waveform that must be measured accurately in both positive and negative directions, such as a bipolar AC waveform or a reversing-current application, requires a sensing arrangement with an appropriate bidirectional range.
+
+Values outside the specified 0 A to 5 A range shall not be treated as calibrated valid measurements merely because the sensor may continue to produce an output.
+
+### Rationale
+
+The selected 05AU variant allocates its useful analog output span to one current polarity. This provides 800 mV/A nominal sensitivity at 5 V, which is advantageous for resolving current changes in the Rev-1 low-voltage DC actuator while preserving the selected 0 A to 5 A Phase 1 measurement range.
+
+Remaining topics to establish from primary sources:
+
+- supply dependence / ratiometric behaviour,
 - bandwidth,
 - FILTER pin behaviour,
 - primary conductor resistance,
