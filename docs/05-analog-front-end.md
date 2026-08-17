@@ -22,13 +22,29 @@ This phase selects the product-level AFE topology, buffering/filter strategy and
 - Nominal sampling rate: **100 kS/s**.
 - MCP6022-I/P is available: dual RRIO op-amp, approximately 10 MHz GBW, 2.5–5.5 V supply.
 
-## Phase 5 design topics
+## 5.1 — AFE topology and buffering
 
-### 5.1 — AFE topology and buffering
+### AFE-001 — Dual-op-amp unity-gain active low-pass AFE
 
-Select the signal path between ACS724 and ADC, including whether/how the MCP6022 is used and how ADC loading is isolated from the sensor/filter network.
+**Status:** Accepted
 
-**Status:** To be decided.
+Rev-1 shall use the available **MCP6022** as the active element of the Analog Front End, using both internal op-amps to implement two cascaded second-order low-pass stages for an overall **fourth-order** anti-alias response.
+
+The AFE shall operate at approximately **unity gain** through the diagnostic passband. It shall not intentionally amplify, attenuate, or level-shift the ACS724 signal solely to occupy more ADC range.
+
+The intended signal path is:
+
+`ACS724 → 2nd-order active LPF → 2nd-order active LPF → ADC`
+
+The active stages provide filtering and buffering between the sensor and ADC so that ADC input behavior does not directly load the ACS724 output/filter network.
+
+Exact filter family, pole frequencies, Q values, resistor/capacitor values, and ADC-facing isolation details are resolved in the remaining Phase 5 design.
+
+### Rationale
+
+The native ACS724 span already uses most of a nominal 0–5 V ADC range, so extra gain provides little benefit and consumes headroom. A fourth-order response provides substantially more transition-band attenuation than a simple first-order RC network while the dual MCP6022 allows the complete active filter to be implemented with one available package.
+
+## Phase 5 design topics remaining
 
 ### 5.2 — Anti-alias filter realization
 
