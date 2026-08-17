@@ -92,9 +92,24 @@ The later Analog Front End shall provide the deliberate anti-alias filtering req
 
 Keeping the stock sensor configuration during characterization avoids mixing sensor evaluation with Analog Front End design. The Pololu carrier bandwidth remains much wider than the required 10 kHz signal band, while content above the 50 kHz Nyquist frequency of a 100 kS/s ADC must later be attenuated by a deliberately designed anti-alias filter.
 
+### SENS-005 — Primary current-path resistance
+
+**Status:** Accepted
+
+The Rev-1 sensor model shall include the ACS724 primary-conductor resistance, nominally approximately **1.2 mΩ**, as an insertion effect in the actuator-current path.
+
+The resulting voltage drop and resistive dissipation shall be considered when evaluating sensor heating and disturbance of the actuator circuit:
+
+`Vdrop = I × Rprimary`
+
+`Ploss = I² × Rprimary`
+
+### Rationale
+
+The ACS724 is inserted in series with the actuator current, so its primary conductor cannot be electrically invisible. The very low primary-path resistance minimizes the voltage drop and power loss while still allowing the measured current to generate the magnetic field used by the Hall sensing elements.
+
 Remaining topics to establish from primary sources:
 
-- primary conductor resistance,
 - isolation ratings,
 - working voltage versus dielectric-test voltage,
 - temperature and error specifications.
