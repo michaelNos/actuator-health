@@ -22,15 +22,45 @@ This phase establishes the product-level diagnostic model, baseline fault/condit
 - Rev-1 has no speed sensor, so stall/jam inference is current-based;
 - automatic protective shutdown is not assumed; diagnostics and protection remain separate concepts.
 
-## Phase 8 design topics
+## 8.1 — Diagnostic output model
 
-The phase will define a lean set of product-level choices covering:
+### DIAG-001 — Separate operating state from condition assessment
 
-- diagnostic state/output model;
+**Status:** Accepted
+
+Rev-1 diagnostics shall represent **operating state** separately from **condition assessment** rather than reducing all behavior to a single OK/fault flag.
+
+The baseline operating-state model shall distinguish:
+
+- stopped / no-load-current region;
+- startup;
+- running;
+- abnormal or unknown operating state when available evidence does not support a normal state classification.
+
+The baseline condition assessment shall distinguish:
+
+- normal;
+- overload;
+- stall/jam;
+- current-pattern anomaly;
+- diagnostic unavailable.
+
+This separation allows current behavior to be interpreted in context. For example, a high-current transient during startup may be normal while similar current persisting during the running state may indicate overload or stall/jam.
+
+If the Phase 7 measurement-pipeline health state indicates that required evidence is invalid, the appropriate result is **diagnostic unavailable**, not an actuator fault inferred from compromised data.
+
+Exact motor-dependent state-transition thresholds remain `TBD` until implementation/verification.
+
+### Rationale
+
+Current magnitude alone is not sufficient to interpret actuator condition. Separating operating state from condition assessment prevents expected transient behavior from being misclassified and provides a clear representation for unavailable diagnostics when the monitoring system itself cannot supply trustworthy evidence.
+
+## Phase 8 design topics remaining
+
 - overload and stall/jam logic;
 - startup/load/commutation-pattern condition interpretation;
 - baseline/reference and threshold adaptation philosophy where needed;
-- handling of invalid measurement-pipeline data and diagnostic confidence/availability.
+- handling of diagnostic persistence/confidence where it materially affects product behavior.
 
 Closely related choices will be grouped. Exact numeric thresholds that require the physical Rev-1 motor remain `TBD` with a defined calibration/verification method.
 
