@@ -494,7 +494,25 @@ Standard deviation or an equivalent RMS-type measure represents typical short-te
 
 Peak-to-peak values remain useful descriptive evidence but depend strongly on observation duration and isolated extrema. Converting the voltage-domain result through the characterized sensitivity expresses the observed noise in the same current units used by the measurement system without treating nominal sensitivity as an exact constant.
 
-Remaining characterization work shall establish the observation duration or sample count used for the Phase 3 zero-current noise metric before powered-current Phase 3 test execution is treated as complete.
+### SENS-025 — Noise observation-window consistency
+
+**Status:** Accepted
+
+Phase 3 zero-current statistical noise comparisons shall use a consistent acquisition method, observation duration and sample count across the `A1–B–A2` supply comparison and the corresponding measurement-system noise-floor control where practical.
+
+The statistical dataset shall be long enough to provide a stable estimate of short-term output variation while avoiding deliberate inclusion of slower temperature-, supply- or time-dependent drift in the short-term noise metric.
+
+Slow variation observed over longer periods shall be recorded separately as drift rather than automatically incorporated into the short-term noise value.
+
+The exact sample count, sampling rate and observation duration remain **TBD until the DOS1102S acquisition/export capabilities are verified experimentally or from its documentation**.
+
+### Rationale
+
+Noise statistics depend on the amount and duration of observed data. Using different sample counts or observation windows across the controlled comparison would make the resulting values less directly comparable.
+
+At the same time, extending the observation window indefinitely can mix slower drift with the short-term random variation that SENS-024 is intended to quantify. Keeping short-term noise and slower drift conceptually separate preserves the meaning of both measurements.
+
+Remaining characterization work shall verify the practical DOS1102S acquisition method and then establish the numerical acquisition settings used for the Phase 3 zero-current test.
 
 ## 3.7 — Phase output
 
