@@ -214,17 +214,27 @@ Restricting analog bandwidth excludes out-of-band noise and can improve effectiv
 
 ## 3.6 — Characterization and test plan
 
-**Status:** TBD
+**Status:** In progress
 
-Define safe laboratory methods for measuring:
+### SENS-011 — Static characterization method
 
-- zero-current output,
-- output versus known current,
-- linearity,
-- noise,
-- bandwidth where feasible.
+**Status:** Accepted
 
-The test method and known-current stimulus shall be defined before measurements are treated as evidence.
+Initial ACS724 static characterization shall use a **controlled low-voltage DC current path independent of the actuator**, with the bench PSU current limit configured before the output is enabled.
+
+For each characterization point, an independent reference current measurement and the ACS724 output voltage shall be recorded. Characterization shall include zero current and multiple points across the 0 A to 5 A range where the available load and reference instrument can safely support them.
+
+The actuator motor shall not be used as the primary reference load for deriving sensor offset, sensitivity or linearity.
+
+The required high-current load hardware is currently **TBD** and shall be selected before the high-current characterization is executed. The existing 1/4 W resistor assortment shall not be used as a multi-ampere power load.
+
+### Rationale
+
+A motor is a poor calibration reference because its current varies with commutation, speed, mechanical load and operating state. A controlled DC load provides stable current points that can be compared directly with the sensor output.
+
+An independent reference measurement prevents the bench PSU display from being assumed to be an exact current standard. Multiple known current points allow the measured offset, sensitivity and linearity of the individual ACS724 carrier to be derived.
+
+Remaining characterization work shall define the exact values recorded at each test point, acceptance criteria, zero-current/noise tests and any feasible dynamic/bandwidth verification.
 
 ## 3.7 — Phase output
 
