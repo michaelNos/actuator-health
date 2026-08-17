@@ -76,10 +76,24 @@ The ACS724 output is ratiometric with its supply. A change in sensor supply volt
 
 This supply dependence therefore becomes an input to later transfer-function definition, characterization, calibration and the Phase 4 measurement-error budget.
 
+### SENS-004 — Sensor bandwidth configuration
+
+**Status:** Accepted
+
+Rev-1 shall initially use the Pololu #4048 carrier in its stock FILTER configuration, including the carrier's existing **1 nF FILTER capacitor**, giving an approximate carrier bandwidth of **90 kHz**.
+
+No additional FILTER capacitance shall be added during the initial ACS724 sensor characterization.
+
+The ACS724 IC bandwidth is higher than the Rev-1 required **DC to 10 kHz** diagnostic measurement bandwidth, so the sensor itself is not expected to be the limiting element for that requirement.
+
+The later Analog Front End shall provide the deliberate anti-alias filtering required for the **DC to 10 kHz measurement path** and **100 kS/s ADC acquisition** rather than relying on the stock sensor bandwidth as the anti-alias filter.
+
+### Rationale
+
+Keeping the stock sensor configuration during characterization avoids mixing sensor evaluation with Analog Front End design. The Pololu carrier bandwidth remains much wider than the required 10 kHz signal band, while content above the 50 kHz Nyquist frequency of a 100 kS/s ADC must later be attenuated by a deliberately designed anti-alias filter.
+
 Remaining topics to establish from primary sources:
 
-- bandwidth,
-- FILTER pin behaviour,
 - primary conductor resistance,
 - isolation ratings,
 - working voltage versus dielectric-test voltage,
@@ -101,9 +115,9 @@ A complete system numerical error budget is reserved for Phase 4 unless a Phase 
 
 ## 3.5 — Bandwidth and FILTER pin
 
-**Status:** TBD
+**Status:** Partially established by SENS-004
 
-Establish sensor bandwidth, the relationship between bandwidth and noise, FILTER-pin behaviour, and its interaction with the later AFE anti-alias filter.
+Establish the relationship between bandwidth and noise in more detail and document how FILTER-pin behaviour interacts with the later AFE anti-alias filter.
 
 ## 3.6 — Characterization and test plan
 
