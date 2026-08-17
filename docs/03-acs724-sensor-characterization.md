@@ -60,9 +60,24 @@ Values outside the specified 0 A to 5 A range shall not be treated as calibrated
 
 The selected 05AU variant allocates its useful analog output span to one current polarity. This provides 800 mV/A nominal sensitivity at 5 V, which is advantageous for resolving current changes in the Rev-1 low-voltage DC actuator while preserving the selected 0 A to 5 A Phase 1 measurement range.
 
+### SENS-003 — Sensor supply dependence
+
+**Status:** Accepted
+
+The Rev-1 ACS724-05AU sensor model shall account for the dependence of zero-current output and sensitivity on the sensor supply voltage.
+
+The nominal **0.5 V zero-current output** and **800 mV/A sensitivity** shall be treated as nominal values associated with a **5 V sensor supply**, rather than as supply-independent constants.
+
+Actual sensor-supply behaviour shall be considered during characterization and calibration. The design shall not assume an ideal fixed 5.000 V supply when evaluating measurement accuracy.
+
+### Rationale
+
+The ACS724 output is ratiometric with its supply. A change in sensor supply voltage changes the sensor output scaling, including the zero-current output and sensitivity. Ignoring this dependence would create a current-conversion error even if the Hall sensing element itself were functioning normally.
+
+This supply dependence therefore becomes an input to later transfer-function definition, characterization, calibration and the Phase 4 measurement-error budget.
+
 Remaining topics to establish from primary sources:
 
-- supply dependence / ratiometric behaviour,
 - bandwidth,
 - FILTER pin behaviour,
 - primary conductor resistance,
