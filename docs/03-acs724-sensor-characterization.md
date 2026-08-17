@@ -512,7 +512,27 @@ Noise statistics depend on the amount and duration of observed data. Using diffe
 
 At the same time, extending the observation window indefinitely can mix slower drift with the short-term random variation that SENS-024 is intended to quantify. Keeping short-term noise and slower drift conceptually separate preserves the meaning of both measurements.
 
-Remaining characterization work shall verify the practical DOS1102S acquisition method and then establish the numerical acquisition settings used for the Phase 3 zero-current test.
+### SENS-026 — Raw waveform as primary noise evidence
+
+**Status:** Accepted
+
+Where the DOS1102S permits suitable waveform-data export, Phase 3 shall use the exported zero-current waveform samples as the **primary dataset for quantitative noise analysis**.
+
+The preserved sample dataset shall be used to calculate the mean, standard deviation or equivalent RMS-type noise metric, and any other derived statistics using a documented analysis method.
+
+Oscilloscope screenshots and built-in measurements such as RMS or peak-to-peak may be retained as supporting evidence and cross-checks but shall not replace the raw waveform dataset where export is practical.
+
+The same quantitative analysis method shall be applied to the `A1–B–A2` sensor measurements and the corresponding measurement-system noise-floor control.
+
+The exact DOS1102S export format, available record length and transfer procedure remain **TBD until verified on the specific instrument or its documentation**.
+
+### Rationale
+
+Raw waveform samples preserve the underlying measurement evidence and allow the same calculations to be reproduced, audited or changed later without repeating the hardware test.
+
+Using one documented analysis method for all controlled-comparison datasets avoids hidden differences between instrument summary algorithms and makes the zero-current noise comparison reproducible. Screenshots and built-in measurements remain useful corroborating evidence but do not preserve the complete sampled record.
+
+Remaining characterization work shall verify the practical DOS1102S export method and then establish the reference Phase 3 analysis workflow and numerical acquisition settings.
 
 ## 3.7 — Phase output
 
