@@ -330,7 +330,31 @@ Bandwidth measurement requires a controlled, measurable periodic current but doe
 
 The generator setting alone is not accepted as the current reference because source impedance and load affect delivered current. The ACS724-05AU is unidirectional, so any periodic test current must remain within the intended one-polarity operating regime.
 
-Remaining characterization work shall establish the positive-bias/current-injection topology and exact dynamic test hardware before Phase 3 test execution is treated as complete.
+### SENS-017 — Positive-biased dynamic stimulus
+
+**Status:** Accepted
+
+The initial small-signal dynamic test shall preferentially use the function generator's DC-offset capability to produce a periodic stimulus whose primary current remains positive throughout the cycle.
+
+The test shall satisfy:
+
+`IDC > IAC`
+
+such that the instantaneous primary current does not intentionally reverse polarity and remains within the ACS724-05AU specified 0 A to 5 A measurement range.
+
+Actual current shall continue to be derived from the independent reference measurement rather than from nominal generator amplitude or offset settings.
+
+A separate bench-PSU-plus-generator summing topology shall not be improvised by directly connecting the two sources. If external DC-bias injection becomes necessary, its coupling/summing network shall first be deliberately designed and verified.
+
+The exact DOS1102S usable DC-offset range and resulting test values remain **TBD until verified on the instrument or its documentation**.
+
+### Rationale
+
+A zero-centred sinusoidal current reverses direction every half-cycle and would leave the intended one-polarity measurement regime of the 05AU variant. Adding positive DC bias permits a sinusoidal small-signal current to be measured while keeping the instantaneous current positive.
+
+Using a single generator's verified offset capability is the simplest initial method. Directly paralleling an independent bench supply and function generator is not an acceptable way to combine DC and AC sources because the sources can drive each other unless a deliberate coupling or summing network is used.
+
+Remaining characterization work shall establish the exact test hardware, reference components and verified instrument settings before Phase 3 test execution is treated as complete.
 
 ## 3.7 — Phase output
 
