@@ -85,13 +85,38 @@ A detected overload or stall/jam is a **diagnostic result**, not automatically a
 
 High current can occur normally during startup or changing load, so magnitude alone is insufficient. Combining persistence and operating context reduces false positives. For stall/jam, adding current-pattern evidence provides an independent current-domain indication of changed mechanical/electrical behavior when no speed sensor is available.
 
-## Phase 8 design topics remaining
+## 8.3 — Healthy reference and current-pattern anomaly
 
-- startup/load/commutation-pattern condition interpretation beyond the explicit overload/stall cases;
-- baseline/reference and threshold adaptation philosophy;
-- handling of diagnostic persistence/confidence where it materially affects product behavior.
+### DIAG-003 — Deliberately calibrated, frozen healthy reference baseline
 
-Closely related choices will be grouped. Exact numeric thresholds that require the physical Rev-1 motor remain `TBD` with a defined calibration/verification method.
+**Status:** Accepted
+
+Rev-1 shall establish a **motor-specific healthy reference baseline** during implementation/characterization for use in current-signature condition comparison.
+
+The reference may include, where demonstrated useful for the selected motor:
+
+- normal running mean/RMS current under defined operating/load conditions;
+- characteristic startup/inrush behavior;
+- current-ripple characteristics;
+- dominant spectral components and/or band-energy features in the accepted diagnostic band.
+
+A **current-pattern anomaly** shall represent a significant, persistent deviation from the applicable healthy reference rather than deviation from a universal fixed spectral/ripple threshold.
+
+The healthy reference shall be established deliberately from known-good operation and then treated as **frozen configuration/calibration data** during ordinary monitoring. Rev-1 shall not continuously adapt the healthy baseline to incoming operating data, because doing so could gradually normalize real degradation.
+
+Updating the baseline shall require a deliberate recalibration/re-characterization action under known acceptable operating conditions.
+
+Overload and stall/jam criteria remain explicit diagnostic mechanisms under DIAG-002; healthy-reference comparison supplements rather than replaces those fault criteria.
+
+Exact reference values, allowable deviations, feature weighting and anomaly persistence remain `TBD` until implementation measurements identify useful motor-specific signatures.
+
+### Rationale
+
+Normal current signature depends strongly on the motor and mechanical operating condition. A motor-specific reference makes current-pattern diagnostics meaningful while freezing the accepted reference prevents gradual degradation from being learned as normal behavior.
+
+## Phase 8 design topic remaining
+
+Determine whether any additional diagnostic persistence/confidence/state-latching behavior materially affects the product architecture; otherwise Phase 8 can close without creating procedural detail.
 
 ## Planned output
 
