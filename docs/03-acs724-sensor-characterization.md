@@ -554,7 +554,34 @@ A version-controlled analysis script makes the processing method reproducible an
 
 Preserving the original instrument export separately from derived data prevents processing from silently altering the primary evidence. Using the same MATLAB workflow across controlled datasets also avoids hidden differences in calculation method and provides a natural path toward the later calibration and frequency-domain analysis already required by the project.
 
-Remaining characterization work shall verify the practical DOS1102S export format and then establish the concrete acquisition settings and import implementation used for the first zero-current characterization.
+### SENS-028 — DOS1102S export/import verification gate
+
+**Status:** Accepted
+
+Before Phase 3 waveform data are used for quantitative MATLAB analysis, the actual DOS1102S waveform export shall be experimentally inspected and its data representation verified.
+
+The verification shall establish, where applicable:
+
+- exported file type and structure;
+- available sample count;
+- time or sample-interval representation;
+- voltage scaling and units;
+- channel identification; and
+- relevant acquisition metadata.
+
+A known or independently interpretable test waveform shall be exported and imported into MATLAB. Derived quantities such as mean, peak-to-peak amplitude and, where applicable, frequency shall be compared with the original oscilloscope observation to verify that the import and scaling are interpreted correctly.
+
+The MATLAB importer and final numerical zero-current acquisition settings shall not be treated as baselined until this export/import path has been verified.
+
+Exact DOS1102S export details remain **TBD until this instrument-side verification is performed**.
+
+### Rationale
+
+Successful file import does not by itself prove that waveform scaling, timebase or metadata have been interpreted correctly. The measurement data path therefore needs explicit validation from the physical signal through oscilloscope acquisition, file storage and MATLAB interpretation before exported values are treated as quantitative engineering evidence.
+
+Comparing independently interpretable waveform quantities on the oscilloscope and in MATLAB provides a practical check that the import path preserves the information needed by the Phase 3 analysis workflow.
+
+Remaining characterization work shall perform this instrument-side verification before the concrete MATLAB importer and numerical zero-current acquisition settings are baselined.
 
 ## 3.7 — Phase output
 
