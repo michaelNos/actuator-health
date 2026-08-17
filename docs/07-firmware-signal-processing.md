@@ -1,0 +1,151 @@
+# Phase 7 — MCU Firmware and Signal-Processing Architecture
+
+**Status:** Design complete  
+**Project:** Actuator Health Monitoring System
+
+## Purpose
+
+Phase 7 defines the Rev-1 firmware architecture that consumes deterministic ADC buffers, converts raw measurements into calibrated current-domain data, extracts useful current-signal features, and supplies the later diagnostic and communication layers.
+
+This phase defines product-level firmware responsibilities and data flow. Register-level code, exact buffer sizes, DSP implementation details, optimization and debugging remain deferred to Stage B.
+
+## Accepted design inputs
+
+- deterministic **100 kS/s** ADC acquisition;
+- 14-bit ADC conversion baseline with measured effective performance required;
+- hardware-timer-triggered conversions;
+- hardware-assisted transfer into double-buffered RAM;
+- explicit acquisition-overrun detection;
+- current signal band **DC–10 kHz**;
+- calibrated current range **0–5 A**;
+- current conversion based on measured/calibrated offset and sensitivity;
+- required support for time-domain and frequency-domain current-signature analysis;
+- later diagnostics must support load, startup/inrush, overload, stall/jam and current-pattern behavior.
+
+## 7.1 — Firmware data-flow architecture
+
+### FW-001 — Layered producer/consumer processing pipeline
+
+**Status:** Accepted
+
+Rev-1 firmware shall separate acquisition, signal processing, diagnostics and communication so that variable application workload cannot disturb the deterministic ADC sample cadence.
+
+The primary data flow is:
+
+`ADC acquisition → raw sample buffer → calibration → signal processing → diagnostics → communication`
+
+Firmware responsibilities are divided into three timing classes:
+
+1. **Hard real-time acquisition** — hardware timer, ADC and DMA/DTC establish and preserve the 100 kS/s sample stream. Application code shall not control individual sample timing.
+2. **Buffer-rate processing** — completed sample buffers are validated, converted into calibrated current-domain data, and used for feature extraction.
+3. **Background/non-real-time work** — communication, reporting, commands and other non-critical tasks operate without becoming part of the acquisition timing path.
+
+The calibrated current conversion shall retain explicit calibration parameters such as measured offset and sensitivity rather than embedding nominal sensor constants as immutable assumptions.
+
+Each completed data block shall carry validity/status information sufficient to identify conditions such as acquisition overrun, invalid measurement range or other known data-integrity faults. Invalid or incomplete blocks shall not silently propagate into later diagnostic decisions as though they were trustworthy measurements.
+
+### Rationale
+
+This layered producer/consumer structure preserves deterministic sampling while allowing processing and communication workloads to vary. It also maintains traceability from raw ADC data to calibrated current, features and diagnostics, and gives later stages an explicit mechanism for rejecting compromised data.
+
+## 7.2 — Calibrated-current and feature interface
+
+### FW-002 — Compact calibrated-current + diagnostic-feature data product
+
+**Status:** Accepted
+
+Each valid completed acquisition block shall be transformed into a consistent current-domain data product containing the information needed by later diagnostics without coupling those diagnostics to raw ADC codes.
+
+The calibrated-current representation shall retain:
+
+- calibrated current samples derived from the active offset/sensitivity calibration;
+- sample-rate/timing identity sufficient to interpret the samples correctly;
+- validity and quality state, including known overrange and acquisition-overrun conditions.
+
+From valid calibrated-current data, the signal-processing layer shall provide a compact baseline feature set for Phase 8:
+
+- mean current;
+- RMS current;
+- peak and minimum current;
+- peak-to-peak current ripple;
+- startup/inrush peak when the operating context requires it;
+- frequency-domain information over the accepted **0–10 kHz** diagnostic band;
+- dominant spectral components and/or band-energy information suitable for detecting changes in commutation/current-pattern behavior.
+
+The architecture intentionally does not freeze exact FFT length, window function, spectral-bin count, DSP library, numerical representation or optimization strategy during Stage A. Those choices shall be made during implementation where they can be reconciled with RA4M1 memory/CPU performance and measured motor behavior.
+
+Feature outputs shall inherit the validity of the source data. Features derived from a known invalid/incomplete acquisition block shall not be presented to diagnostics as valid evidence.
+
+### Rationale
+
+The diagnostic layer should operate on physical current quantities and meaningful signal features rather than ADC implementation details. A compact interface also avoids prematurely implementing a large collection of metrics before measurements show which features are useful for the selected Rev-1 motor.
+
+## 7.3 — Processing windows and continuity
+
+### FW-003 — Multi-timescale processing from one continuous sample stream
+
+**Status:** Accepted
+
+Rev-1 signal processing shall support more than one analysis timescale derived from the same deterministic **100 kS/s** current sample stream rather than forcing every diagnostic feature to use one universal processing-window length.
+
+Conceptually:
+
+`continuous calibrated samples → short-window features + longer-window/spectral features`
+
+Shorter windows may support fast-changing time-domain quantities and later fault-detection logic, while longer windows may be used where additional frequency resolution or statistical stability is useful.
+
+Exact window lengths, overlap ratios, FFT sizes and scheduling are implementation parameters and shall not be frozen during Stage A unless later resource analysis proves an architectural constraint.
+
+Every processing window shall retain continuity/validity state derived from its underlying samples. A known acquisition gap, buffer overrun or other loss of sample continuity shall invalidate analyses that require a continuous record, particularly frequency-domain results, rather than silently treating separated samples as contiguous.
+
+### Rationale
+
+The Rev-1 diagnostic goals operate on different natural timescales. Separating the concept of the continuous acquisition stream from configurable analysis windows preserves flexibility without compromising sample integrity or forcing premature DSP implementation choices.
+
+## 7.4 — Measurement-pipeline health state
+
+### FW-004 — Separate monitoring-system validity from actuator condition
+
+**Status:** Accepted
+
+Rev-1 firmware shall maintain an explicit **measurement-pipeline health/validity state** alongside current-domain samples and derived features so that a monitoring-system failure cannot silently masquerade as an actuator fault.
+
+The baseline health state shall distinguish at least:
+
+- acquisition overrun or sample gap;
+- ADC overrange/saturation;
+- invalid or unavailable calibration;
+- invalid processing window or broken sample continuity;
+- detectable internal processing failure.
+
+Diagnostics shall consume this health state together with the physical features. A diagnostic conclusion that requires data affected by one of these validity failures shall be withheld or marked unavailable/invalid rather than interpreting the compromised data as evidence of motor condition.
+
+Detailed log formatting, counters, debug messages, LEDs, recovery sequences and other observability implementation mechanisms are deliberately deferred to Stage B unless a later subsystem requires a specific interface.
+
+### Rationale
+
+Condition monitoring is only trustworthy when the system can distinguish abnormal measured equipment behavior from failure of its own measurement path. Propagating an explicit health state preserves this distinction without adding unnecessary implementation detail during Stage A.
+
+## Phase 7 design status
+
+FW-001 through FW-004 define the product-level firmware and signal-processing architecture required by Phase 8 diagnostics:
+
+`deterministic acquisition → validated/calibrated current → multi-timescale features → diagnostics`
+
+with measurement-pipeline validity propagated throughout.
+
+Exact buffer sizes, FFT/window parameters, register-level code, DSP libraries, numerical optimization, logging implementation and debugging remain deferred under DEV-001.
+
+## Verification handoff
+
+Implementation/verification shall demonstrate that:
+
+- acquisition timing remains independent of processing/communication workload;
+- calibrated current conversion uses the active calibration parameters correctly;
+- baseline time-domain and frequency-domain features are generated from valid data;
+- processing windows do not conceal acquisition gaps;
+- invalid measurement-pipeline states propagate to diagnostics and cannot produce apparently valid condition conclusions.
+
+## Planned output
+
+Phase 7 closes with a firmware and signal-processing architecture that Phase 8 diagnostics can consume and Stage B can implement without redefining the fundamental data flow.
