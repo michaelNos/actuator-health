@@ -48,10 +48,40 @@ Each completed data block shall carry validity/status information sufficient to 
 
 This layered producer/consumer structure preserves deterministic sampling while allowing processing and communication workloads to vary. It also maintains traceability from raw ADC data to calibrated current, features and diagnostics, and gives later stages an explicit mechanism for rejecting compromised data.
 
+## 7.2 — Calibrated-current and feature interface
+
+### FW-002 — Compact calibrated-current + diagnostic-feature data product
+
+**Status:** Accepted
+
+Each valid completed acquisition block shall be transformed into a consistent current-domain data product containing the information needed by later diagnostics without coupling those diagnostics to raw ADC codes.
+
+The calibrated-current representation shall retain:
+
+- calibrated current samples derived from the active offset/sensitivity calibration;
+- sample-rate/timing identity sufficient to interpret the samples correctly;
+- validity and quality state, including known overrange and acquisition-overrun conditions.
+
+From valid calibrated-current data, the signal-processing layer shall provide a compact baseline feature set for Phase 8:
+
+- mean current;
+- RMS current;
+- peak and minimum current;
+- peak-to-peak current ripple;
+- startup/inrush peak when the operating context requires it;
+- frequency-domain information over the accepted **0–10 kHz** diagnostic band;
+- dominant spectral components and/or band-energy information suitable for detecting changes in commutation/current-pattern behavior.
+
+The architecture intentionally does not freeze exact FFT length, window function, spectral-bin count, DSP library, numerical representation or optimization strategy during Stage A. Those choices shall be made during implementation where they can be reconciled with RA4M1 memory/CPU performance and measured motor behavior.
+
+Feature outputs shall inherit the validity of the source data. Features derived from a known invalid/incomplete acquisition block shall not be presented to diagnostics as valid evidence.
+
+### Rationale
+
+The diagnostic layer should operate on physical current quantities and meaningful signal features rather than ADC implementation details. A compact interface also avoids prematurely implementing a large collection of metrics before measurements show which features are useful for the selected Rev-1 motor.
+
 ## Phase 7 design topics remaining
 
-- define the calibrated-current/data-quality representation;
-- define the compact time-domain and frequency-domain feature set needed by Phase 8 diagnostics;
 - define processing-window/data-product behavior only where it materially affects architecture;
 - define firmware observability and failure handling needed to trust the measurement pipeline.
 
