@@ -374,6 +374,24 @@ A characterization result is only as trustworthy as its stimulus and reference m
 
 Separating zero-current characterization from the later powered-current tests allows useful Phase 3 measurements to begin without pretending that the complete static and dynamic test setup is already ready.
 
+### SENS-019 — Characterization execution order
+
+**Status:** Accepted
+
+The first physical ACS724 characterization shall be the **zero-primary-current test** established by SENS-013.
+
+Before power is applied, the exact Pololu #4048 supply, output, ground and primary-current connections shall be identified and the wiring shall be inspected.
+
+With the primary path carrying no current, the sensor shall then be powered at its intended laboratory supply and the actual `VCC` and `VOUT` shall be measured. The zero-current output shall be observed using both a DC measurement and, where practical, an oscilloscope observation of short-term output variation.
+
+Powered-current static and dynamic tests shall follow only after their required load/reference hardware has satisfied SENS-018.
+
+### Rationale
+
+Starting at zero primary current provides the lowest-risk first hardware check and establishes the individual carrier's zero-current offset and short-term output behaviour before power-current variables are introduced.
+
+The inspect–wire–verify–power–measure sequence reduces the risk of wiring errors and creates a reproducible baseline before the static and dynamic characterization stages.
+
 Remaining characterization work shall establish the exact test hardware, reference components and verified instrument settings before powered-current Phase 3 test execution is treated as complete.
 
 ## 3.7 — Phase output
