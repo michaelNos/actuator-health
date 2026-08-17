@@ -196,9 +196,21 @@ A complete numerical system error budget, including ADC and AFE contributions, r
 
 ## 3.5 — Bandwidth and FILTER pin
 
-**Status:** Partially established by SENS-004
+**Status:** Complete / accepted at sensor-characterization level
 
-Establish the relationship between bandwidth and noise in more detail and document how FILTER-pin behaviour interacts with the later AFE anti-alias filter.
+### SENS-010 — FILTER-pin role
+
+**Status:** Accepted
+
+The ACS724 FILTER pin shall be treated as a means of trading sensor bandwidth for output-noise reduction.
+
+Any future change from the stock Pololu FILTER configuration shall require verification that the resulting sensor response still preserves the accepted **DC to 10 kHz diagnostic band**.
+
+The ACS724 FILTER pin shall not by itself be considered the complete ADC anti-alias filter. Deliberate anti-alias filtering remains an Analog Front End design responsibility.
+
+### Rationale
+
+Restricting analog bandwidth excludes out-of-band noise and can improve effective measurement resolution, but excessive filtering would also attenuate real diagnostic current-waveform content. The Rev-1 design therefore preserves the stock sensor bandwidth during initial characterization and defers deliberate anti-alias filter design to the later AFE phase.
 
 ## 3.6 — Characterization and test plan
 
