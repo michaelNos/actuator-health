@@ -234,7 +234,31 @@ A motor is a poor calibration reference because its current varies with commutat
 
 An independent reference measurement prevents the bench PSU display from being assumed to be an exact current standard. Multiple known current points allow the measured offset, sensitivity and linearity of the individual ACS724 carrier to be derived.
 
-Remaining characterization work shall define the exact values recorded at each test point, acceptance criteria, zero-current/noise tests and any feasible dynamic/bandwidth verification.
+### SENS-012 — Static characterization data record
+
+**Status:** Accepted
+
+For each valid static characterization point, Rev-1 shall record at minimum:
+
+- independent reference current `IREF`,
+- ACS724 output voltage `VOUT`,
+- actual sensor supply voltage `VCC`,
+- approximate test temperature,
+- relevant bench-PSU and test conditions.
+
+Multiple points across the usable range shall be used to derive the measured offset and sensitivity and to calculate residuals from the fitted linear model.
+
+Where practical, ascending and descending current sweeps shall be used to expose drift, heating, repeatability, or hysteresis-like effects that could be hidden by a single one-direction sweep.
+
+Phase 3 shall report the measured sensor error contribution. Final compliance with the Phase 1 **±0.10 A system current-accuracy requirement** shall be determined through the Phase 4 system error budget rather than assigning the complete accuracy allowance to the sensor alone.
+
+### Rationale
+
+Because the ACS724 is ratiometric and temperature-sensitive, a current/output pair without supply and temperature context is insufficient for reproducible characterization. Repeated points and model residuals provide evidence of linearity and repeatability beyond a simple two-point gain calculation.
+
+The sensor is only one contributor to total measurement error; the later AFE, ADC, voltage reference/supply, calibration method and reference measurement also consume part of the system accuracy budget.
+
+Remaining characterization work shall define the zero-current/noise test and any feasible dynamic/bandwidth verification before Phase 3 test execution is treated as complete.
 
 ## 3.7 — Phase output
 
