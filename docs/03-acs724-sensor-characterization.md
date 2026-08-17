@@ -454,7 +454,25 @@ A standardized evidence record makes the A–B–A comparison reproducible and p
 
 Keeping raw observations separate from interpretation preserves the evidence needed to revisit conclusions if later testing reveals a confounding factor or measurement limitation.
 
-Remaining characterization work shall establish how instrument/probe noise will be distinguished from sensor-output noise before powered-current Phase 3 test execution is treated as complete.
+### SENS-023 — Measurement-system noise-floor control
+
+**Status:** Accepted
+
+Before interpreting zero-current oscilloscope variation as ACS724 output noise, Phase 3 shall characterize the relevant **measurement-system noise floor** using the same oscilloscope channel, probe and comparable acquisition settings with the probe input referenced to ground.
+
+The sensor-connected measurement and the measurement-system control shall use comparable probe grounding and oscilloscope configuration.
+
+Observed variation shall not automatically be attributed entirely to the ACS724. Probe pickup, oscilloscope input noise, grounding, supply-related disturbance and environmental interference shall remain possible contributors until isolated experimentally.
+
+Any quantitative separation of independent noise contributions shall use an appropriate noise metric and combination method rather than direct subtraction of peak-to-peak values.
+
+### Rationale
+
+An oscilloscope trace contains contributions from the device under test and the measurement chain. Measuring the setup with an ideally zero input establishes the practical floor against which sensor-connected variation can be interpreted.
+
+Peak-to-peak values from independent random-noise sources are not generally separable by direct arithmetic subtraction, so quantitative decomposition requires a suitable statistical or RMS-type metric and an explicitly justified model.
+
+Remaining characterization work shall establish the numerical noise metric used for Phase 3 comparison before powered-current Phase 3 test execution is treated as complete.
 
 ## 3.7 — Phase output
 
