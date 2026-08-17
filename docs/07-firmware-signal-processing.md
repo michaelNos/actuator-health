@@ -22,15 +22,38 @@ This phase defines product-level firmware responsibilities and data flow. Regist
 - required support for time-domain and frequency-domain current-signature analysis;
 - later diagnostics must support load, startup/inrush, overload, stall/jam and current-pattern behavior.
 
-## Phase 7 design topics
+## 7.1 — Firmware data-flow architecture
 
-The phase will define only the firmware choices needed to make Rev-1 coherent and implementable, including:
+### FW-001 — Layered producer/consumer processing pipeline
 
-- acquisition/data-flow ownership and separation of real-time from non-real-time work;
-- raw ADC to calibrated-current conversion and data-quality flags;
-- signal-processing feature set/interface needed by diagnostics;
-- processing-window/data-product strategy where it materially affects the architecture;
-- fault/overrun handling and observability needed for trustworthy measurements.
+**Status:** Accepted
+
+Rev-1 firmware shall separate acquisition, signal processing, diagnostics and communication so that variable application workload cannot disturb the deterministic ADC sample cadence.
+
+The primary data flow is:
+
+`ADC acquisition → raw sample buffer → calibration → signal processing → diagnostics → communication`
+
+Firmware responsibilities are divided into three timing classes:
+
+1. **Hard real-time acquisition** — hardware timer, ADC and DMA/DTC establish and preserve the 100 kS/s sample stream. Application code shall not control individual sample timing.
+2. **Buffer-rate processing** — completed sample buffers are validated, converted into calibrated current-domain data, and used for feature extraction.
+3. **Background/non-real-time work** — communication, reporting, commands and other non-critical tasks operate without becoming part of the acquisition timing path.
+
+The calibrated current conversion shall retain explicit calibration parameters such as measured offset and sensitivity rather than embedding nominal sensor constants as immutable assumptions.
+
+Each completed data block shall carry validity/status information sufficient to identify conditions such as acquisition overrun, invalid measurement range or other known data-integrity faults. Invalid or incomplete blocks shall not silently propagate into later diagnostic decisions as though they were trustworthy measurements.
+
+### Rationale
+
+This layered producer/consumer structure preserves deterministic sampling while allowing processing and communication workloads to vary. It also maintains traceability from raw ADC data to calibrated current, features and diagnostics, and gives later stages an explicit mechanism for rejecting compromised data.
+
+## Phase 7 design topics remaining
+
+- define the calibrated-current/data-quality representation;
+- define the compact time-domain and frequency-domain feature set needed by Phase 8 diagnostics;
+- define processing-window/data-product behavior only where it materially affects architecture;
+- define firmware observability and failure handling needed to trust the measurement pipeline.
 
 The number of formal decisions is intentionally not fixed. Closely related choices will be grouped and implementation details deferred.
 
