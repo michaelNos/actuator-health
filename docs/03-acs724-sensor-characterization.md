@@ -532,7 +532,29 @@ Raw waveform samples preserve the underlying measurement evidence and allow the 
 
 Using one documented analysis method for all controlled-comparison datasets avoids hidden differences between instrument summary algorithms and makes the zero-current noise comparison reproducible. Screenshots and built-in measurements remain useful corroborating evidence but do not preserve the complete sampled record.
 
-Remaining characterization work shall verify the practical DOS1102S export method and then establish the reference Phase 3 analysis workflow and numerical acquisition settings.
+### SENS-027 — Phase 3 reference analysis workflow
+
+**Status:** Accepted
+
+MATLAB shall be the primary reproducible analysis environment for Phase 3 characterization data.
+
+Original DOS1102S waveform exports shall be preserved unchanged as raw evidence before any conversion or processing.
+
+A version-controlled MATLAB analysis workflow shall derive the applicable Phase 3 quantities, initially including mean output, standard-deviation or equivalent RMS-type noise, peak-to-peak variation and equivalent current-domain noise where characterized sensitivity is available.
+
+The same analysis implementation shall be applied consistently to the `A1–B–A2` datasets and the corresponding measurement-system noise-floor dataset.
+
+Later Phase 3 characterization may extend the same workflow to calibration fitting, residual analysis and frequency-response processing.
+
+Exact import/parsing logic and repository data-file format remain **TBD until the actual DOS1102S export format is verified**.
+
+### Rationale
+
+A version-controlled analysis script makes the processing method reproducible and auditable and allows the same raw data to be reprocessed if an analysis assumption changes without repeating the hardware experiment.
+
+Preserving the original instrument export separately from derived data prevents processing from silently altering the primary evidence. Using the same MATLAB workflow across controlled datasets also avoids hidden differences in calculation method and provides a natural path toward the later calibration and frequency-domain analysis already required by the project.
+
+Remaining characterization work shall verify the practical DOS1102S export format and then establish the concrete acquisition settings and import implementation used for the first zero-current characterization.
 
 ## 3.7 — Phase output
 
