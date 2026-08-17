@@ -28,13 +28,36 @@ The following inputs are already baselined by Phases 1–3 and are not reopened 
 - the stock ACS724 carrier bandwidth is approximately **90 kHz**, so the AFE must provide deliberate anti-alias filtering;
 - values outside 0–5 A shall not be treated as calibrated valid measurements merely because the sensor or downstream electronics may still produce a voltage.
 
-## Phase 4 design topics
+## 4.1 — Measurement-chain signal range, headroom and overrange
 
-### 4.1 — Measurement-chain signal range and headroom
+### MEAS-001 — Preserve the native ACS724 signal span
 
-Define the required analog range presented to the ADC, including appropriate headroom around the nominal 0.5–4.5 V sensor span and behavior near the ADC rails.
+**Status:** Accepted
 
-**Status:** To be decided.
+Rev-1 shall preserve approximately unity DC/passband gain from the ACS724 through the Analog Front End rather than deliberately amplifying or compressing the sensor output solely to occupy more ADC range.
+
+The nominal valid sensor range therefore remains approximately:
+
+- `0 A → 0.5 V`;
+- `5 A → 4.5 V`.
+
+For a nominal 0–5 V ADC input range this leaves approximately **0.5 V nominal headroom at each rail**.
+
+The later AFE/ADC design shall ensure that expected sensor, supply, AFE and component variation does not cause clipping within the valid **0–5 A** measurement range.
+
+Values corresponding to current outside the calibrated 0–5 A range may still produce an ADC code, but shall be treated as **overrange / invalid measurement**, not as valid extrapolated current.
+
+Near-rail or saturated ADC conditions shall be detectable by the later firmware as measurement overrange/saturation.
+
+Electrical survival remains distinct from measurement validity. The later AFE/protection design shall prevent plausible abnormal sensor/transient voltages from damaging the ADC input, but exact clamp/protection circuitry is deferred to the appropriate later design phases.
+
+Measured `Voffset`, sensitivity and practical rail margin remain verification-stage quantities and shall not be invented during Phase 4.
+
+### Rationale
+
+The native ACS724 span already uses approximately 4 V of a nominal 5 V ADC range. Additional analog scaling would provide limited resolution benefit while adding gain/offset error and reducing headroom. Preserving the native span therefore gives a simpler and more robust Rev-1 measurement chain.
+
+## Phase 4 design topics remaining
 
 ### 4.2 — Accuracy budget allocation
 
@@ -69,12 +92,6 @@ Nyquist alone shall not be treated as sufficient anti-alias protection.
 
 **Status:** To be decided.
 
-### 4.5 — Valid measurement range versus overrange/survival behavior
-
-Define how the chain shall represent or flag conditions where current or sensor output leaves the calibrated measurement range, while keeping measurement validity distinct from electrical survival or damage limits.
-
-**Status:** To be decided.
-
 ## Planned Phase 4 output
 
 Phase 4 will close with a compact measurement-chain specification containing:
@@ -87,4 +104,4 @@ Phase 4 will close with a compact measurement-chain specification containing:
 - explicit `TBD` items to be measured later;
 - traceability to the accepted Phase 1–3 inputs.
 
-No Phase 4 engineering decision is baselined until explicitly approved.
+Only explicitly approved Phase 4 engineering decisions are baselined.
