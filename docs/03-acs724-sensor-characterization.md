@@ -142,9 +142,29 @@ The Rev-1 laboratory environment is near room temperature, but the individual ca
 
 ## 3.3 — Sensor transfer function
 
-**Status:** TBD
+**Status:** Complete / accepted
 
-Derive the forward and inverse current/voltage relationships using the exact datasheet definitions for the selected ACS724 variant.
+### SENS-008 — Current conversion model
+
+**Status:** Accepted
+
+Rev-1 shall use the parameterized ACS724 current-to-voltage transfer model:
+
+`VOUT = Voffset + S × I`
+
+and the inverse current-conversion model:
+
+`I = (VOUT - Voffset) / S`
+
+At a nominal sensor supply of `VCC = 5 V`, the initial nominal parameters are `Voffset = 0.5 V` and `S = 0.8 V/A`.
+
+The offset and sensitivity shall remain explicit model/calibration parameters rather than permanently fixed exact constants. Characterization and later calibration may replace the nominal values with measured values for the individual sensor/carrier.
+
+### Rationale
+
+The forward equation describes how actuator current becomes an analog sensor output voltage. The inverse equation is required by the measurement system because the ADC observes voltage while downstream processing requires current in amperes.
+
+Keeping offset and sensitivity as parameters preserves the supply dependence and sensor-to-sensor variation already established by SENS-003 and SENS-007 and allows calibration to improve the current conversion without changing the fundamental model.
 
 ## 3.4 — Error mechanisms
 
