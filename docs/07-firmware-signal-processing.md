@@ -1,6 +1,6 @@
 # Phase 7 — MCU Firmware and Signal-Processing Architecture
 
-**Status:** In development  
+**Status:** Design complete  
 **Project:** Actuator Health Monitoring System
 
 ## Purpose
@@ -102,14 +102,50 @@ Every processing window shall retain continuity/validity state derived from its 
 
 The Rev-1 diagnostic goals operate on different natural timescales. Separating the concept of the continuous acquisition stream from configurable analysis windows preserves flexibility without compromising sample integrity or forcing premature DSP implementation choices.
 
-## Phase 7 design topic remaining
+## 7.4 — Measurement-pipeline health state
 
-Define the minimum firmware observability and failure-handling behavior needed to trust the measurement pipeline without expanding into detailed logging/implementation procedure.
+### FW-004 — Separate monitoring-system validity from actuator condition
 
-The number of formal decisions is intentionally not fixed. Closely related choices will be grouped and implementation details deferred.
+**Status:** Accepted
+
+Rev-1 firmware shall maintain an explicit **measurement-pipeline health/validity state** alongside current-domain samples and derived features so that a monitoring-system failure cannot silently masquerade as an actuator fault.
+
+The baseline health state shall distinguish at least:
+
+- acquisition overrun or sample gap;
+- ADC overrange/saturation;
+- invalid or unavailable calibration;
+- invalid processing window or broken sample continuity;
+- detectable internal processing failure.
+
+Diagnostics shall consume this health state together with the physical features. A diagnostic conclusion that requires data affected by one of these validity failures shall be withheld or marked unavailable/invalid rather than interpreting the compromised data as evidence of motor condition.
+
+Detailed log formatting, counters, debug messages, LEDs, recovery sequences and other observability implementation mechanisms are deliberately deferred to Stage B unless a later subsystem requires a specific interface.
+
+### Rationale
+
+Condition monitoring is only trustworthy when the system can distinguish abnormal measured equipment behavior from failure of its own measurement path. Propagating an explicit health state preserves this distinction without adding unnecessary implementation detail during Stage A.
+
+## Phase 7 design status
+
+FW-001 through FW-004 define the product-level firmware and signal-processing architecture required by Phase 8 diagnostics:
+
+`deterministic acquisition → validated/calibrated current → multi-timescale features → diagnostics`
+
+with measurement-pipeline validity propagated throughout.
+
+Exact buffer sizes, FFT/window parameters, register-level code, DSP libraries, numerical optimization, logging implementation and debugging remain deferred under DEV-001.
+
+## Verification handoff
+
+Implementation/verification shall demonstrate that:
+
+- acquisition timing remains independent of processing/communication workload;
+- calibrated current conversion uses the active calibration parameters correctly;
+- baseline time-domain and frequency-domain features are generated from valid data;
+- processing windows do not conceal acquisition gaps;
+- invalid measurement-pipeline states propagate to diagnostics and cannot produce apparently valid condition conclusions.
 
 ## Planned output
 
-Phase 7 shall close with a firmware and signal-processing architecture that Phase 8 diagnostics can consume and Stage B can implement without redefining the fundamental data flow.
-
-No Phase 7 engineering decision is baselined until explicitly approved.
+Phase 7 closes with a firmware and signal-processing architecture that Phase 8 diagnostics can consume and Stage B can implement without redefining the fundamental data flow.
