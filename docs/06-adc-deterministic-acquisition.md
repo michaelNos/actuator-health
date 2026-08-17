@@ -1,6 +1,6 @@
 # Phase 6 — ADC and Deterministic Acquisition Design
 
-**Status:** In development  
+**Status:** Design complete  
 **Project:** Actuator Health Monitoring System
 
 ## Purpose
@@ -71,16 +71,50 @@ Implementation/verification shall measure the achieved sample rate and timing st
 
 Current-signature and frequency-domain analysis depend on known, regular sample spacing. Software-loop timing can vary with interrupts, processing and communication and therefore is not an acceptable source of the 100 kS/s acquisition clock. Hardware triggering decouples conversion timing from those variable workloads.
 
-## Phase 6 design topic remaining
+## 6.3 — Sample transfer and buffering
 
-### 6.3 — Sample transfer and buffering
+### ADC-003 — Hardware-assisted transfer with double buffering
 
-Define how completed ADC samples move into memory and how acquisition is decoupled from later processing/communication without requiring register-level implementation detail yet.
+**Status:** Accepted
 
-**Status:** To be decided.
+Completed ADC samples shall be transferred into RAM using a **hardware-assisted transfer mechanism**, preferably the RA4M1 DMA/DTC capability, rather than requiring application code to service every sample synchronously.
+
+Rev-1 shall use a **double-buffer (ping-pong) acquisition concept**:
+
+1. the acquisition hardware fills one sample buffer;
+2. firmware may process or consume the other completed buffer;
+3. when the active buffer is complete, the buffer roles swap;
+4. acquisition timing remains governed by the hardware trigger established in ADC-002.
+
+The architecture is therefore conceptually:
+
+`timer → ADC → DMA/DTC → RAM buffer A/B`
+
+with processing, diagnostics and communication operating on completed buffers rather than controlling individual conversion timing.
+
+The exact DMA/DTC channel, transfer configuration, interrupt arrangement, buffer length and memory layout are implementation/Phase 7 details.
+
+If firmware cannot consume completed buffers before they are reused, the system shall detect and report an **acquisition overrun/data-loss condition**. Samples shall not be silently overwritten while downstream logic continues as though the stream were complete.
+
+### Rationale
+
+At 100 kS/s a new sample is produced every 10 µs. Hardware-assisted transfer and double buffering decouple this fixed-rate acquisition from variable processing and communication workload, reduce per-sample CPU burden, and provide a clear boundary for detecting inability to keep pace with the acquisition stream.
+
+## Verification handoff
+
+Implementation and verification shall demonstrate:
+
+- actual 100 kS/s sample cadence and acceptable timing stability;
+- effective ADC-domain voltage resolution of 2 mV or better under intended conditions;
+- correct sample ordering and buffer transitions;
+- absence of silent sample loss;
+- explicit detection of forced/real buffer-overrun conditions;
+- no clipping throughout the valid ADC-facing signal range.
+
+## Phase 6 design status
+
+ADC-001 through ADC-003 define the product-level Rev-1 ADC and deterministic acquisition architecture. Register configuration, exact timer/event/DMA selection, buffer sizing and implementation debugging remain deliberately deferred under DEV-001.
 
 ## Planned output
 
-Phase 6 shall close with a coherent ADC/acquisition architecture that Phase 7 firmware can implement deterministically and later verify for sample rate, jitter, useful resolution, overrun behavior and data integrity.
-
-No Phase 6 engineering decision is baselined until explicitly approved.
+Phase 6 closes with a coherent ADC/acquisition architecture that Phase 7 firmware can implement deterministically and later verify for sample rate, jitter, useful resolution, overrun behavior and data integrity.
