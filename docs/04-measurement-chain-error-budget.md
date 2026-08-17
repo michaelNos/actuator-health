@@ -104,15 +104,38 @@ Resolution and accuracy remain distinct: a chain may resolve changes smaller tha
 
 The sensor receives the largest accuracy allocation because its residual offset/gain behavior, temperature dependence and calibration residual are expected to dominate more strongly than the downstream AFE or ADC. The 2 mV useful-resolution requirement prevents nominal ADC bit depth from being mistaken for practical measurement capability and leaves adequate margin for stable 10 mA reporting.
 
-## Phase 4 design topic remaining
+## 4.3 — Bandwidth and anti-alias requirement handoff
 
-### 4.3 — Bandwidth and anti-alias requirement handoff
+### MEAS-003 — Preserve the diagnostic band and attenuate Nyquist-region content
 
-Translate the **DC–10 kHz** diagnostic band and **100 kS/s** acquisition target into quantitative requirements that Phase 5 can use to select an anti-alias filter topology and cutoff.
+**Status:** Accepted
 
-Nyquist alone shall not be treated as sufficient anti-alias protection.
+The Rev-1 measurement chain shall preserve the complete **DC to 10 kHz** diagnostic signal band while using the nominal **100 kS/s** acquisition rate.
 
-**Status:** To be decided.
+The Analog Front End shall include deliberate low-pass anti-alias filtering before ADC conversion. The stock ACS724 carrier FILTER network is not sufficient by itself to satisfy this requirement.
+
+Phase 5 shall design the anti-alias response to meet the following measurement-chain targets:
+
+- attenuation at **10 kHz**: **≤1 dB** relative to the low-frequency/passband response;
+- attenuation at **50 kHz** (the Nyquist frequency at 100 kS/s): **≥20 dB** relative to the low-frequency/passband response.
+
+Equivalently:
+
+`|H(10 kHz)| ≥ -1 dB`
+
+`|H(50 kHz)| ≤ -20 dB`
+
+The exact filter topology, order, cutoff frequency and component values are intentionally deferred to Phase 5, where these targets shall be reconciled with component tolerances, AFE error allocation, ADC drive requirements and available hardware.
+
+The resulting implemented frequency response shall later be verified experimentally. Frequencies above Nyquist that are insufficiently attenuated can alias into the sampled spectrum and cannot in general be removed afterward by digital processing.
+
+### Rationale
+
+A 100 kS/s sample rate gives a 50 kHz Nyquist frequency, but Nyquist alone does not prevent aliasing. The accepted diagnostic band ends at 10 kHz, leaving a 10–50 kHz transition region in which the analog filter can roll off. Specifying passband preservation and a Nyquist-region attenuation target gives Phase 5 a quantitative design objective without prematurely choosing the filter implementation.
+
+## Phase 4 completion direction
+
+MEAS-001 through MEAS-003 now define the principal measurement-chain constraints needed by the AFE and ADC design phases. Phase 4 shall close with a compact specification summary, traceability, verification handoff and explicit list of hardware-dependent `TBD` quantities; those consolidation items do not create additional product behavior unless a new engineering choice is identified.
 
 ## Planned Phase 4 output
 
