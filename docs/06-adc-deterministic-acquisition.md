@@ -45,13 +45,33 @@ The final ADC reference/supply implementation shall be coordinated with the Phas
 
 Using the MCU's available 14-bit mode provides comfortable quantization margin without requiring an external ADC solely for resolution. Explicitly separating nominal converter bits from measured effective performance preserves the system-level accuracy and resolution requirements.
 
-## Phase 6 design topics remaining
+## 6.2 — Deterministic sampling trigger
 
-### 6.2 — Deterministic sampling trigger
+### ADC-002 — Hardware-timer-triggered 100 kS/s acquisition
 
-Define the hardware-timed architecture that establishes the 100 kS/s sample cadence independently of application-loop timing.
+**Status:** Accepted
 
-**Status:** To be decided.
+Rev-1 shall establish the ADC sampling cadence using a **hardware timer trigger**, not by repeatedly calling a blocking/high-level ADC read function from the application loop.
+
+The nominal sampling period is:
+
+`Ts = 1 / 100 kS/s = 10 µs`
+
+A hardware timer shall generate the periodic conversion trigger so that ADC sample timing is independent of main-loop execution time, communication activity and ordinary application workload.
+
+The intended timing architecture is:
+
+`hardware timer → periodic 10 µs trigger → ADC conversion`
+
+The exact RA4M1 timer peripheral/channel, event routing, ADC registers and low-level configuration are implementation details deferred to Stage B. Phase 7 firmware architecture shall treat this hardware-timed sample cadence as the authoritative acquisition clock.
+
+Implementation/verification shall measure the achieved sample rate and timing stability/jitter rather than assuming that configuration values alone prove deterministic behavior.
+
+### Rationale
+
+Current-signature and frequency-domain analysis depend on known, regular sample spacing. Software-loop timing can vary with interrupts, processing and communication and therefore is not an acceptable source of the 100 kS/s acquisition clock. Hardware triggering decouples conversion timing from those variable workloads.
+
+## Phase 6 design topic remaining
 
 ### 6.3 — Sample transfer and buffering
 
