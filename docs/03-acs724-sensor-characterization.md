@@ -472,7 +472,29 @@ An oscilloscope trace contains contributions from the device under test and the 
 
 Peak-to-peak values from independent random-noise sources are not generally separable by direct arithmetic subtraction, so quantitative decomposition requires a suitable statistical or RMS-type metric and an explicitly justified model.
 
-Remaining characterization work shall establish the numerical noise metric used for Phase 3 comparison before powered-current Phase 3 test execution is treated as complete.
+### SENS-024 — Zero-current noise metric
+
+**Status:** Accepted
+
+The primary quantitative zero-current noise metric for Phase 3 shall be a **standard-deviation or equivalent RMS-type measure of output variation after removal of the mean zero-current level**.
+
+Peak-to-peak variation may also be recorded as a descriptive waveform metric but shall not by itself represent the statistical sensor-noise value.
+
+Where valid waveform or sample data are available, voltage-domain noise may be converted to equivalent current noise using the characterized sensor sensitivity:
+
+`σI = σV / S`
+
+Any mathematical removal of the independently measured instrumentation noise floor shall use an appropriate RMS/statistical combination model and shall be performed only when the assumptions of that model are justified.
+
+The exact DOS1102S waveform-export or built-in statistical measurement method remains **TBD until verified on the instrument**.
+
+### Rationale
+
+Standard deviation or an equivalent RMS-type measure represents typical short-term variation around the mean and therefore aligns with the separation of zero-current offset from random output noise established earlier in Phase 3.
+
+Peak-to-peak values remain useful descriptive evidence but depend strongly on observation duration and isolated extrema. Converting the voltage-domain result through the characterized sensitivity expresses the observed noise in the same current units used by the measurement system without treating nominal sensitivity as an exact constant.
+
+Remaining characterization work shall establish the observation duration or sample count used for the Phase 3 zero-current noise metric before powered-current Phase 3 test execution is treated as complete.
 
 ## 3.7 — Phase output
 
