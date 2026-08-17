@@ -44,17 +44,38 @@ Exact filter family, pole frequencies, Q values, resistor/capacitor values, and 
 
 The native ACS724 span already uses most of a nominal 0–5 V ADC range, so extra gain provides little benefit and consumes headroom. A fourth-order response provides substantially more transition-band attenuation than a simple first-order RC network while the dual MCP6022 allows the complete active filter to be implemented with one available package.
 
-## Phase 5 design topics remaining
+## 5.2 — Anti-alias filter realization
 
-### 5.2 — Anti-alias filter realization
+### AFE-002 — Fourth-order Butterworth response at nominal 15 kHz cutoff
 
-Select filter family/order and cutoff that satisfy the accepted 10 kHz passband and 50 kHz attenuation targets.
+**Status:** Accepted
 
-**Status:** To be decided.
+The Rev-1 AFE shall implement an overall **fourth-order Butterworth low-pass response** using the two cascaded second-order active stages established by AFE-001.
 
-### 5.3 — ADC-input interface and protection handoff
+The nominal overall cutoff frequency shall be:
 
-Define the required ADC-facing drive/isolation behavior and identify protection requirements without duplicating the complete Phase 10 power/protection design.
+`fc = 15 kHz`
+
+For an ideal fourth-order Butterworth response this gives approximately:
+
+- attenuation at **10 kHz**: **0.17 dB**;
+- attenuation at **50 kHz**: **41.8 dB**.
+
+This provides margin against the Phase 4 requirements of no more than 1 dB attenuation at 10 kHz and at least 20 dB attenuation at 50 kHz.
+
+Butterworth is selected because its monotonic, maximally flat magnitude response avoids deliberate passband ripple in the current-signature measurement band. The exact second-order section Q values and practical resistor/capacitor realization shall be chosen as part of the component-level design while preserving the intended fourth-order response.
+
+The available MCP6022, with approximately 10 MHz gain-bandwidth product, has substantial bandwidth margin relative to the 15 kHz filter frequency. Practical response including op-amp behavior and component tolerances shall nevertheless be verified during implementation.
+
+### Rationale
+
+The 15 kHz nominal cutoff leaves the complete DC–10 kHz diagnostic band comfortably inside the passband while a fourth-order response provides strong attenuation before the 50 kHz Nyquist frequency. It therefore meets the accepted anti-alias targets without requiring an unnecessarily sharp or ripple-bearing filter family.
+
+## Phase 5 design topic remaining
+
+### 5.3 — Component realization, ADC interface and protection handoff
+
+Select a practical realization for the two Butterworth sections, including component values/tolerances and ADC-facing isolation behavior, and identify protection requirements without duplicating the complete Phase 10 power/protection design.
 
 **Status:** To be decided.
 
