@@ -38,8 +38,6 @@ The intended signal path is:
 
 The active stages provide filtering and buffering between the sensor and ADC so that ADC input behavior does not directly load the ACS724 output/filter network.
 
-Exact filter family, pole frequencies, Q values, resistor/capacitor values, and ADC-facing isolation details are resolved in the remaining Phase 5 design.
-
 ### Rationale
 
 The native ACS724 span already uses most of a nominal 0–5 V ADC range, so extra gain provides little benefit and consumes headroom. A fourth-order response provides substantially more transition-band attenuation than a simple first-order RC network while the dual MCP6022 allows the complete active filter to be implemented with one available package.
@@ -63,24 +61,49 @@ For an ideal fourth-order Butterworth response this gives approximately:
 
 This provides margin against the Phase 4 requirements of no more than 1 dB attenuation at 10 kHz and at least 20 dB attenuation at 50 kHz.
 
-Butterworth is selected because its monotonic, maximally flat magnitude response avoids deliberate passband ripple in the current-signature measurement band. The exact second-order section Q values and practical resistor/capacitor realization shall be chosen as part of the component-level design while preserving the intended fourth-order response.
+Butterworth is selected because its monotonic, maximally flat magnitude response avoids deliberate passband ripple in the current-signature measurement band.
 
 The available MCP6022, with approximately 10 MHz gain-bandwidth product, has substantial bandwidth margin relative to the 15 kHz filter frequency. Practical response including op-amp behavior and component tolerances shall nevertheless be verified during implementation.
 
 ### Rationale
 
-The 15 kHz nominal cutoff leaves the complete DC–10 kHz diagnostic band comfortably inside the passband while a fourth-order response provides strong attenuation before the 50 kHz Nyquist frequency. It therefore meets the accepted anti-alias targets without requiring an unnecessarily sharp or ripple-bearing filter family.
+The 15 kHz nominal cutoff leaves the complete DC–10 kHz diagnostic band comfortably inside the passband while a fourth-order response provides strong attenuation before the 50 kHz Nyquist frequency.
 
-## Phase 5 design topic remaining
+## 5.3 — Component realization, ADC interface and protection handoff
 
-### 5.3 — Component realization, ADC interface and protection handoff
+### AFE-003 — Two Sallen-Key sections with tolerance-controlled components
 
-Select a practical realization for the two Butterworth sections, including component values/tolerances and ADC-facing isolation behavior, and identify protection requirements without duplicating the complete Phase 10 power/protection design.
+**Status:** Accepted
 
-**Status:** To be decided.
+The fourth-order Butterworth response shall be realized as two cascaded **unity-gain Sallen-Key** second-order sections using the two MCP6022 amplifiers.
+
+The normalized Butterworth section quality factors are:
+
+- `Q1 ≈ 0.5412`;
+- `Q2 ≈ 1.3066`.
+
+The two sections therefore shall not be treated as two identical generic RC filters. Their resistor/capacitor ratios shall be selected to realize the required pole Q values at the nominal 15 kHz design frequency.
+
+The schematic/BOM realization shall use **1% resistors** and suitably tolerance-controlled capacitors. Final standard R/C values shall be documented in the Phase 12 build specification after the practical component set is reconciled with availability; their calculated response must remain compliant with the accepted Phase 4 limits.
+
+The output of the second MCP6022 stage shall serve as the ADC-facing active buffer. Any small series isolation component required by the RA4M1 ADC input and the final abnormal-voltage clamp/protection network shall be finalized using the ADC requirements of Phase 6 and protection design of Phase 10 rather than being independently optimized in Phase 5.
+
+The intended DC/passband gain remains approximately unity and no intentional level shift is introduced.
+
+### Verification handoff
+
+Implementation/verification shall confirm:
+
+- no clipping over the valid 0–5 A measurement range;
+- practical DC/passband gain and offset contribution remain within the AFE error allocation;
+- the realized filter satisfies the 10 kHz and 50 kHz attenuation requirements;
+- the ADC-facing signal is stable and free from problematic drive/settling behavior;
+- measured component/filter behavior is used where it differs materially from nominal calculation.
+
+## Phase 5 design status
+
+AFE-001 through AFE-003 define the product-level Rev-1 AFE architecture. Detailed physical wiring, final build-layout choices, ADC-specific isolation/protection details and measured response remain assigned to the later design/build/verification phases under DEV-001.
 
 ## Planned output
 
-Phase 5 shall close with a coherent AFE schematic-level design basis including topology, filter response, component values/tolerances, expected signal range, error-budget compatibility and verification handoff.
-
-No Phase 5 engineering decision is baselined until explicitly approved.
+Phase 5 closes with a coherent AFE design basis covering topology, target filter response, section realization, component-tolerance expectations, ADC buffering and verification handoff.
