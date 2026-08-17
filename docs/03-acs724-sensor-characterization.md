@@ -392,6 +392,26 @@ Starting at zero primary current provides the lowest-risk first hardware check a
 
 The inspect–wire–verify–power–measure sequence reduces the risk of wiring errors and creates a reproducible baseline before the static and dynamic characterization stages.
 
+### SENS-020 — Supply-source comparison
+
+**Status:** Accepted
+
+Initial zero-current characterization shall be performed with both a controlled laboratory 5 V supply and, separately, the Arduino UNO R4 WiFi 5 V rail.
+
+For each supply configuration, the actual sensor `VCC`, mean zero-current `VOUT`, approximate temperature and short-term output variation shall be recorded.
+
+Differences in zero-current output shall first be evaluated against the ACS724 supply-dependent/ratiometric behaviour before being interpreted as sensor error.
+
+Differences in measured noise shall be treated as configuration-level observations unless further testing isolates the responsible source.
+
+The bench-supply configuration shall serve as the initial controlled baseline.
+
+### Rationale
+
+Using both available 5 V sources turns the initial zero-current test into a controlled comparison rather than a single functional check. Because the ACS724 zero-current output and sensitivity depend on supply voltage, actual `VCC` must be measured before output differences are interpreted.
+
+Comparing short-term output behaviour under both sources is educational and may reveal configuration-dependent noise, but the comparison alone does not establish which individual element causes any observed difference.
+
 Remaining characterization work shall establish the exact test hardware, reference components and verified instrument settings before powered-current Phase 3 test execution is treated as complete.
 
 ## 3.7 — Phase output
