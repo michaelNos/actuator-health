@@ -412,7 +412,25 @@ Using both available 5 V sources turns the initial zero-current test into a cont
 
 Comparing short-term output behaviour under both sources is educational and may reveal configuration-dependent noise, but the comparison alone does not establish which individual element causes any observed difference.
 
-Remaining characterization work shall establish the exact test hardware, reference components and verified instrument settings before powered-current Phase 3 test execution is treated as complete.
+### SENS-021 — Supply-comparison controls
+
+**Status:** Accepted
+
+For the bench-supply versus Arduino-5-V zero-current comparison, the **supply source shall be the intentionally changed variable**. The sensor, zero-primary-current condition, measurement points, instruments, probe configuration and relevant oscilloscope settings shall otherwise be held constant where practical.
+
+`VCC` shall be measured at the ACS724 carrier rather than inferred solely from the nominal source setting.
+
+Where practical, the comparison shall use an **A–B–A sequence** — bench supply, Arduino supply, bench supply again — to help distinguish supply-dependent differences from time-, temperature- or drift-related changes.
+
+Any unavoidable differences in wiring, grounding, USB connection or other test conditions shall be recorded as potential confounding variables.
+
+### Rationale
+
+A controlled comparison is only meaningful when the intended independent variable is separated from other changing conditions. Holding the measurement configuration constant reduces ambiguity when comparing mean zero-current output and short-term noise.
+
+Repeating the bench-supply baseline after the Arduino measurement provides a simple check for time-dependent drift or warming that could otherwise be mistaken for a supply-source effect.
+
+Remaining characterization work shall establish the exact measurements and evidence captured at each zero-current comparison step before powered-current Phase 3 test execution is treated as complete.
 
 ## 3.7 — Phase output
 
