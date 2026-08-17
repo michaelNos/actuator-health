@@ -1,600 +1,312 @@
-# Phase 3 — ACS724 Sensor Theory and Characterization
+# Phase 3 — ACS724 Sensor Design and Verification Plan
 
-**Status:** In progress  
+**Status:** Design complete / ready for review  
 **Project:** Actuator Health Monitoring System
 
 ## Purpose
 
-Phase 3 develops and experimentally validates the current-sensor model used by the Rev-1 laboratory prototype before the complete analog front end is designed.
+Phase 3 defines the Rev-1 current-sensor subsystem around the Pololu #4048 carrier using the Allegro ACS724LLCTR-05AU Hall-effect current-sensor IC.
 
-The selected laboratory sensor is the Pololu #4048 carrier using the Allegro ACS724LLCTR-05AU Hall-effect current-sensor IC.
+Under the accepted **DEV-001 design-before-implementation workflow**, this phase establishes the sensor design baseline, downstream interface assumptions, error model, calibration intent, and verification plan before physical implementation begins.
 
-This phase shall distinguish clearly between datasheet facts, calculations, proposed engineering decisions, accepted decisions, and measured results. Unknown values remain **TBD** until derived or measured.
+Measured characterization results are intentionally not required for design-stage closure. Values that can only be established on real hardware remain `TBD` and shall be populated during the later implementation and verification stages.
 
-## Phase workflow
+## 3.1 — Sensor design baseline
 
-No Phase 3 engineering decision is accepted merely because it appears in discussion or as a proposal. Decisions are baselined in this document only after explicit approval.
+### Sensing principle and system boundary
 
-The Phase 3 pull request remains a draft while the phase is being developed.
+Rev-1 uses the selected ACS724 as an **in-series Hall-effect current transducer**. Actuator current flows through the sensor primary conductor; low-voltage Hall sensing and internal signal conditioning convert the current-generated magnetic field into an analog output voltage.
 
-## 3.1 — Hall-effect current sensing
+The primary current path and low-voltage sensing electronics are galvanically isolated through the sensor architecture. The sensor is inserted in series with the actuator-current path; it is not an external clamp around an untouched conductor.
 
-**Status:** Complete / accepted
+This baseline originates from **SENS-001**.
 
-### SENS-001 — Rev-1 Hall-effect current-sensing principle
+### Exact sensor variant, range and polarity
 
-**Status:** Accepted
+Rev-1 uses the **ACS724LLCTR-05AU** on the Pololu #4048 carrier within its specified **0 A to 5 A unidirectional measurement range**.
 
-Rev-1 shall use the selected ACS724 Hall-effect current sensor as an in-series current transducer. Actuator current shall flow through the sensor primary conductor, while the low-voltage sensing electronics shall derive an analog output from the current-generated magnetic field. The primary current path and low-voltage sensing electronics shall remain galvanically isolated through the sensor architecture.
+At nominal `VCC = 5 V`:
 
-### Rationale
+- nominal zero-current output: `Voffset = 0.5 V`;
+- nominal sensitivity: `S = 0.8 V/A`;
+- nominal transfer model: `VOUT = Voffset + S × I`;
+- nominal inverse model: `I = (VOUT - Voffset) / S`.
 
-The ACS724 measures the magnetic field produced by current flowing through its low-resistance primary copper conductor. Its Hall sensing and internal signal-conditioning electronics convert that magnetic information into an analog output voltage without a direct conductive signal connection to the primary current path.
+The nominal output span implied by the accepted transfer model is therefore:
 
-This establishes two distinct electrical roles:
+- at `I = 0 A`: `VOUT = 0.5 V`;
+- at `I = 5 A`: `VOUT = 4.5 V`.
 
-- **Primary/current path:** carries the physical actuator current through the sensor.
-- **Measurement/signal side:** contains the low-voltage Hall sensing electronics and analog output that feed the later AFE and ADC stages.
+The 05AU range is one-polarity, not "constant DC". Startup transients, commutation ripple, load variation and other time-varying components may exist while current remains positive. Applications requiring accurate positive and negative current measurement require an appropriate bidirectional sensing arrangement.
 
-The ACS724 is therefore inserted in series with the actuator-current path; it is not used as an external clamp around an untouched conductor.
+Values outside 0 A to 5 A shall not be treated as calibrated valid measurements merely because an output voltage may still be produced.
 
-## 3.2 — Exact ACS724-05AU variant
+This baseline originates from **SENS-002** and **SENS-008**.
 
-**Status:** Complete / accepted
+### Sensor supply dependence
 
-### SENS-002 — Rev-1 sensor operating range and polarity
+The ACS724 output is supply-dependent/ratiometric. The nominal `0.5 V` zero-current output and `0.8 V/A` sensitivity are values associated with nominal `5 V` operation and shall not be treated as supply-independent exact constants.
 
-**Status:** Accepted
+Characterization and calibration shall therefore record actual sensor `VCC`; the design shall not assume an ideal fixed `5.000 V` supply when evaluating measurement accuracy.
 
-Rev-1 shall use the ACS724LLCTR-05AU within its specified **0 A to 5 A unidirectional sensing range**.
+The selected Pololu carrier is intended for the sensor's 5 V-class supply range; Rev-1 uses nominal 5 V operation. The exact runtime compensation/reference strategy belongs to the later measurement-chain/ADC design.
 
-At a nominal sensor supply of 5 V, the nominal zero-current output is **0.5 V** and the nominal sensitivity is **800 mV/A**.
+This baseline originates from **SENS-003** and is carried into the later error budget.
 
-The unidirectional range means the specified measurement range is intended for one current polarity, which matches the normal current direction of the Rev-1 DC actuator. This does not imply that a DC-motor current waveform is constant: startup transients, commutation ripple, load variation and other time-varying components may still be present and are part of the waveform we intend to measure.
+### Bandwidth and FILTER configuration
 
-A current waveform that must be measured accurately in both positive and negative directions, such as a bipolar AC waveform or a reversing-current application, requires a sensing arrangement with an appropriate bidirectional range.
+Initial Rev-1 design uses the Pololu #4048 carrier in its **stock FILTER configuration**, including the existing **1 nF FILTER capacitor**, giving an approximate assembled-carrier bandwidth of **90 kHz**. The bare ACS724 IC has a higher vendor bandwidth, so bare-IC and carrier bandwidth shall not be conflated.
 
-Values outside the specified 0 A to 5 A range shall not be treated as calibrated valid measurements merely because the sensor may continue to produce an output.
+No additional FILTER capacitance is introduced in the sensor design baseline.
 
-### Rationale
+The sensor bandwidth is substantially above the accepted **DC to 10 kHz diagnostic signal band**. The stock sensor FILTER network is therefore **not** treated as the complete ADC anti-alias filter. Deliberate anti-alias filtering remains an Analog Front End responsibility for the later `100 kS/s` acquisition chain.
 
-The selected 05AU variant allocates its useful analog output span to one current polarity. This provides 800 mV/A nominal sensitivity at 5 V, which is advantageous for resolving current changes in the Rev-1 low-voltage DC actuator while preserving the selected 0 A to 5 A Phase 1 measurement range.
+Any future change to the sensor FILTER configuration shall require verification that the DC to 10 kHz diagnostic band is preserved.
 
-### SENS-003 — Sensor supply dependence
+This baseline originates from **SENS-004** and **SENS-010**.
 
-**Status:** Accepted
+### Primary current-path insertion effect
 
-The Rev-1 ACS724-05AU sensor model shall account for the dependence of zero-current output and sensitivity on the sensor supply voltage.
-
-The nominal **0.5 V zero-current output** and **800 mV/A sensitivity** shall be treated as nominal values associated with a **5 V sensor supply**, rather than as supply-independent constants.
-
-Actual sensor-supply behaviour shall be considered during characterization and calibration. The design shall not assume an ideal fixed 5.000 V supply when evaluating measurement accuracy.
-
-### Rationale
-
-The ACS724 output is ratiometric with its supply. A change in sensor supply voltage changes the sensor output scaling, including the zero-current output and sensitivity. Ignoring this dependence would create a current-conversion error even if the Hall sensing element itself were functioning normally.
-
-This supply dependence therefore becomes an input to later transfer-function definition, characterization, calibration and the Phase 4 measurement-error budget.
-
-### SENS-004 — Sensor bandwidth configuration
-
-**Status:** Accepted
-
-Rev-1 shall initially use the Pololu #4048 carrier in its stock FILTER configuration, including the carrier's existing **1 nF FILTER capacitor**, giving an approximate carrier bandwidth of **90 kHz**.
-
-No additional FILTER capacitance shall be added during the initial ACS724 sensor characterization.
-
-The ACS724 IC bandwidth is higher than the Rev-1 required **DC to 10 kHz** diagnostic measurement bandwidth, so the sensor itself is not expected to be the limiting element for that requirement.
-
-The later Analog Front End shall provide the deliberate anti-alias filtering required for the **DC to 10 kHz measurement path** and **100 kS/s ADC acquisition** rather than relying on the stock sensor bandwidth as the anti-alias filter.
-
-### Rationale
-
-Keeping the stock sensor configuration during characterization avoids mixing sensor evaluation with Analog Front End design. The Pololu carrier bandwidth remains much wider than the required 10 kHz signal band, while content above the 50 kHz Nyquist frequency of a 100 kS/s ADC must later be attenuated by a deliberately designed anti-alias filter.
-
-### SENS-005 — Primary current-path resistance
-
-**Status:** Accepted
-
-The Rev-1 sensor model shall include the ACS724 primary-conductor resistance, nominally approximately **1.2 mΩ**, as an insertion effect in the actuator-current path.
-
-The resulting voltage drop and resistive dissipation shall be considered when evaluating sensor heating and disturbance of the actuator circuit:
+The ACS724 primary conductor has nominal resistance of approximately **1.2 mΩ** and is treated as a real series insertion effect:
 
 `Vdrop = I × Rprimary`
 
 `Ploss = I² × Rprimary`
 
-### Rationale
+The low resistance minimizes disturbance of the actuator-current path but does not make the sensor electrically invisible.
 
-The ACS724 is inserted in series with the actuator current, so its primary conductor cannot be electrically invisible. The very low primary-path resistance minimizes the voltage drop and power loss while still allowing the measured current to generate the magnetic field used by the Hall sensing elements.
+This baseline originates from **SENS-005**.
 
-### SENS-006 — Isolation-rating interpretation
+### Isolation interpretation and laboratory safety boundary
 
-**Status:** Accepted
+The ACS724's **2400 V RMS dielectric-strength figure is a short-duration insulation test rating**, not a continuous working voltage.
 
-The ACS724 isolation specifications shall be interpreted according to their defined purpose. The **2400 V RMS dielectric-strength value** is a short-duration insulation test rating and shall not be treated as a continuous working voltage.
+Continuous working-voltage limits, dielectric-test voltage, surge capability, creepage and clearance are distinct quantities and shall not be substituted for one another.
 
-The IC datasheet's continuous working-voltage, surge, creepage and clearance specifications shall be documented separately from dielectric-test voltage.
+For Rev-1, the Pololu carrier remains restricted to the established **low-voltage laboratory scope of 24 V or less**. IC-level isolation ratings do not justify connecting the hobby carrier, Arduino, breadboard, ordinary oscilloscope probes or other laboratory hardware directly to industrial mains or a 400 V motor circuit.
 
-For Rev-1, the Pololu carrier remains restricted to the established **low-voltage laboratory application of 24 V or less**. IC-level isolation ratings shall not be used to justify direct connection of the hobby carrier, breadboard, Arduino, or ordinary laboratory equipment to industrial mains or 400 V motor circuits.
+Future industrial scaling requires an appropriately rated complete sensing and installation solution, not reuse of the hobby carrier merely because the IC contains an isolation barrier.
 
-### Rationale
+This baseline originates from **SENS-006**.
 
-A dielectric withstand test verifies that an isolation barrier can survive a specified high test voltage for a limited test duration. It is not the same quantity as the voltage permitted continuously across the barrier in service.
+## 3.2 — Error model and calibration intent
 
-Safe system-level working voltage also depends on the complete implementation, including carrier PCB geometry, connectors, wiring, insulation, environment and applicable safety requirements. Therefore the IC's isolation test rating cannot by itself establish the safe operating voltage of the complete laboratory prototype.
+Nominal sensor values are not exact. Phase 3 distinguishes the following sensor-level contributors:
 
-### SENS-007 — Sensor accuracy characterization principle
+1. offset error;
+2. sensitivity/gain error;
+3. supply-dependent variation;
+4. temperature-dependent variation;
+5. output noise;
+6. frequency/dynamic-response error;
+7. non-ideal total output behaviour specified by the sensor vendor.
 
-**Status:** Accepted
+Actual zero-current offset and sensitivity shall be experimentally characterized and used as calibration parameters where practical. Calibration may reduce systematic offset/gain error but shall not be assumed to remove random noise, temperature drift outside the calibrated condition, or finite-bandwidth effects.
 
-The Rev-1 current conversion shall not assume that the nominal ACS724-05AU zero-current output and sensitivity are exact.
+The Phase 1 **±0.10 A current-accuracy target** is a system requirement. It is not considered demonstrated by nominal sensor values alone and shall not be assigned entirely to the ACS724. The final allocation and compliance assessment belong to the later measurement-chain error budget including sensor, AFE, ADC/reference, calibration and reference-instrument contributions.
 
-Datasheet sensitivity error, voltage-offset error, total output error and temperature dependence shall be treated as measurement-system error sources.
+This baseline originates from **SENS-007** and **SENS-009**.
 
-The actual sensor offset and sensitivity shall therefore be experimentally characterized and later calibrated. The Phase 1 **±0.10 A current-accuracy target shall not be considered demonstrated by nominal datasheet values alone**.
+## 3.3 — Handoff to downstream design phases
 
-### Rationale
+The following Phase 3 outputs are design inputs to the later AFE, ADC, calibration and system-integration phases:
 
-The ACS724 datasheet specifies finite offset, sensitivity and total-output error, and these quantities vary with temperature. At full-scale current, the specified total-output error can be comparable to or larger than the Phase 1 ±0.10 A target when nominal scaling is used without calibration.
+| Quantity / interface | Rev-1 Phase 3 baseline | Downstream consequence |
+|---|---|---|
+| Measured quantity | Primary actuator current | Sensor remains in series with actuator path |
+| Valid measurement range | 0 A to 5 A, unidirectional | Later electronics shall not claim valid bipolar/current-overrange measurement |
+| Nominal sensor supply | 5 V | Supply/reference behaviour must be included in measurement-chain design |
+| Nominal transfer | `VOUT = 0.5 V + 0.8 V/A × I` at 5 V | AFE/ADC shall accommodate nominal 0.5 V to 4.5 V sensor span |
+| Diagnostic signal band | DC to 10 kHz | AFE shall preserve this band |
+| Carrier bandwidth | approx. 90 kHz, stock 1 nF FILTER | AFE must provide deliberate anti-alias filtering before 100 kS/s ADC acquisition |
+| Primary resistance | approx. 1.2 mΩ | Include insertion drop/heating where relevant |
+| Isolation use | Low-voltage Rev-1 laboratory system | Do not derive industrial-mains system safety from IC rating alone |
+| Calibration parameters | `Voffset`, `S` | Later calibration and firmware/software conversion shall retain them explicitly |
 
-The Rev-1 laboratory environment is near room temperature, but the individual carrier's actual offset and gain still need to be measured. These measured values will later feed the calibration procedure and Phase 4 measurement-error budget.
+Exact final wiring, connector allocation, ADC-reference topology and complete build instructions are **not missing Phase 3 sensor decisions**; they are intentionally resolved in the later integration/build-specification phases after the downstream electronics are designed.
 
-## 3.3 — Sensor transfer function
+## 3.4 — Verification plan to execute after design freeze
 
-**Status:** Complete / accepted
+The following verification plan consolidates the previously accepted characterization-method decisions. These controls remain traceable but are treated as a coherent verification procedure rather than as separate pieces of product functionality.
 
-### SENS-008 — Current conversion model
+### Static characterization
 
-**Status:** Accepted
+The sensor shall later be characterized using a controlled low-voltage DC current path independent of the actuator motor.
 
-Rev-1 shall use the parameterized ACS724 current-to-voltage transfer model:
+For valid characterization points:
 
-`VOUT = Voffset + S × I`
+- bench-PSU current limiting is configured before output enable;
+- an independent current-reference method is used rather than assuming the PSU display is exact;
+- zero current and multiple safe points across the usable 0 A to 5 A range are recorded where the available load/reference hardware permits;
+- the motor is not used as the primary calibration load;
+- `IREF`, `VOUT`, actual `VCC`, approximate temperature and relevant PSU/test conditions are recorded;
+- multiple points are used to derive measured `Voffset`, sensitivity `S`, and linear-model residuals;
+- ascending/descending sweeps are used where practical to expose heating, drift, repeatability or hysteresis-like effects.
 
-and the inverse current-conversion model:
+The exact high-current load remains `TBD` until selected. Existing 1/4 W resistor assortments shall not be used as multi-ampere loads. The multi-ampere primary path shall use suitable conductors/connections rather than a solderless breadboard.
 
-`I = (VOUT - Voffset) / S`
+This plan consolidates **SENS-011**, **SENS-012** and the relevant readiness requirements of **SENS-018**.
 
-At a nominal sensor supply of `VCC = 5 V`, the initial nominal parameters are `Voffset = 0.5 V` and `S = 0.8 V/A`.
+### Zero-current offset, supply comparison and noise
 
-The offset and sensitivity shall remain explicit model/calibration parameters rather than permanently fixed exact constants. Characterization and later calibration may replace the nominal values with measured values for the individual sensor/carrier.
+The first sensor characterization executed after implementation shall be the zero-primary-current test.
 
-### Rationale
+The sensor electronics are powered while the primary path carries no current. The test records repeated `VOUT`, actual `VCC` at the carrier, approximate temperature and relevant configuration state.
 
-The forward equation describes how actuator current becomes an analog sensor output voltage. The inverse equation is required by the measurement system because the ADC observes voltage while downstream processing requires current in amperes.
+The mean output is treated as measured zero-current offset under the recorded conditions. Short-term variation around the mean is treated separately as noise.
 
-Keeping offset and sensitivity as parameters preserves the supply dependence and sensor-to-sensor variation already established by SENS-003 and SENS-007 and allows calibration to improve the current conversion without changing the fundamental model.
+Initial supply comparison uses:
 
-## 3.4 — Error mechanisms
+`A1 = bench 5 V supply → B = Arduino UNO R4 WiFi 5 V rail → A2 = bench 5 V supply`
 
-**Status:** Complete / accepted at sensor-characterization level
+The supply source is the intentionally changed variable. Sensor, zero-current condition, measurement points, instruments, probe configuration and relevant oscilloscope settings are held constant where practical. Unavoidable wiring, grounding or USB differences are recorded as possible confounding variables.
 
-### SENS-009 — Sensor error characterization categories
+The measurement-system noise floor is measured using the same oscilloscope channel/probe and comparable settings with the probe input referenced to ground before observed variation is attributed to the sensor.
 
-**Status:** Accepted
+Primary quantitative noise metric:
 
-Rev-1 sensor characterization shall distinguish between:
+`standard deviation / equivalent RMS-type variation after mean removal`
 
-1. **offset error**,
-2. **sensitivity/gain error**,
-3. **temperature-dependent variation**,
-4. **output noise**, and
-5. **frequency/dynamic-response error**.
-
-Supply dependence established by SENS-003 and total-output error established by SENS-007 shall remain part of the sensor error model.
-
-Offset and sensitivity shall be treated as calibration parameters where practical. Noise, temperature dependence and dynamic behaviour shall be characterized separately rather than assuming that calibration removes them.
-
-### Rationale
-
-Fixed or slowly varying systematic errors can often be reduced by calibration, but random noise and frequency-dependent behaviour are different phenomena. A single offset/gain correction cannot remove random sample-to-sample variation, temperature drift outside the calibrated condition, or signal attenuation/phase change caused by finite bandwidth.
-
-This distinction is important because the project must preserve current-waveform features such as commutation ripple and other time-varying signatures, not only average current.
-
-A complete numerical system error budget, including ADC and AFE contributions, remains reserved for Phase 4.
-
-## 3.5 — Bandwidth and FILTER pin
-
-**Status:** Complete / accepted at sensor-characterization level
-
-### SENS-010 — FILTER-pin role
-
-**Status:** Accepted
-
-The ACS724 FILTER pin shall be treated as a means of trading sensor bandwidth for output-noise reduction.
-
-Any future change from the stock Pololu FILTER configuration shall require verification that the resulting sensor response still preserves the accepted **DC to 10 kHz diagnostic band**.
-
-The ACS724 FILTER pin shall not by itself be considered the complete ADC anti-alias filter. Deliberate anti-alias filtering remains an Analog Front End design responsibility.
-
-### Rationale
-
-Restricting analog bandwidth excludes out-of-band noise and can improve effective measurement resolution, but excessive filtering would also attenuate real diagnostic current-waveform content. The Rev-1 design therefore preserves the stock sensor bandwidth during initial characterization and defers deliberate anti-alias filter design to the later AFE phase.
-
-## 3.6 — Characterization and test plan
-
-**Status:** In progress
-
-### SENS-011 — Static characterization method
-
-**Status:** Accepted
-
-Initial ACS724 static characterization shall use a **controlled low-voltage DC current path independent of the actuator**, with the bench PSU current limit configured before the output is enabled.
-
-For each characterization point, an independent reference current measurement and the ACS724 output voltage shall be recorded. Characterization shall include zero current and multiple points across the 0 A to 5 A range where the available load and reference instrument can safely support them.
-
-The actuator motor shall not be used as the primary reference load for deriving sensor offset, sensitivity or linearity.
-
-The required high-current load hardware is currently **TBD** and shall be selected before the high-current characterization is executed. The existing 1/4 W resistor assortment shall not be used as a multi-ampere power load.
-
-### Rationale
-
-A motor is a poor calibration reference because its current varies with commutation, speed, mechanical load and operating state. A controlled DC load provides stable current points that can be compared directly with the sensor output.
-
-An independent reference measurement prevents the bench PSU display from being assumed to be an exact current standard. Multiple known current points allow the measured offset, sensitivity and linearity of the individual ACS724 carrier to be derived.
-
-### SENS-012 — Static characterization data record
-
-**Status:** Accepted
-
-For each valid static characterization point, Rev-1 shall record at minimum:
-
-- independent reference current `IREF`,
-- ACS724 output voltage `VOUT`,
-- actual sensor supply voltage `VCC`,
-- approximate test temperature,
-- relevant bench-PSU and test conditions.
-
-Multiple points across the usable range shall be used to derive the measured offset and sensitivity and to calculate residuals from the fitted linear model.
-
-Where practical, ascending and descending current sweeps shall be used to expose drift, heating, repeatability, or hysteresis-like effects that could be hidden by a single one-direction sweep.
-
-Phase 3 shall report the measured sensor error contribution. Final compliance with the Phase 1 **±0.10 A system current-accuracy requirement** shall be determined through the Phase 4 system error budget rather than assigning the complete accuracy allowance to the sensor alone.
-
-### Rationale
-
-Because the ACS724 is ratiometric and temperature-sensitive, a current/output pair without supply and temperature context is insufficient for reproducible characterization. Repeated points and model residuals provide evidence of linearity and repeatability beyond a simple two-point gain calculation.
-
-The sensor is only one contributor to total measurement error; the later AFE, ADC, voltage reference/supply, calibration method and reference measurement also consume part of the system accuracy budget.
-
-### SENS-013 — Zero-current offset and noise test
-
-**Status:** Accepted
-
-The ACS724 zero-current characterization shall be performed with the sensor electronics powered and **no current flowing through the primary current path**.
-
-The test shall record repeated `VOUT` measurements together with the actual sensor supply voltage `VCC` and approximate test temperature.
-
-The mean zero-current output shall be treated as the measured zero-current offset under the recorded test conditions. Short-term variation around that mean shall be characterized separately as output noise using suitable statistical measurements and/or oscilloscope observations.
-
-Offset and noise shall not be combined into a single characterization value.
-
-### Rationale
-
-Offset is a systematic shift in the mean sensor output at zero primary current, whereas noise is the short-term variation of individual measurements around that mean. Separating the two allows the offset to be used as a calibration parameter while preserving noise as an independent limit on repeatability and effective resolution.
-
-Powering the sensor with the primary path at true zero current isolates the sensor's own zero-current behaviour from load-current variation. Recording `VCC` and temperature preserves the operating conditions needed to interpret the result.
-
-### SENS-014 — Dynamic bandwidth verification
-
-**Status:** Accepted
-
-Phase 3 dynamic characterization shall, where practical, verify ACS724 response using a controlled periodic primary-current stimulus at multiple frequencies through the accepted **DC to 10 kHz diagnostic band**.
-
-The test shall compare the ACS724 output waveform with an independent representation of the applied current and shall evaluate amplitude response and, where practical, phase behaviour.
-
-In addition to the Rev-1 requirement-oriented verification through 10 kHz, Phase 3 shall include an **educational extended frequency sweep** toward and, where practical, beyond the Pololu carrier's vendor-stated approximately **90 kHz bandwidth**. The purpose of this extension is to observe the frequency-response roll-off and experimentally estimate the carrier bandwidth/cutoff behaviour.
-
-Experimental confirmation of the vendor bandwidth is a study and characterization objective, not a Rev-1 system-acceptance requirement. Failure to reproduce the vendor value with the available laboratory stimulus/measurement setup shall be reported as a test limitation rather than silently interpreted as sensor failure unless the test method itself has been validated.
-
-The exact dynamic-current stimulus circuit remains **TBD** until the available function-generator capability and suitable current-driving/reference hardware are established.
-
-### Rationale
-
-The system requirement only demands preservation of current information through 10 kHz, so that band remains the formal engineering verification target. Extending the sweep toward the carrier bandwidth provides a useful laboratory lesson in frequency response, gain roll-off and bandwidth measurement without changing the Rev-1 requirement.
-
-Because the oscilloscope function generator is a signal source rather than inherently a multi-ampere current source, the dynamic-current driver and reference method must be designed before the extended sweep is treated as valid evidence.
-
-### SENS-015 — Bandwidth estimation method
-
-**Status:** Accepted
-
-For the educational extended dynamic characterization, frequency response shall be evaluated from the ratio of ACS724 output AC amplitude to independently measured primary-current AC amplitude.
-
-The resulting transfer magnitude shall be normalized to a low-frequency reference. The experimental bandwidth shall be estimated from the frequency at which the normalized amplitude approaches **0.707 of the low-frequency value**, corresponding to approximately **−3 dB**.
-
-The measured response shall be compared with the vendor-stated carrier bandwidth while distinguishing the bandwidth of the bare ACS724 IC from the bandwidth of the Pololu carrier with its installed FILTER capacitor.
-
-### Rationale
-
-Bandwidth is not established merely by observing that a waveform remains visible at a particular frequency. A normalized amplitude-response measurement provides a reproducible way to observe gain roll-off and estimate the conventional −3 dB cutoff point.
-
-Separating bare-IC and assembled-carrier bandwidth prevents the carrier's FILTER network from being incorrectly attributed to the sensor IC itself and makes the extended sweep a useful study of practical frequency-response measurement.
-
-### SENS-016 — Dynamic stimulus strategy
-
-**Status:** Accepted
-
-Phase 3 shall initially attempt the educational frequency-response characterization using the DOS1102S function generator as a **small-signal excitation source**, not as a multi-ampere power source.
-
-Actual primary current shall be independently derived from a suitable series reference resistor or equivalent current-reference method rather than inferred solely from the generator setting.
-
-The periodic stimulus shall remain within the ACS724-05AU unidirectional operating regime, using positive-current bias where necessary.
-
-If the resulting ACS724 output does not provide sufficient signal-to-noise ratio for reliable gain measurement, a higher-current external driver shall be designed as a subsequent test method rather than increasing generator loading beyond its established capability.
-
-### Rationale
-
-Bandwidth measurement requires a controlled, measurable periodic current but does not require operation at the 5 A full-scale current. Starting with a small-signal method minimizes additional hardware and allows the actual current waveform to be measured independently.
-
-The generator setting alone is not accepted as the current reference because source impedance and load affect delivered current. The ACS724-05AU is unidirectional, so any periodic test current must remain within the intended one-polarity operating regime.
-
-### SENS-017 — Positive-biased dynamic stimulus
-
-**Status:** Accepted
-
-The initial small-signal dynamic test shall preferentially use the function generator's DC-offset capability to produce a periodic stimulus whose primary current remains positive throughout the cycle.
-
-The test shall satisfy:
-
-`IDC > IAC`
-
-such that the instantaneous primary current does not intentionally reverse polarity and remains within the ACS724-05AU specified 0 A to 5 A measurement range.
-
-Actual current shall continue to be derived from the independent reference measurement rather than from nominal generator amplitude or offset settings.
-
-A separate bench-PSU-plus-generator summing topology shall not be improvised by directly connecting the two sources. If external DC-bias injection becomes necessary, its coupling/summing network shall first be deliberately designed and verified.
-
-The exact DOS1102S usable DC-offset range and resulting test values remain **TBD until verified on the instrument or its documentation**.
-
-### Rationale
-
-A zero-centred sinusoidal current reverses direction every half-cycle and would leave the intended one-polarity measurement regime of the 05AU variant. Adding positive DC bias permits a sinusoidal small-signal current to be measured while keeping the instantaneous current positive.
-
-Using a single generator's verified offset capability is the simplest initial method. Directly paralleling an independent bench supply and function generator is not an acceptable way to combine DC and AC sources because the sources can drive each other unless a deliberate coupling or summing network is used.
-
-### SENS-018 — Phase 3 test-hardware readiness
-
-**Status:** Accepted
-
-Before Phase 3 static or dynamic characterization results are accepted as engineering evidence:
-
-1. the independent current-reference method shall be identified and its relevant accuracy/range documented;
-2. the static 0 A to 5 A test shall use a load with adequate voltage, current and power rating;
-3. the dynamic test shall use a characterized current-reference element such as `RREF` or an equivalent validated reference method;
-4. the multi-ampere primary-current path shall use suitable conductors and connections rather than a solderless breadboard; and
-5. missing equipment or exact component values shall remain **TBD** until selected and verified.
-
-The zero-current characterization may be executed before the high-current load is available because it does not require current through the primary path.
-
-### Rationale
-
-A characterization result is only as trustworthy as its stimulus and reference measurement. Unknown reference-instrument uncertainty, an under-rated power load, or unsuitable high-current wiring could invalidate the result or create avoidable hardware risk.
-
-Separating zero-current characterization from the later powered-current tests allows useful Phase 3 measurements to begin without pretending that the complete static and dynamic test setup is already ready.
-
-### SENS-019 — Characterization execution order
-
-**Status:** Accepted
-
-The first physical ACS724 characterization shall be the **zero-primary-current test** established by SENS-013.
-
-Before power is applied, the exact Pololu #4048 supply, output, ground and primary-current connections shall be identified and the wiring shall be inspected.
-
-With the primary path carrying no current, the sensor shall then be powered at its intended laboratory supply and the actual `VCC` and `VOUT` shall be measured. The zero-current output shall be observed using both a DC measurement and, where practical, an oscilloscope observation of short-term output variation.
-
-Powered-current static and dynamic tests shall follow only after their required load/reference hardware has satisfied SENS-018.
-
-### Rationale
-
-Starting at zero primary current provides the lowest-risk first hardware check and establishes the individual carrier's zero-current offset and short-term output behaviour before power-current variables are introduced.
-
-The inspect–wire–verify–power–measure sequence reduces the risk of wiring errors and creates a reproducible baseline before the static and dynamic characterization stages.
-
-### SENS-020 — Supply-source comparison
-
-**Status:** Accepted
-
-Initial zero-current characterization shall be performed with both a controlled laboratory 5 V supply and, separately, the Arduino UNO R4 WiFi 5 V rail.
-
-For each supply configuration, the actual sensor `VCC`, mean zero-current `VOUT`, approximate temperature and short-term output variation shall be recorded.
-
-Differences in zero-current output shall first be evaluated against the ACS724 supply-dependent/ratiometric behaviour before being interpreted as sensor error.
-
-Differences in measured noise shall be treated as configuration-level observations unless further testing isolates the responsible source.
-
-The bench-supply configuration shall serve as the initial controlled baseline.
-
-### Rationale
-
-Using both available 5 V sources turns the initial zero-current test into a controlled comparison rather than a single functional check. Because the ACS724 zero-current output and sensitivity depend on supply voltage, actual `VCC` must be measured before output differences are interpreted.
-
-Comparing short-term output behaviour under both sources is educational and may reveal configuration-dependent noise, but the comparison alone does not establish which individual element causes any observed difference.
-
-### SENS-021 — Supply-comparison controls
-
-**Status:** Accepted
-
-For the bench-supply versus Arduino-5-V zero-current comparison, the **supply source shall be the intentionally changed variable**. The sensor, zero-primary-current condition, measurement points, instruments, probe configuration and relevant oscilloscope settings shall otherwise be held constant where practical.
-
-`VCC` shall be measured at the ACS724 carrier rather than inferred solely from the nominal source setting.
-
-Where practical, the comparison shall use an **A–B–A sequence** — bench supply, Arduino supply, bench supply again — to help distinguish supply-dependent differences from time-, temperature- or drift-related changes.
-
-Any unavoidable differences in wiring, grounding, USB connection or other test conditions shall be recorded as potential confounding variables.
-
-### Rationale
-
-A controlled comparison is only meaningful when the intended independent variable is separated from other changing conditions. Holding the measurement configuration constant reduces ambiguity when comparing mean zero-current output and short-term noise.
-
-Repeating the bench-supply baseline after the Arduino measurement provides a simple check for time-dependent drift or warming that could otherwise be mistaken for a supply-source effect.
-
-### SENS-022 — Zero-current comparison evidence record
-
-**Status:** Accepted
-
-For each `A1–B–A2` zero-current supply-comparison step, Phase 3 shall record at minimum:
-
-- supply configuration and sequence position;
-- actual ACS724 `VCC` measured at the carrier;
-- zero-current `VOUT`;
-- approximate test temperature;
-- relevant wiring, USB and grounding state;
-- oscilloscope observation of `VOUT`; and
-- oscilloscope settings required to interpret and reproduce the observation.
-
-The same measurement method and oscilloscope configuration shall be maintained across the comparison where practical.
-
-Raw readings and waveform evidence shall be preserved separately from later interpretation. Numerical noise metrics may be added once the available instrument measurement method has been verified.
-
-### Rationale
-
-A standardized evidence record makes the A–B–A comparison reproducible and prevents later conclusions from depending on memory or screenshots whose settings are unknown.
-
-Keeping raw observations separate from interpretation preserves the evidence needed to revisit conclusions if later testing reveals a confounding factor or measurement limitation.
-
-### SENS-023 — Measurement-system noise-floor control
-
-**Status:** Accepted
-
-Before interpreting zero-current oscilloscope variation as ACS724 output noise, Phase 3 shall characterize the relevant **measurement-system noise floor** using the same oscilloscope channel, probe and comparable acquisition settings with the probe input referenced to ground.
-
-The sensor-connected measurement and the measurement-system control shall use comparable probe grounding and oscilloscope configuration.
-
-Observed variation shall not automatically be attributed entirely to the ACS724. Probe pickup, oscilloscope input noise, grounding, supply-related disturbance and environmental interference shall remain possible contributors until isolated experimentally.
-
-Any quantitative separation of independent noise contributions shall use an appropriate noise metric and combination method rather than direct subtraction of peak-to-peak values.
-
-### Rationale
-
-An oscilloscope trace contains contributions from the device under test and the measurement chain. Measuring the setup with an ideally zero input establishes the practical floor against which sensor-connected variation can be interpreted.
-
-Peak-to-peak values from independent random-noise sources are not generally separable by direct arithmetic subtraction, so quantitative decomposition requires a suitable statistical or RMS-type metric and an explicitly justified model.
-
-### SENS-024 — Zero-current noise metric
-
-**Status:** Accepted
-
-The primary quantitative zero-current noise metric for Phase 3 shall be a **standard-deviation or equivalent RMS-type measure of output variation after removal of the mean zero-current level**.
-
-Peak-to-peak variation may also be recorded as a descriptive waveform metric but shall not by itself represent the statistical sensor-noise value.
-
-Where valid waveform or sample data are available, voltage-domain noise may be converted to equivalent current noise using the characterized sensor sensitivity:
+Peak-to-peak may be retained as descriptive evidence but is not the sole statistical noise value. Where valid sampled data and characterized sensitivity are available:
 
 `σI = σV / S`
 
-Any mathematical removal of the independently measured instrumentation noise floor shall use an appropriate RMS/statistical combination model and shall be performed only when the assumptions of that model are justified.
+Independent RMS-type noise contributions may only be separated mathematically when the assumptions of the combination model are justified; peak-to-peak values shall not simply be subtracted.
 
-The exact DOS1102S waveform-export or built-in statistical measurement method remains **TBD until verified on the instrument**.
+The same acquisition method, observation duration and sample count are used across A1/B/A2 and the noise-floor control where practical. Exact numerical record length, sample rate and observation duration remain `TBD` until the real DOS1102S data path is verified.
 
-### Rationale
+This plan consolidates **SENS-013**, **SENS-019**, and **SENS-020 through SENS-025**.
 
-Standard deviation or an equivalent RMS-type measure represents typical short-term variation around the mean and therefore aligns with the separation of zero-current offset from random output noise established earlier in Phase 3.
+### Dynamic response and educational bandwidth verification
 
-Peak-to-peak values remain useful descriptive evidence but depend strongly on observation duration and isolated extrema. Converting the voltage-domain result through the characterized sensitivity expresses the observed noise in the same current units used by the measurement system without treating nominal sensitivity as an exact constant.
+Later dynamic characterization shall verify the sensor response through the formal **DC to 10 kHz diagnostic band** using controlled periodic primary-current stimulus and an independent representation of actual current.
 
-### SENS-025 — Noise observation-window consistency
+Transfer magnitude is evaluated from:
 
-**Status:** Accepted
+`A(f) = ACS724 output AC amplitude / reference-current AC amplitude`
 
-Phase 3 zero-current statistical noise comparisons shall use a consistent acquisition method, observation duration and sample count across the `A1–B–A2` supply comparison and the corresponding measurement-system noise-floor control where practical.
+The result is normalized to a low-frequency reference. Experimental bandwidth is estimated where the normalized amplitude approaches:
 
-The statistical dataset shall be long enough to provide a stable estimate of short-term output variation while avoiding deliberate inclusion of slower temperature-, supply- or time-dependent drift in the short-term noise metric.
+`0.707 ≈ -3 dB`
 
-Slow variation observed over longer periods shall be recorded separately as drift rather than automatically incorporated into the short-term noise value.
+In addition to the formal 10 kHz requirement-oriented verification, an educational extended sweep shall, where practical, continue toward and beyond the Pololu carrier's approximately 90 kHz vendor bandwidth to observe roll-off. This extended check is a study objective, not a Rev-1 acceptance requirement.
 
-The exact sample count, sampling rate and observation duration remain **TBD until the DOS1102S acquisition/export capabilities are verified experimentally or from its documentation**.
+The initial method uses the DOS1102S function generator as a **small-signal source**, not as a multi-ampere power source. Actual primary current is derived from a suitable characterized reference element such as `RREF` rather than from generator settings alone.
 
-### Rationale
+Because the 05AU variant is unidirectional, the periodic stimulus remains positive:
 
-Noise statistics depend on the amount and duration of observed data. Using different sample counts or observation windows across the controlled comparison would make the resulting values less directly comparable.
+`IDC > IAC`
 
-At the same time, extending the observation window indefinitely can mix slower drift with the short-term random variation that SENS-024 is intended to quantify. Keeping short-term noise and slower drift conceptually separate preserves the meaning of both measurements.
+A positive generator DC offset is preferred where the instrument supports the required settings. A bench PSU and function-generator output shall not be directly paralleled to improvise a bias source. If an external bias/driver is needed, a deliberate coupling/summing/driver network shall be designed first.
 
-### SENS-026 — Raw waveform as primary noise evidence
+If the available small-signal current produces insufficient sensor-output SNR, a higher-current external driver shall be designed later rather than overloading the generator.
 
-**Status:** Accepted
+Exact `RREF`, generator settings and any higher-current driver remain `TBD` until the implementation-stage test hardware is selected and verified.
 
-Where the DOS1102S permits suitable waveform-data export, Phase 3 shall use the exported zero-current waveform samples as the **primary dataset for quantitative noise analysis**.
+This plan consolidates **SENS-014 through SENS-017** and the dynamic-test readiness requirement of **SENS-018**.
 
-The preserved sample dataset shall be used to calculate the mean, standard deviation or equivalent RMS-type noise metric, and any other derived statistics using a documented analysis method.
+### Data evidence and MATLAB analysis
 
-Oscilloscope screenshots and built-in measurements such as RMS or peak-to-peak may be retained as supporting evidence and cross-checks but shall not replace the raw waveform dataset where export is practical.
+Raw measurement evidence shall be preserved separately from interpretation.
 
-The same quantitative analysis method shall be applied to the `A1–B–A2` sensor measurements and the corresponding measurement-system noise-floor control.
+For each controlled zero-current comparison step, the record includes at minimum:
 
-The exact DOS1102S export format, available record length and transfer procedure remain **TBD until verified on the specific instrument or its documentation**.
+- configuration / sequence identity;
+- actual `VCC` measured at the carrier;
+- zero-current `VOUT`;
+- approximate temperature;
+- relevant wiring/USB/grounding state;
+- oscilloscope waveform observation;
+- oscilloscope settings needed to interpret the observation.
 
-### Rationale
+Where practical, exported DOS1102S waveform samples are the primary quantitative dataset. Screenshots and built-in RMS/peak-to-peak measurements are supporting evidence and cross-checks.
 
-Raw waveform samples preserve the underlying measurement evidence and allow the same calculations to be reproduced, audited or changed later without repeating the hardware test.
+**MATLAB is the primary reproducible Phase 3 analysis environment.** Original instrument exports are preserved unchanged before conversion or processing. A version-controlled workflow shall calculate the applicable mean, standard-deviation/RMS-type noise, peak-to-peak variation and equivalent current-domain noise, and may later extend to calibration fitting, residuals and frequency response.
 
-Using one documented analysis method for all controlled-comparison datasets avoids hidden differences between instrument summary algorithms and makes the zero-current noise comparison reproducible. Screenshots and built-in measurements remain useful corroborating evidence but do not preserve the complete sampled record.
+Before exported waveform data are accepted for quantitative analysis, the actual DOS1102S export/import path is verified using a known or independently interpretable waveform. A simple function-generator sine wave is an approved procedure-level choice for this validation; it is not a separate product-design decision.
 
-### SENS-027 — Phase 3 reference analysis workflow
-
-**Status:** Accepted
-
-MATLAB shall be the primary reproducible analysis environment for Phase 3 characterization data.
-
-Original DOS1102S waveform exports shall be preserved unchanged as raw evidence before any conversion or processing.
-
-A version-controlled MATLAB analysis workflow shall derive the applicable Phase 3 quantities, initially including mean output, standard-deviation or equivalent RMS-type noise, peak-to-peak variation and equivalent current-domain noise where characterized sensitivity is available.
-
-The same analysis implementation shall be applied consistently to the `A1–B–A2` datasets and the corresponding measurement-system noise-floor dataset.
-
-Later Phase 3 characterization may extend the same workflow to calibration fitting, residual analysis and frequency-response processing.
-
-Exact import/parsing logic and repository data-file format remain **TBD until the actual DOS1102S export format is verified**.
-
-### Rationale
-
-A version-controlled analysis script makes the processing method reproducible and auditable and allows the same raw data to be reprocessed if an analysis assumption changes without repeating the hardware experiment.
-
-Preserving the original instrument export separately from derived data prevents processing from silently altering the primary evidence. Using the same MATLAB workflow across controlled datasets also avoids hidden differences in calculation method and provides a natural path toward the later calibration and frequency-domain analysis already required by the project.
-
-### SENS-028 — DOS1102S export/import verification gate
-
-**Status:** Accepted
-
-Before Phase 3 waveform data are used for quantitative MATLAB analysis, the actual DOS1102S waveform export shall be experimentally inspected and its data representation verified.
-
-The verification shall establish, where applicable:
+The validation establishes, where applicable:
 
 - exported file type and structure;
-- available sample count;
-- time or sample-interval representation;
+- sample count;
+- time/sample-interval representation;
 - voltage scaling and units;
-- channel identification; and
-- relevant acquisition metadata.
+- channel identity;
+- relevant acquisition metadata;
+- agreement of imported quantities such as mean, peak-to-peak and frequency with the original oscilloscope observation.
 
-A known or independently interpretable test waveform shall be exported and imported into MATLAB. Derived quantities such as mean, peak-to-peak amplitude and, where applicable, frequency shall be compared with the original oscilloscope observation to verify that the import and scaling are interpreted correctly.
+Exact file format, parser/import implementation and final numerical acquisition settings remain `TBD` until the actual instrument is exercised.
 
-The MATLAB importer and final numerical zero-current acquisition settings shall not be treated as baselined until this export/import path has been verified.
+This plan consolidates **SENS-022**, **SENS-026**, **SENS-027** and **SENS-028**.
 
-Exact DOS1102S export details remain **TBD until this instrument-side verification is performed**.
+## 3.5 — Verification readiness gates
 
-### Rationale
+Before later powered-current characterization results are accepted as engineering evidence:
 
-Successful file import does not by itself prove that waveform scaling, timebase or metadata have been interpreted correctly. The measurement data path therefore needs explicit validation from the physical signal through oscilloscope acquisition, file storage and MATLAB interpretation before exported values are treated as quantitative engineering evidence.
+1. the independent current-reference method and relevant accuracy/range are documented;
+2. the static load has adequate voltage/current/power rating;
+3. the dynamic current-reference element is characterized;
+4. multi-ampere wiring/connections are suitable for the current;
+5. oscilloscope/generator grounding relationships are understood before connection;
+6. missing equipment and exact component values remain `TBD` until selected and verified.
 
-Comparing independently interpretable waveform quantities on the oscilloscope and in MATLAB provides a practical check that the import path preserves the information needed by the Phase 3 analysis workflow.
+Zero-current characterization may execute before the high-current load exists because it requires no primary current.
 
-Remaining characterization work shall perform this instrument-side verification before the concrete MATLAB importer and numerical zero-current acquisition settings are baselined.
+These gates originate from **SENS-018** and **SENS-019**.
 
-## 3.7 — Phase output
+## 3.6 — Deferred implementation/verification results
 
-**Status:** TBD
+The following values are intentionally **not fabricated during design** and remain `TBD` until Stage B/C work:
 
-The completed phase is expected to contain:
+- measured zero-current offset of the individual carrier;
+- measured sensitivity of the individual carrier;
+- static-transfer residuals / measured linearity;
+- short-term output noise and equivalent current noise;
+- bench-supply versus Arduino-supply comparison results;
+- practical measurement-system noise floor;
+- independent current-reference uncertainty;
+- exact high-current static load and safe test points;
+- exact dynamic `RREF` and stimulus amplitudes;
+- actual DOS1102S export format, usable record length and acquisition settings;
+- measured response through 10 kHz;
+- educational measured -3 dB carrier bandwidth;
+- any implementation-dependent temperature/heating observations.
 
-- sensor operating model,
-- transfer equation,
-- operating range and key limits,
-- relevant error mechanisms,
-- bandwidth and filtering behaviour,
-- electrical/interface assumptions,
-- characterization method,
-- measured results when hardware is available,
-- limitations and remaining TBD items.
+These are **planned verification outputs**, not missing product-definition decisions.
+
+## 3.7 — Decision traceability after consolidation
+
+The historical accepted decisions remain traceable as follows:
+
+| Decision IDs | Consolidated role |
+|---|---|
+| SENS-001 to SENS-006 | Sensor principle, exact part/range, supply/bandwidth configuration, insertion effect and isolation interpretation |
+| SENS-007 to SENS-010 | Transfer/error/calibration model and FILTER role |
+| SENS-011 to SENS-013 | Static and zero-current characterization method |
+| SENS-014 to SENS-017 | Dynamic-response and bandwidth-verification method |
+| SENS-018 to SENS-019 | Test-hardware readiness and execution order |
+| SENS-020 to SENS-025 | Controlled supply/noise comparison and statistical measurement controls |
+| SENS-026 to SENS-028 | Raw-data preservation, MATLAB workflow and DOS1102S import validation |
+
+The consolidation does not revoke any accepted technical content. It reclassifies detailed characterization controls as one coherent **verification plan**, avoiding artificial inflation of product-design decisions.
+
+## 3.8 — Phase 3 completion assessment
+
+Phase 3 design-stage closure criteria are satisfied:
+
+- selected sensor and sensing principle defined;
+- operating range and polarity defined;
+- transfer model defined;
+- supply dependence defined;
+- bandwidth/FILTER baseline defined;
+- primary-path insertion effect defined;
+- isolation interpretation and laboratory safety boundary defined;
+- error/calibration model defined;
+- downstream AFE/ADC handoff defined;
+- static, zero-current/noise and dynamic verification methods defined;
+- data-evidence and MATLAB-analysis method defined;
+- implementation-dependent unknowns explicitly separated as `TBD`.
+
+**Conclusion:** Phase 3 is complete as a **product-design phase** under DEV-001. Physical characterization will be executed later after the complete Rev-1 design has been frozen and implemented.
+
+The next product-design phase is **Phase 4 — Measurement-Chain Requirements and Error-Budget Allocation**.
