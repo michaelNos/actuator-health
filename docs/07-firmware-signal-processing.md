@@ -80,10 +80,31 @@ Feature outputs shall inherit the validity of the source data. Features derived 
 
 The diagnostic layer should operate on physical current quantities and meaningful signal features rather than ADC implementation details. A compact interface also avoids prematurely implementing a large collection of metrics before measurements show which features are useful for the selected Rev-1 motor.
 
-## Phase 7 design topics remaining
+## 7.3 — Processing windows and continuity
 
-- define processing-window/data-product behavior only where it materially affects architecture;
-- define firmware observability and failure handling needed to trust the measurement pipeline.
+### FW-003 — Multi-timescale processing from one continuous sample stream
+
+**Status:** Accepted
+
+Rev-1 signal processing shall support more than one analysis timescale derived from the same deterministic **100 kS/s** current sample stream rather than forcing every diagnostic feature to use one universal processing-window length.
+
+Conceptually:
+
+`continuous calibrated samples → short-window features + longer-window/spectral features`
+
+Shorter windows may support fast-changing time-domain quantities and later fault-detection logic, while longer windows may be used where additional frequency resolution or statistical stability is useful.
+
+Exact window lengths, overlap ratios, FFT sizes and scheduling are implementation parameters and shall not be frozen during Stage A unless later resource analysis proves an architectural constraint.
+
+Every processing window shall retain continuity/validity state derived from its underlying samples. A known acquisition gap, buffer overrun or other loss of sample continuity shall invalidate analyses that require a continuous record, particularly frequency-domain results, rather than silently treating separated samples as contiguous.
+
+### Rationale
+
+The Rev-1 diagnostic goals operate on different natural timescales. Separating the concept of the continuous acquisition stream from configurable analysis windows preserves flexibility without compromising sample integrity or forcing premature DSP implementation choices.
+
+## Phase 7 design topic remaining
+
+Define the minimum firmware observability and failure-handling behavior needed to trust the measurement pipeline without expanding into detailed logging/implementation procedure.
 
 The number of formal decisions is intentionally not fixed. Closely related choices will be grouped and implementation details deferred.
 
