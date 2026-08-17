@@ -108,10 +108,24 @@ The resulting voltage drop and resistive dissipation shall be considered when ev
 
 The ACS724 is inserted in series with the actuator current, so its primary conductor cannot be electrically invisible. The very low primary-path resistance minimizes the voltage drop and power loss while still allowing the measured current to generate the magnetic field used by the Hall sensing elements.
 
+### SENS-006 — Isolation-rating interpretation
+
+**Status:** Accepted
+
+The ACS724 isolation specifications shall be interpreted according to their defined purpose. The **2400 V RMS dielectric-strength value** is a short-duration insulation test rating and shall not be treated as a continuous working voltage.
+
+The IC datasheet's continuous working-voltage, surge, creepage and clearance specifications shall be documented separately from dielectric-test voltage.
+
+For Rev-1, the Pololu carrier remains restricted to the established **low-voltage laboratory application of 24 V or less**. IC-level isolation ratings shall not be used to justify direct connection of the hobby carrier, breadboard, Arduino, or ordinary laboratory equipment to industrial mains or 400 V motor circuits.
+
+### Rationale
+
+A dielectric withstand test verifies that an isolation barrier can survive a specified high test voltage for a limited test duration. It is not the same quantity as the voltage permitted continuously across the barrier in service.
+
+Safe system-level working voltage also depends on the complete implementation, including carrier PCB geometry, connectors, wiring, insulation, environment and applicable safety requirements. Therefore the IC's isolation test rating cannot by itself establish the safe operating voltage of the complete laboratory prototype.
+
 Remaining topics to establish from primary sources:
 
-- isolation ratings,
-- working voltage versus dielectric-test voltage,
 - temperature and error specifications.
 
 ## 3.3 — Sensor transfer function
