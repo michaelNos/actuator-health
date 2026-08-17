@@ -296,6 +296,22 @@ The system requirement only demands preservation of current information through 
 
 Because the oscilloscope function generator is a signal source rather than inherently a multi-ampere current source, the dynamic-current driver and reference method must be designed before the extended sweep is treated as valid evidence.
 
+### SENS-015 — Bandwidth estimation method
+
+**Status:** Accepted
+
+For the educational extended dynamic characterization, frequency response shall be evaluated from the ratio of ACS724 output AC amplitude to independently measured primary-current AC amplitude.
+
+The resulting transfer magnitude shall be normalized to a low-frequency reference. The experimental bandwidth shall be estimated from the frequency at which the normalized amplitude approaches **0.707 of the low-frequency value**, corresponding to approximately **−3 dB**.
+
+The measured response shall be compared with the vendor-stated carrier bandwidth while distinguishing the bandwidth of the bare ACS724 IC from the bandwidth of the Pololu carrier with its installed FILTER capacitor.
+
+### Rationale
+
+Bandwidth is not established merely by observing that a waveform remains visible at a particular frequency. A normalized amplitude-response measurement provides a reproducible way to observe gain roll-off and estimate the conventional −3 dB cutoff point.
+
+Separating bare-IC and assembled-carrier bandwidth prevents the carrier's FILTER network from being incorrectly attributed to the sensor IC itself and makes the extended sweep a useful study of practical frequency-response measurement.
+
 Remaining characterization work shall establish the detailed dynamic test method and any required test hardware before Phase 3 test execution is treated as complete.
 
 ## 3.7 — Phase output
