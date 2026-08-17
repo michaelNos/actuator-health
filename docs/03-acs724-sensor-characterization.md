@@ -430,7 +430,31 @@ A controlled comparison is only meaningful when the intended independent variabl
 
 Repeating the bench-supply baseline after the Arduino measurement provides a simple check for time-dependent drift or warming that could otherwise be mistaken for a supply-source effect.
 
-Remaining characterization work shall establish the exact measurements and evidence captured at each zero-current comparison step before powered-current Phase 3 test execution is treated as complete.
+### SENS-022 — Zero-current comparison evidence record
+
+**Status:** Accepted
+
+For each `A1–B–A2` zero-current supply-comparison step, Phase 3 shall record at minimum:
+
+- supply configuration and sequence position;
+- actual ACS724 `VCC` measured at the carrier;
+- zero-current `VOUT`;
+- approximate test temperature;
+- relevant wiring, USB and grounding state;
+- oscilloscope observation of `VOUT`; and
+- oscilloscope settings required to interpret and reproduce the observation.
+
+The same measurement method and oscilloscope configuration shall be maintained across the comparison where practical.
+
+Raw readings and waveform evidence shall be preserved separately from later interpretation. Numerical noise metrics may be added once the available instrument measurement method has been verified.
+
+### Rationale
+
+A standardized evidence record makes the A–B–A comparison reproducible and prevents later conclusions from depending on memory or screenshots whose settings are unknown.
+
+Keeping raw observations separate from interpretation preserves the evidence needed to revisit conclusions if later testing reveals a confounding factor or measurement limitation.
+
+Remaining characterization work shall establish how instrument/probe noise will be distinguished from sensor-output noise before powered-current Phase 3 test execution is treated as complete.
 
 ## 3.7 — Phase output
 
