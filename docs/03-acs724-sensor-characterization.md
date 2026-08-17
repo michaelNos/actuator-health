@@ -312,7 +312,25 @@ Bandwidth is not established merely by observing that a waveform remains visible
 
 Separating bare-IC and assembled-carrier bandwidth prevents the carrier's FILTER network from being incorrectly attributed to the sensor IC itself and makes the extended sweep a useful study of practical frequency-response measurement.
 
-Remaining characterization work shall establish the detailed dynamic test method and any required test hardware before Phase 3 test execution is treated as complete.
+### SENS-016 — Dynamic stimulus strategy
+
+**Status:** Accepted
+
+Phase 3 shall initially attempt the educational frequency-response characterization using the DOS1102S function generator as a **small-signal excitation source**, not as a multi-ampere power source.
+
+Actual primary current shall be independently derived from a suitable series reference resistor or equivalent current-reference method rather than inferred solely from the generator setting.
+
+The periodic stimulus shall remain within the ACS724-05AU unidirectional operating regime, using positive-current bias where necessary.
+
+If the resulting ACS724 output does not provide sufficient signal-to-noise ratio for reliable gain measurement, a higher-current external driver shall be designed as a subsequent test method rather than increasing generator loading beyond its established capability.
+
+### Rationale
+
+Bandwidth measurement requires a controlled, measurable periodic current but does not require operation at the 5 A full-scale current. Starting with a small-signal method minimizes additional hardware and allows the actual current waveform to be measured independently.
+
+The generator setting alone is not accepted as the current reference because source impedance and load affect delivered current. The ACS724-05AU is unidirectional, so any periodic test current must remain within the intended one-polarity operating regime.
+
+Remaining characterization work shall establish the positive-bias/current-injection topology and exact dynamic test hardware before Phase 3 test execution is treated as complete.
 
 ## 3.7 — Phase output
 
