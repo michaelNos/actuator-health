@@ -168,11 +168,31 @@ Keeping offset and sensitivity as parameters preserves the supply dependence and
 
 ## 3.4 — Error mechanisms
 
-**Status:** Partially established by SENS-003 and SENS-007
+**Status:** Complete / accepted at sensor-characterization level
 
-Characterize relevant sources including offset, sensitivity error, total output error, noise, temperature effects, supply variation, ADC contribution, and calibration influence.
+### SENS-009 — Sensor error characterization categories
 
-A complete system numerical error budget is reserved for Phase 4 unless a Phase 3 calculation is needed to characterize the sensor itself.
+**Status:** Accepted
+
+Rev-1 sensor characterization shall distinguish between:
+
+1. **offset error**,
+2. **sensitivity/gain error**,
+3. **temperature-dependent variation**,
+4. **output noise**, and
+5. **frequency/dynamic-response error**.
+
+Supply dependence established by SENS-003 and total-output error established by SENS-007 shall remain part of the sensor error model.
+
+Offset and sensitivity shall be treated as calibration parameters where practical. Noise, temperature dependence and dynamic behaviour shall be characterized separately rather than assuming that calibration removes them.
+
+### Rationale
+
+Fixed or slowly varying systematic errors can often be reduced by calibration, but random noise and frequency-dependent behaviour are different phenomena. A single offset/gain correction cannot remove random sample-to-sample variation, temperature drift outside the calibrated condition, or signal attenuation/phase change caused by finite bandwidth.
+
+This distinction is important because the project must preserve current-waveform features such as commutation ripple and other time-varying signatures, not only average current.
+
+A complete numerical system error budget, including ADC and AFE contributions, remains reserved for Phase 4.
 
 ## 3.5 — Bandwidth and FILTER pin
 
