@@ -276,7 +276,27 @@ Offset is a systematic shift in the mean sensor output at zero primary current, 
 
 Powering the sensor with the primary path at true zero current isolates the sensor's own zero-current behaviour from load-current variation. Recording `VCC` and temperature preserves the operating conditions needed to interpret the result.
 
-Remaining characterization work shall define any feasible dynamic/bandwidth verification before Phase 3 test execution is treated as complete.
+### SENS-014 — Dynamic bandwidth verification
+
+**Status:** Accepted
+
+Phase 3 dynamic characterization shall, where practical, verify ACS724 response using a controlled periodic primary-current stimulus at multiple frequencies through the accepted **DC to 10 kHz diagnostic band**.
+
+The test shall compare the ACS724 output waveform with an independent representation of the applied current and shall evaluate amplitude response and, where practical, phase behaviour.
+
+In addition to the Rev-1 requirement-oriented verification through 10 kHz, Phase 3 shall include an **educational extended frequency sweep** toward and, where practical, beyond the Pololu carrier's vendor-stated approximately **90 kHz bandwidth**. The purpose of this extension is to observe the frequency-response roll-off and experimentally estimate the carrier bandwidth/cutoff behaviour.
+
+Experimental confirmation of the vendor bandwidth is a study and characterization objective, not a Rev-1 system-acceptance requirement. Failure to reproduce the vendor value with the available laboratory stimulus/measurement setup shall be reported as a test limitation rather than silently interpreted as sensor failure unless the test method itself has been validated.
+
+The exact dynamic-current stimulus circuit remains **TBD** until the available function-generator capability and suitable current-driving/reference hardware are established.
+
+### Rationale
+
+The system requirement only demands preservation of current information through 10 kHz, so that band remains the formal engineering verification target. Extending the sweep toward the carrier bandwidth provides a useful laboratory lesson in frequency response, gain roll-off and bandwidth measurement without changing the Rev-1 requirement.
+
+Because the oscilloscope function generator is a signal source rather than inherently a multi-ampere current source, the dynamic-current driver and reference method must be designed before the extended sweep is treated as valid evidence.
+
+Remaining characterization work shall establish the detailed dynamic test method and any required test hardware before Phase 3 test execution is treated as complete.
 
 ## 3.7 — Phase output
 
