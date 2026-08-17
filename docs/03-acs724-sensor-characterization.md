@@ -354,7 +354,27 @@ A zero-centred sinusoidal current reverses direction every half-cycle and would 
 
 Using a single generator's verified offset capability is the simplest initial method. Directly paralleling an independent bench supply and function generator is not an acceptable way to combine DC and AC sources because the sources can drive each other unless a deliberate coupling or summing network is used.
 
-Remaining characterization work shall establish the exact test hardware, reference components and verified instrument settings before Phase 3 test execution is treated as complete.
+### SENS-018 — Phase 3 test-hardware readiness
+
+**Status:** Accepted
+
+Before Phase 3 static or dynamic characterization results are accepted as engineering evidence:
+
+1. the independent current-reference method shall be identified and its relevant accuracy/range documented;
+2. the static 0 A to 5 A test shall use a load with adequate voltage, current and power rating;
+3. the dynamic test shall use a characterized current-reference element such as `RREF` or an equivalent validated reference method;
+4. the multi-ampere primary-current path shall use suitable conductors and connections rather than a solderless breadboard; and
+5. missing equipment or exact component values shall remain **TBD** until selected and verified.
+
+The zero-current characterization may be executed before the high-current load is available because it does not require current through the primary path.
+
+### Rationale
+
+A characterization result is only as trustworthy as its stimulus and reference measurement. Unknown reference-instrument uncertainty, an under-rated power load, or unsuitable high-current wiring could invalidate the result or create avoidable hardware risk.
+
+Separating zero-current characterization from the later powered-current tests allows useful Phase 3 measurements to begin without pretending that the complete static and dynamic test setup is already ready.
+
+Remaining characterization work shall establish the exact test hardware, reference components and verified instrument settings before powered-current Phase 3 test execution is treated as complete.
 
 ## 3.7 — Phase output
 
