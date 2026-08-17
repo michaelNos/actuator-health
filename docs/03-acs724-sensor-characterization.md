@@ -258,7 +258,25 @@ Because the ACS724 is ratiometric and temperature-sensitive, a current/output pa
 
 The sensor is only one contributor to total measurement error; the later AFE, ADC, voltage reference/supply, calibration method and reference measurement also consume part of the system accuracy budget.
 
-Remaining characterization work shall define the zero-current/noise test and any feasible dynamic/bandwidth verification before Phase 3 test execution is treated as complete.
+### SENS-013 — Zero-current offset and noise test
+
+**Status:** Accepted
+
+The ACS724 zero-current characterization shall be performed with the sensor electronics powered and **no current flowing through the primary current path**.
+
+The test shall record repeated `VOUT` measurements together with the actual sensor supply voltage `VCC` and approximate test temperature.
+
+The mean zero-current output shall be treated as the measured zero-current offset under the recorded test conditions. Short-term variation around that mean shall be characterized separately as output noise using suitable statistical measurements and/or oscilloscope observations.
+
+Offset and noise shall not be combined into a single characterization value.
+
+### Rationale
+
+Offset is a systematic shift in the mean sensor output at zero primary current, whereas noise is the short-term variation of individual measurements around that mean. Separating the two allows the offset to be used as a calibration parameter while preserving noise as an independent limit on repeatability and effective resolution.
+
+Powering the sensor with the primary path at true zero current isolates the sensor's own zero-current behaviour from load-current variation. Recording `VCC` and temperature preserves the operating conditions needed to interpret the result.
+
+Remaining characterization work shall define any feasible dynamic/bandwidth verification before Phase 3 test execution is treated as complete.
 
 ## 3.7 — Phase output
 
