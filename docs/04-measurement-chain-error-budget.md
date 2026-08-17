@@ -57,34 +57,56 @@ Measured `Voffset`, sensitivity and practical rail margin remain verification-st
 
 The native ACS724 span already uses approximately 4 V of a nominal 5 V ADC range. Additional analog scaling would provide limited resolution benefit while adding gain/offset error and reducing headroom. Preserving the native span therefore gives a simpler and more robust Rev-1 measurement chain.
 
-## Phase 4 design topics remaining
+## 4.2 — Accuracy allocation and useful resolution
 
-### 4.2 — Accuracy budget allocation
+### MEAS-002 — Measurement-chain error and resolution budget
 
-Allocate the **±0.10 A** system requirement across the major measurement-chain contributors without pretending that hardware-dependent sensor, temperature, noise, or calibration residuals are already known.
+**Status:** Accepted
 
-Candidate contributors include:
+The Phase 1 system current-accuracy requirement of **≤ ±0.10 A after calibration** corresponds nominally, at `S ≈ 0.8 V/A`, to an equivalent full-chain voltage error allowance of:
 
-- residual sensor error after calibration;
-- AFE gain/offset error;
-- ADC/reference error;
-- noise;
-- supply/ratiometric effects;
-- temperature and other residual effects.
+`0.10 A × 0.8 V/A = 80 mV`
 
-**Status:** To be decided.
+Rev-1 shall use the following conservative worst-case design allocation:
 
-### 4.3 — Resolution and useful ADC performance
+| Contributor | Current-domain allocation | Nominal voltage equivalent |
+|---|---:|---:|
+| Sensor + calibration residual | ±50 mA | ±40 mV |
+| AFE residual error | ±15 mA | ±12 mV |
+| ADC/reference residual error | ±10 mA | ±8 mV |
+| Noise contribution | ±10 mA | ±8 mV |
+| Supply/temperature and other residual effects | ±15 mA | ±12 mV |
+| **Worst-case total** | **±100 mA** | **±80 mV** |
 
-Translate the **≤10 mA** reported-current resolution target into voltage-domain and ADC-domain constraints while keeping resolution distinct from accuracy and nominal ADC bit depth distinct from effective usable resolution.
+These values are **design allocations**, not claims of measured performance. In particular, the individual ACS724 sensor's residual error after calibration, practical noise, supply effects and temperature behavior remain `TBD` until implementation and verification.
 
-Nominal sensor sensitivity gives:
+The allocation is intentionally conservative and additive so that later subsystem designs receive explicit error limits. Where contributors are statistically independent, later analysis may additionally evaluate root-sum-square uncertainty, but statistical combination shall not be used during design to hide violation of an allocated worst-case limit.
+
+The Phase 1 **±0.05 A stretch target** is not guaranteed by this baseline. It may be claimed only if later measured/calibrated system performance demonstrates it.
+
+### Useful resolution requirement
+
+The accepted reported-current resolution target is **≤10 mA**. At nominal sensor sensitivity:
 
 `10 mA × 0.8 V/A = 8 mV`
 
-**Status:** To be decided.
+The ADC-facing measurement chain shall therefore provide **effective usable voltage resolution of 2 mV or better** under the intended acquisition conditions. Nominally this corresponds to:
 
-### 4.4 — Bandwidth and anti-alias requirement handoff
+`2 mV / 0.8 V/A = 2.5 mA`
+
+This provides approximately fourfold margin below the 10 mA reported-current step.
+
+The 2 mV requirement is an **effective chain/ADC-domain performance requirement**, not merely a converter-LSB calculation. Phase 6 shall verify that quantization, ADC noise, reference/supply behavior and acquisition conditions provide this useful performance at the selected sample rate.
+
+Resolution and accuracy remain distinct: a chain may resolve changes smaller than 10 mA while still carrying larger systematic measurement error.
+
+### Rationale
+
+The sensor receives the largest accuracy allocation because its residual offset/gain behavior, temperature dependence and calibration residual are expected to dominate more strongly than the downstream AFE or ADC. The 2 mV useful-resolution requirement prevents nominal ADC bit depth from being mistaken for practical measurement capability and leaves adequate margin for stable 10 mA reporting.
+
+## Phase 4 design topic remaining
+
+### 4.3 — Bandwidth and anti-alias requirement handoff
 
 Translate the **DC–10 kHz** diagnostic band and **100 kS/s** acquisition target into quantitative requirements that Phase 5 can use to select an anti-alias filter topology and cutoff.
 
