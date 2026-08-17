@@ -20,13 +20,32 @@ This phase establishes the product-level ADC resolution/reference strategy, dete
 - Main MCU: **Renesas RA4M1**, 48 MHz, ADC capable of up to 14-bit conversion.
 - Ordinary high-level `analogRead()` behavior shall not be assumed to provide deterministic 100 kS/s acquisition.
 
-## Phase 6 design topics
+## 6.1 — ADC operating resolution and reference strategy
 
-### 6.1 — ADC operating resolution and reference strategy
+### ADC-001 — 14-bit conversion baseline with measured effective performance
 
-Select the Rev-1 ADC operating mode and reference/supply relationship needed to meet useful resolution and accuracy requirements.
+**Status:** Accepted
 
-**Status:** To be decided.
+Rev-1 shall use the RA4M1 ADC in **14-bit conversion mode** as the design baseline.
+
+For a nominal 5 V full-scale ADC range, ideal quantization is approximately:
+
+- 12-bit: `5 V / 4096 ≈ 1.22 mV/LSB`;
+- 14-bit: `5 V / 16384 ≈ 0.305 mV/LSB`.
+
+Both are nominally below the accepted **2 mV effective usable voltage-resolution requirement**, but 14-bit operation provides additional quantization margin and is available in the selected MCU.
+
+Nominal bit depth shall not be treated as effective resolution or measurement accuracy. ADC noise, reference/supply behavior, source settling, timing and other practical effects shall be characterized during implementation/verification. The system must demonstrate the accepted ≤2 mV useful-resolution requirement under its actual acquisition conditions.
+
+No oversampling is required merely to satisfy the nominal Phase 4 resolution requirement. Oversampling or averaging may later be used for specific low-bandwidth measurements only if it does not compromise the required signal information.
+
+The final ADC reference/supply implementation shall be coordinated with the Phase 10 power design because the ACS724 transfer is ratiometric with its supply. Phase 6 therefore establishes the conversion-resolution baseline without prematurely claiming an exact reference voltage or reference accuracy.
+
+### Rationale
+
+Using the MCU's available 14-bit mode provides comfortable quantization margin without requiring an external ADC solely for resolution. Explicitly separating nominal converter bits from measured effective performance preserves the system-level accuracy and resolution requirements.
+
+## Phase 6 design topics remaining
 
 ### 6.2 — Deterministic sampling trigger
 
