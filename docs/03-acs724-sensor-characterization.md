@@ -40,7 +40,7 @@ The ACS724 is therefore inserted in series with the actuator-current path; it is
 
 ## 3.2 — Exact ACS724-05AU variant
 
-**Status:** In progress
+**Status:** Complete / accepted
 
 ### SENS-002 — Rev-1 sensor operating range and polarity
 
@@ -124,9 +124,21 @@ A dielectric withstand test verifies that an isolation barrier can survive a spe
 
 Safe system-level working voltage also depends on the complete implementation, including carrier PCB geometry, connectors, wiring, insulation, environment and applicable safety requirements. Therefore the IC's isolation test rating cannot by itself establish the safe operating voltage of the complete laboratory prototype.
 
-Remaining topics to establish from primary sources:
+### SENS-007 — Sensor accuracy characterization principle
 
-- temperature and error specifications.
+**Status:** Accepted
+
+The Rev-1 current conversion shall not assume that the nominal ACS724-05AU zero-current output and sensitivity are exact.
+
+Datasheet sensitivity error, voltage-offset error, total output error and temperature dependence shall be treated as measurement-system error sources.
+
+The actual sensor offset and sensitivity shall therefore be experimentally characterized and later calibrated. The Phase 1 **±0.10 A current-accuracy target shall not be considered demonstrated by nominal datasheet values alone**.
+
+### Rationale
+
+The ACS724 datasheet specifies finite offset, sensitivity and total-output error, and these quantities vary with temperature. At full-scale current, the specified total-output error can be comparable to or larger than the Phase 1 ±0.10 A target when nominal scaling is used without calibration.
+
+The Rev-1 laboratory environment is near room temperature, but the individual carrier's actual offset and gain still need to be measured. These measured values will later feed the calibration procedure and Phase 4 measurement-error budget.
 
 ## 3.3 — Sensor transfer function
 
@@ -136,7 +148,7 @@ Derive the forward and inverse current/voltage relationships using the exact dat
 
 ## 3.4 — Error mechanisms
 
-**Status:** TBD
+**Status:** Partially established by SENS-003 and SENS-007
 
 Characterize relevant sources including offset, sensitivity error, total output error, noise, temperature effects, supply variation, ADC contribution, and calibration influence.
 
