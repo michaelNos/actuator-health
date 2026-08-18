@@ -67,9 +67,47 @@ Physical implementation shall preserve practical separation between high-current
 
 The partition makes the accepted architecture buildable while preserving the critical distinction between the motor-energy path and the measurement signal path. It provides a concrete basis for later wiring, grounding, protection and assembly decisions without incorrectly treating the entire laboratory setup as galvanically isolated.
 
+## 12.2 — Actuator current-path wiring architecture
+
+### INT-002 — Dedicated high-side sensor current path with fixed polarity convention
+
+**Status:** Accepted
+
+The Rev-1 actuator-current path shall be wired as:
+
+`bench PSU (+) → ACS724 IP+ → ACS724 IP− → motor/actuator (+) → motor/actuator (−) → bench PSU (−)`
+
+This establishes the positive current convention through the unidirectional ACS724-05AU and keeps the sensor on the positive/high side of the low-voltage actuator supply.
+
+The current path shall use dedicated insulated copper conductors and connectors suitable for the selected motor's normal, startup and controlled fault-test currents. The path shall not pass through a solderless breadboard, MCU header wiring or measurement-ground conductors.
+
+The ACS724 primary terminals and all motor-current connections shall be mechanically secure. The final assembly shall provide strain relief or equivalent support so that motor/PSU leads do not load the sensor PCB or create intermittent high-current contacts.
+
+The physical build shall clearly identify at least:
+
+- `PSU+`;
+- `ACS724 IP+`;
+- `ACS724 IP−`;
+- `MOTOR+`;
+- `MOTOR−`;
+- `PSU−`.
+
+The **0–5 A** range is the calibrated measurement range, not a requirement to operate the motor continuously near 5 A and not the electrical survival rating. The selected motor shall provide useful measurement margin below 5 A during normal operation while still allowing controlled startup/load/stall experiments without routinely exceeding the valid measurement range.
+
+Because the Rev-1 sensor variant is unidirectional, the build shall preserve the defined current direction through the sensor. Bidirectional/regenerative current characterization is outside the Rev-1 calibrated scope.
+
+### Procurement dependency
+
+The exact motor/actuator has **not yet been selected**, and dedicated current-rated motor wiring/connectors are **not yet available**. These are explicit Phase 12 procurement items.
+
+The current-path topology is nevertheless frozen. Exact conductor gauge, connector type and current rating shall be selected after INT-011 freezes the Rev-1 motor electrical envelope. Those choices must be completed before Phase 12 closure because they are build-defining, not measurement-dependent TBDs.
+
+### Rationale
+
+A fixed current direction is required by the unidirectional ACS724 transfer function. A dedicated high-current path prevents motor current from flowing through inappropriate prototyping interconnects and creates a clean basis for later wire/connector sizing once the motor is selected.
+
 ## Phase 12 integration work packages remaining
 
-2. **INT-002 — Actuator current-path wiring architecture**
 3. **INT-003 — Measurement-electronics power distribution**
 4. **INT-004 — Ground/reference and laboratory-instrument connection architecture**
 5. **INT-005 — ACS724 secondary-side interface**
