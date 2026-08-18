@@ -1,6 +1,6 @@
 # Phase 11 — Calibration and PC/MATLAB Analysis Design
 
-**Status:** In development  
+**Status:** Design complete  
 **Project:** Actuator Health Monitoring System
 
 ## Purpose
@@ -101,12 +101,53 @@ Datasets retained for engineering analysis shall include enough metadata to repr
 
 Separating embedded monitoring from engineering analysis keeps the deployed Rev-1 architecture autonomous while allowing MATLAB to use its stronger visualization, fitting and signal-analysis capabilities during development and verification. Metadata-bearing datasets also make later comparisons and calibration results traceable rather than dependent on undocumented laboratory context.
 
-## Phase 11 design topic remaining
+## 11.4 — Measurement calibration versus healthy diagnostic reference
 
-Define the relationship between measurement calibration and the deliberately frozen healthy diagnostic reference so that these two distinct forms of configuration are not conflated.
+### CAL-004 — Separate, versioned calibration and healthy-reference datasets
+
+**Status:** Accepted
+
+Rev-1 shall treat **measurement calibration** and the **healthy diagnostic reference** as separate configuration datasets because they represent different engineering functions.
+
+Measurement calibration converts the electrical measurement into an accurate physical current quantity:
+
+`ADC/voltage measurement → calibrated amperes`
+
+The healthy diagnostic reference describes expected current behavior for a known-good motor/operating condition:
+
+`calibrated current/features → condition comparison`
+
+Recalibrating the measurement chain shall therefore not automatically redefine healthy motor behavior. Conversely, establishing a new healthy reference shall not alter the electrical current-conversion coefficients.
+
+Both datasets shall be independently identifiable/versioned. The healthy-reference dataset shall retain compatibility information identifying the measurement calibration and relevant processing/configuration context under which it was established.
+
+After a material calibration or signal-processing change, the existing healthy reference shall be checked for compatibility. If the change alters the numerical current/features sufficiently that the old reference is no longer valid, a new healthy reference shall be deliberately characterized rather than silently reusing or automatically adapting the old one.
+
+Exact compatibility metadata and storage format remain Stage B implementation choices.
+
+### Rationale
+
+Conflating calibration with healthy behavior would make measurement corrections unintentionally redefine the diagnostic baseline. Keeping them separate preserves traceability and ensures that both measurement accuracy and condition-monitoring references change only through deliberate engineering actions.
+
+## Phase 11 design status
+
+CAL-001 through CAL-004 define the Rev-1 calibration and PC-analysis architecture:
+
+`raw measurement → versioned calibration → calibrated current/features → versioned healthy reference → diagnostics`
+
+MATLAB supports calibration, characterization and diagnostic development, while the MCU remains responsible for deployed real-time monitoring.
+
+## Verification handoff
+
+Implementation/verification shall demonstrate that:
+
+- the measured linear calibration is evaluated across the 0–5 A range against the ≤ ±0.10 A requirement;
+- calibration identity and validity are traceable through exported measurement data;
+- invalid/missing calibration cannot silently produce data represented as calibrated;
+- MATLAB can reproduce calibration, waveform and spectral analyses from metadata-bearing datasets;
+- real-time monitoring remains functional without MATLAB connected;
+- healthy-reference data is distinguishable from measurement calibration and compatibility is checked after material calibration/processing changes.
 
 ## Planned output
 
-Phase 11 shall close with a calibration and PC-analysis architecture that Phase 12 can integrate into the Rev-1 build specification and Stage B can implement without redefining the measurement model.
-
-No Phase 11 engineering decision is baselined until explicitly approved.
+Phase 11 closes with a calibration and PC-analysis architecture that Phase 12 can integrate into the Rev-1 build specification and Stage B can implement without redefining the measurement model.
