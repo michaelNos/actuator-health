@@ -159,9 +159,37 @@ This satisfies the accepted Phase 4 limits of no more than 1 dB attenuation at 1
 
 The exact E96 resistor values and tolerance-controlled capacitors are treated as BOM items if not already available. The design shall not be degraded merely to use unsuitable assortment parts. Actual filter response and component tolerances shall be verified during implementation.
 
-### INT-006 remaining sub-decisions
+### INT-006C — MCP6022 channel allocation, supply and decoupling
 
-- **INT-006C — MCP6022 pin-level allocation, supply and decoupling**;
+**Status:** Accepted
+
+The MCP6022-I/P dual op-amp shall implement the two Sallen-Key sections in this signal order:
+
+`ACS724 VOUT → low-Q section → high-Q section → TP_AFE → ADC interface`
+
+Channel allocation:
+
+- **MCP6022 channel A:** low-Q section (`Q ≈ 0.548`);
+- **MCP6022 channel B:** high-Q section (`Q ≈ 1.304`).
+
+The low-Q-first/high-Q-second ordering is frozen for Rev-1. The ideal cascaded transfer function is independent of section order, but this ordering avoids placing the higher-Q behavior at the first active stage and provides one unambiguous implementation.
+
+Power connections:
+
+- `MCP6022 VDD → 5V_MEAS`;
+- `MCP6022 VSS → GND_MEAS`.
+
+Provide:
+
+- **100 nF ceramic local bypass capacitor** directly between MCP6022 VDD and VSS, physically close to the IC supply pins;
+- **10 µF bulk/local reservoir capacitor** between `5V_MEAS` and `GND_MEAS` near the AFE analog section.
+
+The MCP6022 is used as a single-supply RRIO amplifier, but rail-to-rail capability shall not be interpreted as guaranteed zero-error operation exactly at either supply rail. The nominal ACS724 signal span of approximately **0.5–4.5 V** intentionally leaves headroom. Actual output swing, loading, distortion and filter response shall be checked during Stage B verification.
+
+Detailed DIP-8 physical pin numbers and exact net-by-net Sallen-Key wiring are completed in INT-006D so the final AFE circuit is reviewed as one coherent build specification rather than as disconnected pin facts.
+
+### INT-006 remaining sub-decision
+
 - **INT-006D — complete AFE net-level circuit and voltage/headroom verification**.
 
 ## Phase 12 integration work packages remaining
