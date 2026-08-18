@@ -76,10 +76,34 @@ The exact nonvolatile storage structure, serialization format, host-file represe
 
 Calibration is part of the measurement system, not merely a mathematical constant. Versioning and traceability make results reproducible, prevent ambiguity after recalibration, and allow captured data to be associated with the exact conversion parameters that generated it.
 
-## Phase 11 design topics remaining
+## 11.3 — PC/MATLAB analysis role
 
-- PC/MATLAB analysis responsibilities and reproducible data products;
-- relationship between calibration data and the healthy diagnostic reference.
+### CAL-003 — MATLAB as offline engineering and characterization environment
+
+**Status:** Accepted
+
+MATLAB shall serve as the Rev-1 **offline engineering, characterization, calibration and diagnostic-development environment** rather than as a required component of real-time monitoring.
+
+The PC/MATLAB environment shall support, as applicable:
+
+- calibration fitting and residual/error analysis;
+- current-waveform visualization and inspection;
+- FFT/spectral and band-energy analysis;
+- comparison of healthy and abnormal motor behavior;
+- development and tuning of diagnostic thresholds/features;
+- generation of engineering verification plots and analysis results.
+
+The MCU remains responsible for real-time acquisition, calibrated-current processing, health-state handling and deployed diagnostic logic. Loss or absence of the MATLAB connection shall not prevent the embedded monitor from performing its designed real-time functions.
+
+Datasets retained for engineering analysis shall include enough metadata to reproduce their interpretation, including as applicable sample-rate/timing identity, calibration identity, measurement validity/health information and test/dataset identity. Exact file format, script structure, plotting conventions and import/export implementation remain Stage B choices.
+
+### Rationale
+
+Separating embedded monitoring from engineering analysis keeps the deployed Rev-1 architecture autonomous while allowing MATLAB to use its stronger visualization, fitting and signal-analysis capabilities during development and verification. Metadata-bearing datasets also make later comparisons and calibration results traceable rather than dependent on undocumented laboratory context.
+
+## Phase 11 design topic remaining
+
+Define the relationship between measurement calibration and the deliberately frozen healthy diagnostic reference so that these two distinct forms of configuration are not conflated.
 
 ## Planned output
 
