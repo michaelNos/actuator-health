@@ -36,98 +36,54 @@ The integrated design must preserve at least the following accepted constraints:
 - bench PSU current limiting is the initial active motor-current protection mechanism;
 - Rev-1 hobby hardware shall never be connected directly to industrial mains or a 400 V motor circuit.
 
-## Phase 12 integration work packages
+## 12.1 — Integrated Rev-1 topology and physical partitioning
 
-Because Phase 12 is the integration/build-definition phase, it may contain as many coherent decisions as are required. Decisions will not be artificially limited to three or four.
+### INT-001 — Four-region integrated system topology
 
-The planned work packages are:
+**Status:** Accepted
 
-1. **INT-001 — Rev-1 integrated system topology and physical partitioning**
-   - freeze the complete end-to-end hardware partition;
-   - distinguish high-current, analog measurement, digital/MCU and PC domains;
-   - define which interconnections cross each boundary.
+Rev-1 shall be integrated as four deliberate physical/electrical regions:
+
+1. **Actuator/high-current region** — bench PSU, high-current wiring/connectors, ACS724 primary current path and low-voltage DC motor/actuator.
+2. **Analog measurement region** — ACS724 secondary/output-side electronics, MCP6022-based AFE, deliberate anti-alias filtering and ADC-interface/protection circuitry.
+3. **Digital/processing region** — Arduino UNO R4 WiFi / RA4M1 performing deterministic ADC acquisition, buffering, calibrated-current conversion, signal-feature extraction, diagnostics and communication management.
+4. **Host region** — USB-connected PC/MATLAB environment for telemetry, waveform capture, calibration/characterization and engineering analysis.
+
+The integrated signal path is:
+
+`motor current → ACS724 primary conductor → Hall measurement → ACS724 VOUT → AFE/anti-alias filter → ADC → MCU processing/diagnostics → USB → PC/MATLAB`
+
+The actuator current path is conceptually:
+
+`bench PSU (+) → ACS724 IP+ → ACS724 IP− → DC motor/actuator → bench PSU (−)`
+
+The ACS724 primary conductor forms the boundary between the multi-ampere actuator-current path and the low-voltage measurement signal chain. Motor current shall not be routed through the AFE, MCU, USB or measurement-ground wiring.
+
+The four-region partition is a functional and physical integration rule, not a claim that all four regions are mutually galvanically isolated. In particular, the analog measurement and MCU regions intentionally share the required low-voltage measurement reference, and USB/bench-instrument grounding may introduce additional earth/reference relationships that must be respected during implementation.
+
+Physical implementation shall preserve practical separation between high-current/noisy motor wiring and sensitive analog wiring. The exact enclosure, board placement and wire lengths are not frozen in Phase 12 unless later integration analysis shows they are necessary to guarantee the design.
+
+### Rationale
+
+The partition makes the accepted architecture buildable while preserving the critical distinction between the motor-energy path and the measurement signal path. It provides a concrete basis for later wiring, grounding, protection and assembly decisions without incorrectly treating the entire laboratory setup as galvanically isolated.
+
+## Phase 12 integration work packages remaining
 
 2. **INT-002 — Actuator current-path wiring architecture**
-   - PSU, sensor primary path, motor and return topology;
-   - connector/current-carrying requirements;
-   - breadboard prohibition for the motor-current path;
-   - current direction/polarity convention.
-
 3. **INT-003 — Measurement-electronics power distribution**
-   - source and distribution of the 5 V measurement domain;
-   - sensor/AFE/MCU relationships;
-   - decoupling and supply partitioning requirements;
-   - power-up assumptions that affect validity.
-
 4. **INT-004 — Ground/reference and laboratory-instrument connection architecture**
-   - measurement-ground topology;
-   - motor-return segregation;
-   - USB/PC ground implications;
-   - oscilloscope/function-generator grounding constraints.
-
 5. **INT-005 — ACS724 secondary-side interface**
-   - exact functional connections required between sensor carrier and AFE;
-   - supply, ground and VOUT routing;
-   - stock FILTER configuration retained;
-   - sensor connector/interface definition.
-
 6. **INT-006 — AFE implementation and component-value freeze**
-   - convert the accepted Phase 5 topology into an actual Rev-1 circuit;
-   - freeze op-amp channel usage;
-   - freeze resistor/capacitor values and tolerances where product-defining;
-   - confirm expected DC gain, range, cutoff and headroom.
-
 7. **INT-007 — ADC interface and input protection**
-   - AFE-to-RA4M1 ADC connection;
-   - ADC pin/channel allocation;
-   - required local RC/protection components;
-   - valid/overrange behavior at the electrical interface.
-
 8. **INT-008 — MCU I/O and resource allocation**
-   - freeze the Rev-1 pins/peripherals needed for ADC, communication and any required status/control interfaces;
-   - reserve resources where needed to prevent later integration conflicts;
-   - detailed register programming remains Stage B.
-
 9. **INT-009 — USB/PC physical and logical integration boundary**
-   - physical PC connection;
-   - communication dependency rules;
-   - capture/telemetry integration assumptions.
-
 10. **INT-010 — Protection implementation**
-    - freeze required ADC/AFE protection components;
-    - decide whether Rev-1 requires a fuse or other passive current-path protection in addition to PSU current limiting;
-    - polarity/miswiring protections where justified;
-    - preserve distinction between measurement overrange and hardware survival.
-
 11. **INT-011 — Rev-1 motor/actuator selection requirements**
-    - determine whether a specific motor must be frozen before design review;
-    - if not yet purchased, define electrical/mechanical selection envelope sufficient to buy one without redesigning the monitor.
-
 12. **INT-012 — Complete BOM and procurement status**
-    - required components, quantities, key ratings/tolerances and selected part identities;
-    - distinguish already available / to purchase / optional laboratory equipment;
-    - avoid false precision for generic hardware where rating is what matters.
-
 13. **INT-013 — Wiring/interconnect specification**
-    - produce a connection table/net-level build specification;
-    - distinguish high-current wiring from low-level signal wiring;
-    - define connector labels and polarity/current-direction markings;
-    - exact physical wire lengths remain implementation detail.
-
 14. **INT-014 — Mechanical/assembly constraints**
-    - define which circuits may use solderless breadboard during development and which must not;
-    - mounting/strain-relief expectations for sensor and motor-current wiring;
-    - separation of noisy/high-current wiring from analog signal wiring.
-
 15. **INT-015 — Configuration and build identity**
-    - define what constitutes one Rev-1 hardware/firmware/calibration configuration;
-    - ensure captured data can be traced to build and calibration identity.
-
 16. **INT-016 — Integration completeness review**
-    - reconcile interfaces against Phases 1–11;
-    - identify unresolved build-blocking TBDs;
-    - carry non-blocking measured values forward to implementation/verification;
-    - prepare the design for Phase 13 verification planning and Phase 14 freeze.
 
 Additional integration decisions may be introduced if the detailed reconciliation exposes a genuine build-defining gap.
 
