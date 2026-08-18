@@ -1,6 +1,6 @@
 # Phase 8 — Diagnostics / Health-Monitoring Logic
 
-**Status:** In development  
+**Status:** Design complete  
 **Project:** Actuator Health Monitoring System
 
 ## Purpose
@@ -114,12 +114,46 @@ Exact reference values, allowable deviations, feature weighting and anomaly pers
 
 Normal current signature depends strongly on the motor and mechanical operating condition. A motor-specific reference makes current-pattern diagnostics meaningful while freezing the accepted reference prevents gradual degradation from being learned as normal behavior.
 
-## Phase 8 design topic remaining
+## 8.4 — Diagnostic persistence, recovery and event retention
 
-Determine whether any additional diagnostic persistence/confidence/state-latching behavior materially affects the product architecture; otherwise Phase 8 can close without creating procedural detail.
+### DIAG-004 — Stateful qualification with recovery hysteresis and event history
+
+**Status:** Accepted
+
+Rev-1 diagnostics shall use **stateful persistence/qualification** so that features fluctuating around a threshold do not cause rapid toggling between normal and abnormal condition states.
+
+Entry into an overload, stall/jam or current-pattern-anomaly condition shall require the persistence/qualification appropriate to that diagnostic. Recovery to normal shall likewise require sustained return to acceptable conditions and may use hysteresis so that the recovery boundary need not be identical to the fault-entry boundary.
+
+Exact recovery intervals and numeric hysteresis values are motor-dependent implementation/characterization parameters and remain `TBD` during Stage A. They shall be selected so that they do not violate the accepted fault-detection latency requirements.
+
+A qualified diagnostic event, particularly overload or stall/jam, shall remain available as **event/history information** after the live condition has recovered. This retained indication is for reporting and later analysis; it does not imply that the live fault state remains asserted indefinitely.
+
+This state behavior does not introduce automatic motor shutdown. Diagnostic state and protective actuation remain separate.
+
+### Rationale
+
+Persistence and hysteresis prevent noisy or borderline measurements from producing unstable diagnostic outputs. Retaining qualified events preserves evidence of intermittent faults for analysis while still allowing the live condition state to recover when the measured behavior returns to acceptable operation.
+
+## Phase 8 design status
+
+DIAG-001 through DIAG-004 define the Rev-1 product-level diagnostic architecture:
+
+`validated features + operating context + healthy reference → qualified condition assessment + event history`
+
+Motor-specific thresholds, reference values, feature weighting, persistence/recovery constants and anomaly limits remain deliberately deferred to implementation/characterization where they can be based on measured behavior rather than invented values.
+
+## Verification handoff
+
+Implementation/verification shall demonstrate that:
+
+- startup behavior is not incorrectly classified using running-state fault criteria;
+- sustained overload is detected within the accepted latency after valid overload criteria exist;
+- stall/jam is detected within the accepted latency after valid combined stall criteria exist;
+- current-pattern anomaly logic compares against a deliberately established healthy reference;
+- invalid measurement-pipeline data produces diagnostic unavailable rather than a false actuator fault;
+- persistence/hysteresis prevents unstable threshold chatter;
+- qualified diagnostic events remain available for reporting after live-state recovery.
 
 ## Planned output
 
-Phase 8 shall close with diagnostic logic sufficiently defined for Phase 7 firmware outputs to feed it and for Stage B implementation to tune motor-specific thresholds without redefining the diagnostic architecture.
-
-No Phase 8 engineering decision is baselined until explicitly approved.
+Phase 8 closes with diagnostic logic sufficiently defined for Phase 7 firmware outputs to feed it and for Stage B implementation to tune motor-specific thresholds without redefining the diagnostic architecture.
