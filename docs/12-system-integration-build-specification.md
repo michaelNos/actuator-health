@@ -5,11 +5,7 @@
 
 ## Purpose
 
-Phase 12 converts the accepted subsystem designs from Phases 1–11 into one coherent, buildable Rev-1 specification.
-
-Unlike the preceding architecture phases, this phase intentionally goes deeper. It shall freeze enough integration detail that another engineer could identify the required hardware, understand every subsystem boundary, wire the Rev-1 correctly, know which values/interfaces are fixed versus TBD, and proceed into Stage B without inventing missing product architecture.
-
-Phase 12 still does **not** perform the physical build, firmware implementation, calibration or laboratory verification. Those activities remain after the Rev-1 design freeze.
+Phase 12 converts the accepted subsystem designs from Phases 1–11 into one coherent, buildable Rev-1 specification. Physical implementation, firmware coding, calibration and laboratory verification remain after design freeze.
 
 ## Accepted design baseline entering Phase 12
 
@@ -33,11 +29,7 @@ Phase 12 still does **not** perform the physical build, firmware implementation,
 
 Rev-1 is partitioned into actuator/high-current, analog measurement, digital/processing and host regions.
 
-Integrated signal path:
-
 `motor current → ACS724 → VOUT → AFE/anti-alias filter → ADC → MCU → USB → PC/MATLAB`
-
-The ACS724 primary conductor separates the multi-ampere actuator-current path from the low-voltage measurement signal chain. This partition does not imply that all laboratory regions are mutually galvanically isolated.
 
 ## 12.2 — Actuator current-path wiring architecture
 
@@ -45,15 +37,11 @@ The ACS724 primary conductor separates the multi-ampere actuator-current path fr
 
 **Status:** Accepted
 
-Current path:
-
 `bench PSU (+) → ACS724 IP+ → ACS724 IP− → motor (+) → motor (−) → bench PSU (−)`
 
-Dedicated insulated current-rated conductors/connectors shall be used. Motor current shall not pass through a solderless breadboard, MCU header wiring or measurement-ground conductors. Connections shall be mechanically secure and strain relieved.
+Dedicated current-rated conductors/connectors shall be used; no motor current through solderless breadboard, MCU header wiring or measurement-ground conductors.
 
-The **0–5 A** range is the calibrated measurement range, not a continuous-current target or survival rating. Bidirectional/regenerative current characterization is outside Rev-1 scope.
-
-**Procurement dependency:** the exact motor and current-rated wiring/connectors are not yet selected/available. Exact conductor gauge and connector type shall be frozen after INT-011 establishes the motor electrical envelope.
+**Procurement dependency:** exact motor and current-rated wiring/connectors are not yet selected/available. Final sizing follows INT-011.
 
 ## 12.3 — Measurement-electronics power distribution
 
@@ -61,13 +49,9 @@ The **0–5 A** range is the calibrated measurement range, not a continuous-curr
 
 **Status:** Accepted
 
-Normal development power topology:
-
 `USB-C → UNO R4 WiFi → UNO +5 V header → ACS724 VCC + MCP6022 VDD`
 
-with common `GND_MEAS` for UNO, ACS724 secondary side and MCP6022. The motor remains exclusively on the separate bench-PSU actuator path.
-
-The actual measurement rail is approximately 5 V and shall be characterized during implementation/calibration rather than assumed to equal exactly 5.000 V. No external precision 5 V regulator/reference is required unless measured performance later demonstrates it is necessary.
+with common `GND_MEAS`. Motor power remains on the separate bench-PSU path. Actual measurement rail is characterized rather than assumed exactly 5.000 V.
 
 ## 12.4 — Ground/reference and laboratory-instrument architecture
 
@@ -77,9 +61,7 @@ The actual measurement rail is approximately 5 V and shall be characterized duri
 
 `GND_MEAS = GND_UNO = GND_AFE = GND_ACS724-secondary`
 
-Required identified test points are `TP_GND`, `TP_5V`, `TP_SENSOR` and `TP_AFE`.
-
-Oscilloscope/function-generator grounds shall not be assumed floating. Ordinary probe grounds shall not be casually connected to actuator-current nodes. Differential/high-current measurements require an appropriate verified method during Stage B.
+Required test points: `TP_GND`, `TP_5V`, `TP_SENSOR`, `TP_AFE`. Instrument grounds shall not be assumed floating; ordinary probe grounds shall not be casually connected to actuator-current nodes.
 
 ## 12.5 — ACS724 secondary-side interface
 
@@ -87,23 +69,17 @@ Oscilloscope/function-generator grounds shall not be assumed floating. Ordinary 
 
 **Status:** Accepted
 
-`5V_MEAS → ACS724 VCC`
+`5V_MEAS → ACS724 VCC`; `GND_MEAS → ACS724 GND`; `ACS724 VOUT → TP_SENSOR → AFE`.
 
-`GND_MEAS → ACS724 GND`
-
-`ACS724 VOUT → TP_SENSOR → AFE input`
-
-The Pololu carrier's stock **1 nF FILTER capacitor remains unchanged**. Provide **100 nF ceramic local bypass capacitance** between sensor VCC and GND close to the carrier supply connection.
+Stock **1 nF FILTER** remains unchanged. Add **100 nF** local VCC-GND bypass capacitance.
 
 ## 12.6 — AFE implementation and component-value freeze
-
-Phase 5 established a fourth-order Butterworth low-pass AFE using the two MCP6022 amplifiers as cascaded unity-gain Sallen-Key second-order sections, with nominal overall cutoff near **15 kHz**.
 
 ### INT-006A — Unity-gain Sallen-Key section realization
 
 **Status:** Accepted
 
-Both sections use unity-gain Sallen-Key low-pass topology with equal resistor pairs within each section. Target Q values are approximately 0.5412 and 1.3066.
+Two cascaded unity-gain Sallen-Key low-pass sections implement the fourth-order Butterworth response.
 
 ### INT-006B — Standard component values and nominal response
 
@@ -114,60 +90,42 @@ Both sections use unity-gain Sallen-Key low-pass topology with equal resistor pa
 | Low-Q | 9.76 kΩ | 9.76 kΩ | 1.2 nF | 1.0 nF | ≈14.89 kHz | ≈0.548 |
 | High-Q | 4.07 kΩ | 4.07 kΩ | 6.8 nF | 1.0 nF | ≈15.00 kHz | ≈1.304 |
 
-Use **1% resistors** and preferably **≤5% tolerance capacitors**. Nominal cascaded response is approximately −0.124 dB at 10 kHz, −2.99 dB at 15 kHz and −41.9 dB at 50 kHz.
+Use **1% resistors** and preferably **≤5% capacitors**. Nominal response: approximately −0.124 dB at 10 kHz, −2.99 dB at 15 kHz and −41.9 dB at 50 kHz.
 
 ### INT-006C — MCP6022 channel allocation, supply and decoupling
 
 **Status:** Accepted
 
-Signal order:
+`ACS724 VOUT → low-Q channel A → high-Q channel B → TP_AFE → ADC`.
 
-`ACS724 VOUT → low-Q channel A → high-Q channel B → TP_AFE → ADC interface`
-
-`MCP6022 VDD → 5V_MEAS`; `VSS → GND_MEAS`.
-
-Provide **100 nF** local bypass directly across the MCP6022 supply and **10 µF** bulk/local reservoir capacitance near the AFE.
+`VDD → 5V_MEAS`, `VSS → GND_MEAS`; **100 nF** local IC bypass plus **10 µF** AFE reservoir capacitance.
 
 ### INT-006D — Complete MCP6022 PDIP-8 net-level AFE circuit and headroom
 
 **Status:** Accepted
 
-MCP6022-I/P PDIP-8 allocation:
-
 | Pin | Function | Rev-1 connection |
 | ---: | --- | --- |
-| 1 | OUTA | low-Q output / Stage B input |
+| 1 | OUTA | low-Q output / high-Q input source |
 | 2 | IN−A | tied to pin 1 |
-| 3 | IN+A | low-Q node `N2A` |
+| 3 | IN+A | low-Q `N2A` |
 | 4 | VSS | `GND_MEAS` |
-| 5 | IN+B | high-Q node `N2B` |
+| 5 | IN+B | high-Q `N2B` |
 | 6 | IN−B | tied to pin 7 |
-| 7 | OUTB | `TP_AFE` / ADC-interface source |
+| 7 | OUTB | `TP_AFE` / ADC source |
 | 8 | VDD | `5V_MEAS` |
 
-Low-Q stage:
+Low-Q: `TP_SENSOR → 9.76k → N1A → 9.76k → N2A → pin3`; `N2A → 1.0nF → GND`; `N1A → 1.2nF → pin1`; `pin1 → pin2`.
 
-`TP_SENSOR → R1A 9.76 kΩ → N1A → R2A 9.76 kΩ → N2A → pin 3`
+High-Q: `pin1 → 4.07k → N1B → 4.07k → N2B → pin5`; `N2B → 1.0nF → GND`; `N1B → 6.8nF → pin7`; `pin7 → pin6`; `pin7 → TP_AFE`.
 
-`N2A → C2A 1.0 nF → GND_MEAS`
-
-`N1A → C1A 1.2 nF → pin 1`; `pin 1 → pin 2`.
-
-High-Q stage:
-
-`pin 1 → R1B 4.07 kΩ → N1B → R2B 4.07 kΩ → N2B → pin 5`
-
-`N2B → C2B 1.0 nF → GND_MEAS`
-
-`N1B → C1B 6.8 nF → pin 7`; `pin 7 → pin 6`; `pin 7 → TP_AFE`.
-
-The nominal valid 0.5–4.5 V AFE span leaves approximately 0.5 V headroom from each nominal 5 V supply rail. No deliberate level shift or attenuation is required. Actual swing/distortion/clipping margin is verified in Stage B.
+Nominal valid 0.5–4.5 V span leaves approximately 0.5 V rail headroom; no level shift/attenuation required. Actual headroom is verified in Stage B.
 
 ## 12.7 — ADC interface and input protection
 
 ### INT-007 — Pending approval
 
-A candidate interface has been proposed but is **not baselined**: `TP_AFE → 1 kΩ → A0`, with 100 pF from the ADC-side node to `GND_MEAS` and no external clamp diodes. This remains pending explicit approval and shall not be treated as a frozen Rev-1 circuit.
+Candidate only, **not baselined**: `TP_AFE → 1 kΩ → A0`, 100 pF from ADC-side node to `GND_MEAS`, no external clamp diodes. Explicit approval remains required.
 
 ## 12.8 — MCU I/O and resource allocation
 
@@ -175,26 +133,45 @@ A candidate interface has been proposed but is **not baselined**: `TP_AFE → 1 
 
 **Status:** Accepted
 
-Rev-1 shall reserve only the MCU resources required by the accepted monitoring architecture:
+Reserve:
 
-- **UNO A0** — reserved exclusively for the current-monitoring ADC signal, subject to final INT-007 electrical-interface approval;
-- **one RA4M1 ADC channel** — dedicated to current acquisition;
-- **one hardware timer resource** — dedicated to deterministic **100 kS/s** ADC triggering;
-- **one hardware-assisted transfer resource (DMA/DTC as appropriate to the final RA4M1 implementation)** — dedicated to moving ADC samples into RAM/buffers without software-timed per-sample acquisition;
-- **USB/native serial communication path** — reserved for Rev-1 PC/MATLAB telemetry, status and waveform transfer.
+- UNO **A0** exclusively for current ADC input, subject to final INT-007;
+- one RA4M1 ADC channel;
+- one hardware timer for deterministic **100 kS/s** triggering;
+- one DMA/DTC-class hardware transfer resource;
+- USB/native serial communication path.
 
-The remaining analog and digital I/O shall remain uncommitted unless a later Phase 12 integration decision identifies a genuine Rev-1 requirement. Rev-1 shall not reserve MCU PWM/motor-driver outputs merely because a motor is present: the baseline monitor does not command or power the motor. Likewise, RS-485/CAN resources are not reserved because those interfaces are outside the accepted Rev-1 communication baseline.
+Other MCU I/O remains uncommitted unless later required. No motor-control PWM and no RS-485/CAN resources are reserved in Rev-1. Exact timer/channel/event/register selections remain Stage B implementation detail.
 
-Exact RA4M1 timer instance/channel, ADC channel mapping corresponding to the UNO A0 header, event-link routing, DMA/DTC configuration, interrupt assignments and register settings remain Stage B implementation details. Those choices must implement the already accepted deterministic-acquisition architecture without changing its external product behavior.
+## 12.9 — USB/PC physical and logical integration boundary
+
+### INT-009 — Asynchronous USB host interface independent of real-time monitoring
+
+**Status:** Accepted
+
+Rev-1 shall use the Arduino UNO R4 WiFi **USB-C connection as the sole baseline host interface** to the PC/MATLAB environment.
+
+The USB logical interface shall support three product-level functions:
+
+1. **normal telemetry** — calibrated current/features, diagnostic state, validity/health information and relevant status;
+2. **on-demand waveform capture transfer** — delivery of buffered raw/current waveform datasets for engineering analysis;
+3. **configuration/calibration exchange** — transfer of approved configuration/calibration information needed by the accepted Phase 7/11 architecture.
+
+The USB/host path shall be architecturally asynchronous from deterministic acquisition and diagnostics. The PC, MATLAB process, USB service rate or host read timing shall **not control the 100 kS/s ADC sampling schedule** and shall not be required for real-time diagnostic operation.
+
+If the host is disconnected, slow, or unable to consume output data, the MCU shall continue acquisition and real-time diagnostic processing. Host-side backpressure shall not stall the deterministic sampling path. Where finite buffers cannot preserve optional telemetry/capture data, the implementation shall expose loss/unavailability explicitly rather than corrupting acquisition timing or silently presenting incomplete data as complete.
+
+Transferred engineering datasets shall retain sufficient metadata to associate them with the acquisition configuration, active calibration identity, firmware/build identity and measurement validity/health state, consistent with Phases 7, 9 and 11.
+
+The exact serial framing, packet encoding, command syntax, baud/USB abstraction details, MATLAB importer and buffering implementation are Stage B choices provided they preserve these architectural guarantees.
 
 ### Rationale
 
-Reserving the functional resources now prevents later integration conflicts while avoiding unnecessary pin/peripheral commitments. It preserves flexibility for implementation and future expansion without weakening the deterministic 100 kS/s acquisition requirement.
+USB is already available on the selected MCU platform and is sufficient for the Rev-1 laboratory host role. Separating host communication from the real-time acquisition path ensures that PC/MATLAB remains an engineering and analysis environment rather than an unintended timing dependency of the health monitor.
 
 ## Phase 12 integration work packages remaining
 
 - Complete **INT-007 — ADC interface and input protection** after explicit approval.
-- **INT-009 — USB/PC physical and logical integration boundary**.
 - **INT-010 — Protection implementation**.
 - **INT-011 — Rev-1 motor/actuator selection requirements**.
 - **INT-012 — Complete BOM and procurement status**.
