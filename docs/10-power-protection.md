@@ -1,6 +1,6 @@
 # Phase 10 — Power and Protection Design
 
-**Status:** In development  
+**Status:** Design complete  
 **Project:** Actuator Health Monitoring System
 
 ## Purpose
@@ -94,12 +94,56 @@ Exact star-point placement, wire routing, connector assignment, decoupling place
 
 The sensor output, AFE and ADC require a defined common voltage reference, while motor current can create substantial voltage drops and switching/commutation noise in shared conductors. Keeping the high-current return out of the measurement reference path reduces ground-induced measurement error and noise without falsely assuming that all bench equipment is isolated.
 
-## Phase 10 design topic remaining
+## 10.4 — Electrical protection boundaries
 
-Define the electrical protection boundaries for the sensor, AFE, ADC/MCU and actuator-current path without expanding into detailed wiring or bench procedure.
+### PWR-004 — Separate actuator-path and measurement-electronics protection
+
+**Status:** Accepted
+
+Rev-1 shall define protection separately for the actuator/current path and for the sensitive measurement-electronics path.
+
+For the **actuator/current path**:
+
+- operation remains limited to **≤24 V DC** laboratory supplies;
+- the bench PSU adjustable current limit is the initial active current-protection mechanism;
+- motor-current wiring and connectors shall be suitable for the expected current;
+- multi-ampere motor current shall not be routed through a solderless breadboard;
+- any additional fuse/current-path protection required by the final motor/build shall be selected during Phase 12 integration/BOM design.
+
+For the **measurement-electronics path**:
+
+- ACS724 secondary electronics, MCP6022 AFE and MCU/ADC shall remain within their permitted supply and input ranges;
+- the final ADC interface shall include appropriate protection against foreseeable AFE/output transients or accidental excursions where needed;
+- local supply decoupling shall be provided for active measurement electronics;
+- foreseeable incorrect connection/polarity risks shall be addressed in the final wiring/build specification where practical.
+
+The **0–5 A calibrated measurement range** shall not be interpreted as the electrical survival limit of the sensor carrier or current path. Current outside the valid calibrated range shall be treated as measurement overrange/invalid unless separately demonstrated to be measurable; permissible hardware survival is determined from applicable component/carrier ratings and the final build, not inferred from the measurement range.
+
+Exact series resistance, clamp topology, fuse choice, decoupling values and other protection components are intentionally deferred to Phase 12, where the actual wiring and BOM are frozen.
+
+### Rationale
+
+Protection requirements differ between the high-current motor path and the low-energy analog/MCU path. Separating them prevents a diagnostic range limit from being mistaken for a hardware safety rating and allows the final protection components to be selected against the actual Rev-1 wiring and motor rather than prematurely during subsystem architecture.
+
+## Phase 10 design status
+
+PWR-001 through PWR-004 define the Rev-1 product-level power and protection architecture:
+
+`separate actuator power + coherent measurement rail/reference + controlled measurement grounding + separate protection boundaries`
+
+Exact regulator/reference parts, decoupling components, star-point/layout implementation, connector/wire sizes, clamps and any additional fuse remain for Phase 12 integration/BOM design and Stage B implementation.
+
+## Verification handoff
+
+Implementation/verification shall demonstrate that:
+
+- actuator current does not flow through the sensitive measurement-electronics return path;
+- the actual 5 V measurement/reference relationship is characterized and included in calibration/accuracy assessment;
+- motor operation does not cause unacceptable measurement-rail/reference disturbance;
+- sensor, AFE and ADC remain within valid electrical ranges during intended Rev-1 operation;
+- measurement overrange is distinguishable from valid calibrated measurement;
+- selected protection/current-path hardware is appropriate for the final Rev-1 build.
 
 ## Planned output
 
-Phase 10 shall close with a coherent Rev-1 power/reference/protection architecture that can be converted into exact wiring and BOM details during Phase 12 and implementation.
-
-No Phase 10 engineering decision is baselined until explicitly approved.
+Phase 10 closes with a coherent Rev-1 power/reference/protection architecture that can be converted into exact wiring and BOM details during Phase 12 and implementation.
