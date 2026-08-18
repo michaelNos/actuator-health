@@ -235,10 +235,42 @@ The exact baseplate, breadboard size, mounting hardware, cable lengths, strain-r
 
 Rev-1 is an engineering prototype rather than a finished packaged product. Requiring mechanical stability and segregation where electrical/safety performance depends on them provides a repeatable build without prematurely designing an enclosure. Allowing breadboard construction only in the low-current analog region preserves fast experimentation while explicitly providing a path to soldered construction if real measurement performance requires it.
 
+## 12.15 — Configuration and build identity
+
+### INT-015 — Versioned build/configuration identity for measurement traceability
+
+**Status:** Accepted
+
+Every meaningful Rev-1 engineering dataset, calibration/reference record and verification result shall be traceable to the system configuration that produced it.
+
+The logical Rev-1 build identity is:
+
+`Build ID = (hardware revision, firmware revision, calibration ID, motor ID, configuration ID)`
+
+At minimum, measurement/capture metadata shall identify:
+
+- **hardware revision** — initially `REV1` unless the hardware baseline is formally revised;
+- **firmware revision** — version and/or Git commit sufficient to identify the executing acquisition/diagnostic implementation;
+- **active calibration ID** — identifying the offset/sensitivity and other accepted calibration parameters applied to the data;
+- **motor ID** — identifying the Philips/Saeco 24 VDC Rev-1 actuator or any formally approved replacement;
+- **acquisition configuration ID** — sufficient to recover important acquisition settings, including the nominal sample rate and any configuration that changes interpretation of the captured data;
+- **diagnostic/reference configuration identity** where applicable — sufficient to associate derived health results with the active diagnostic thresholds/baseline/reference configuration.
+
+The identity need not use a database or complex asset-management system. A compact versioned metadata structure/file and corresponding telemetry/capture fields are sufficient provided the relationship between a dataset and its configuration is unambiguous.
+
+A configuration/calibration change that can materially alter numerical interpretation or diagnostic results shall produce a new corresponding identity/version rather than silently reusing the previous identifier.
+
+Waveform exports and MATLAB analysis inputs shall preserve this metadata so results from different builds/configurations are not accidentally treated as directly comparable. Phase 13 verification evidence shall likewise record the applicable build identity.
+
+Exact string formatting, serialization, file naming and metadata packet layout remain Stage B implementation choices. They shall not weaken the traceability requirement.
+
+### Rationale
+
+The health-monitoring system will evolve during implementation and calibration. Explicit build/configuration identity makes measured behavior reproducible and prevents changes in firmware, calibration, acquisition settings or motor configuration from being mistaken for changes in actuator health.
+
 ## Phase 12 integration work packages remaining
 
 - Complete **INT-007 — ADC interface and input protection** after explicit approval.
-- **INT-015 — Configuration and build identity**.
 - **INT-016 — Integration completeness review**.
 
 Additional integration decisions may be introduced if detailed reconciliation exposes a genuine build-defining gap.
