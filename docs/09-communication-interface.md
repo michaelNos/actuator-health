@@ -1,6 +1,6 @@
 # Phase 9 — Communication Interface Design
 
-**Status:** In development  
+**Status:** Design complete  
 **Project:** Actuator Health Monitoring System
 
 ## Purpose
@@ -70,13 +70,57 @@ Waveform capture shall preserve acquisition integrity. If communication is slowe
 
 Routine health monitoring requires compact features and diagnostic states, while development and detailed analysis sometimes require the original waveform. Separating these data products keeps ordinary communication lightweight without sacrificing access to high-resolution evidence when it is actually needed.
 
-## Phase 9 design topics remaining
+## 9.3 — Communication data model
 
-- message/data model and integrity/versioning requirements;
-- industrial-interface scalability only where it affects Rev-1 architecture.
+### COM-003 — Versioned, sequenced, integrity-aware transport-independent messages
+
+**Status:** Accepted
+
+Rev-1 shall define telemetry and waveform-capture messages using an application-level data model that is not inherently tied to USB as a physical transport.
+
+Each message or data block shall contain, as applicable to its type:
+
+- a message/type identifier;
+- protocol/data-format version identity;
+- a monotonically interpretable sequence number or equivalent continuity identifier;
+- timing and/or sample-rate information required to interpret the payload;
+- the payload itself;
+- measurement/data-validity and system-health flags relevant to that payload;
+- an integrity check appropriate to the selected framing/encoding.
+
+Sequence information shall allow the receiving PC/controller to detect missing or discontinuous transmitted data rather than silently assuming message continuity.
+
+The application data model shall remain conceptually separable from its physical transport so that future interfaces can carry equivalent logical information through another appropriate link, for example:
+
+`application data model → USB / future RS-485 / future CAN`
+
+This does not require Rev-1 to implement all of those transports. USB remains the accepted Rev-1 interface under COM-001.
+
+Exact binary/text encoding, field widths, byte order, framing markers, CRC/checksum algorithm, command set and host parser implementation are deferred to Stage B. They shall be selected consistently with measured throughput, debugging needs and the chosen transport while preserving the product-level requirements above.
+
+### Rationale
+
+Versioning prevents later format changes from being interpreted incorrectly, sequence information exposes communication loss, and explicit validity information preserves the measurement-pipeline trust model across the PC interface. Keeping the logical data model independent of USB also supports future industrial communication without prematurely implementing an industrial protocol in Rev-1.
+
+## Phase 9 design status
+
+COM-001 through COM-003 define the Rev-1 product-level communication architecture:
+
+`validated measurement/diagnostic products → telemetry or waveform-capture messages → USB serial → PC/MATLAB`
+
+The logical message model remains transport-independent so future industrial communication can be added without redefining the measurement and diagnostic data products.
+
+## Verification handoff
+
+Implementation/verification shall demonstrate that:
+
+- communication workload does not disturb deterministic 100 kS/s acquisition;
+- normal telemetry conveys the selected measurement, diagnostic and health information correctly;
+- requested waveform captures preserve sample ordering, timing identity and validity information;
+- missing/discontinuous messages or captured data can be detected rather than silently accepted;
+- the PC/MATLAB side can identify the data-format version and reject or handle incompatible data appropriately;
+- integrity errors in framed communication are detectable by the selected implementation mechanism.
 
 ## Planned output
 
-Phase 9 shall close with a communication architecture that supports practical Rev-1 logging/analysis while preserving deterministic acquisition and leaving a clean path toward later industrial interfaces.
-
-No Phase 9 engineering decision is baselined until explicitly approved.
+Phase 9 closes with a communication architecture that supports practical Rev-1 logging/analysis while preserving deterministic acquisition and leaving a clean path toward later industrial interfaces.
