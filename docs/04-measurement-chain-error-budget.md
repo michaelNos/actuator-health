@@ -1,6 +1,6 @@
 # Phase 4 — Measurement-Chain Requirements and Error-Budget Allocation
 
-**Status:** In development  
+**Status:** Design complete / baselined  
 **Project:** Actuator Health Monitoring System
 
 ## Purpose
