@@ -1,6 +1,6 @@
 # Phase 12 — System Integration, Wiring, BOM and Build Specification
 
-**Status:** In development  
+**Status:** Design complete / ready for PR review  
 **Project:** Actuator Health Monitoring System
 
 ## Purpose
@@ -266,12 +266,52 @@ At minimum, measurement/capture metadata shall identify hardware revision, firmw
 
 A configuration/calibration change that can materially alter numerical interpretation or diagnostic results shall produce a new corresponding identity/version rather than silently reusing the previous identifier. Exact serialization/file naming remains Stage B implementation detail.
 
-## Phase 12 integration work package remaining
+## 12.16 — Integration completeness review
 
-- **INT-016 — Integration completeness review**.
+### INT-016 — Rev-1 integration baseline complete
 
-Additional integration decisions may be introduced if detailed reconciliation exposes a genuine build-defining gap.
+**Status:** Accepted
+
+The Phase 12 integration review confirms that the accepted subsystem designs from Phases 1–11 have been reconciled into one coherent Rev-1 build specification with no remaining product-level interface, component, wiring, protection or configuration decision that blocks later implementation.
+
+The integrated Rev-1 current path is:
+
+`24 V bench PSU → series fuse → ACS724 primary path → Philips/Saeco 24 VDC gearmotor → PSU return`
+
+The integrated measurement path is:
+
+`ACS724 VOUT → fourth-order MCP6022 Butterworth AFE → 1 kΩ / 100 pF ADC interface → UNO R4 A0 / RA4M1 ADC → deterministic 100 kS/s acquisition → MCU processing/diagnostics → USB → PC/MATLAB`
+
+The Phase 1 product requirements remain represented in the integrated design: 0–5 A calibrated current range, DC–10 kHz diagnostic band, 100 kS/s acquisition, ≤ ±0.10 A calibrated system-accuracy target, ≤10 mA reported-current resolution, startup/load/overload/stall characterization, and low-voltage ≤24 V laboratory operation.
+
+The following remaining quantities are legitimate **implementation/verification TBDs** rather than missing design decisions:
+
+- actual ACS724 zero-current offset, sensitivity, noise and residual calibration error;
+- actual 5 V measurement rail/reference behavior;
+- realized AFE gain, offset, frequency response and clipping margin;
+- RA4M1 ADC effective resolution, settling and noise at 100 kS/s;
+- motor no-load, representative load, startup/inrush and stall/jam currents;
+- final overload/stall diagnostic thresholds and persistence values derived from characterization;
+- final replaceable fuse rating selected after safe motor-current characterization;
+- exact physical mounting/baseplate and other non-electrical implementation conveniences.
+
+None of these values requires invention of a new product architecture before construction can begin. They shall be populated through Stage B/C implementation, calibration and verification as defined by DEV-001.
+
+The integration review also corrected stale repository status/index information for earlier completed phases. Documentation status cleanup does not change their approved engineering content.
+
+### Phase 12 handoff
+
+Phase 12 provides Phase 13 with a concrete Rev-1 system to verify and Phase 14 with a complete integration baseline to review for design freeze.
+
+Implementation shall **not** begin yet. Stage A continues with:
+
+- Phase 13 — System Verification and Acceptance Plan;
+- Phase 14 — Rev-1 Design Review and Design Freeze.
+
+Only after the Phase 14 design freeze may Stage B physical implementation begin.
 
 ## Phase 12 completion criterion
 
-Phase 12 is complete only when another engineer can proceed into the Rev-1 build without inventing missing product-level wiring, component, interface or protection decisions. Hardware-dependent measured quantities may remain `TBD — measure during implementation/verification`; build-blocking TBDs may not.
+The Phase 12 completion criterion is satisfied: another engineer can proceed toward the Rev-1 implementation after design freeze without inventing missing product-level wiring, component, interface or protection decisions.
+
+**Phase 12 status: DESIGN COMPLETE / READY FOR PR REVIEW**
