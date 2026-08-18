@@ -13,27 +13,16 @@ Phase 12 still does **not** perform the physical build, firmware implementation,
 
 ## Accepted design baseline entering Phase 12
 
-The integrated design must preserve at least the following accepted constraints:
-
-- low-voltage Rev-1 actuator/motor: **≤24 V DC**;
-- calibrated current range: **0–5 A**, unidirectional;
-- current sensor: **Pololu #4048 / ACS724LLCTR-05AU**;
-- nominal sensor transfer: approximately **0.5–4.5 V for 0–5 A** at nominal 5 V;
-- diagnostic information band: **DC–10 kHz**;
-- sensor carrier remains in its stock approximately **90 kHz** configuration;
-- deliberate AFE anti-alias filtering is separate from the ACS724 FILTER capacitor;
-- deterministic ADC acquisition baseline: **100 kS/s**;
-- MCU platform: **Arduino UNO R4 WiFi / Renesas RA4M1**;
-- AFE active device: **MCP6022-I/P** where required by the accepted AFE design;
-- system accuracy target after calibration: **≤ ±0.10 A**, stretch **±0.05 A**;
-- reported-current resolution target: **≤10 mA**;
-- actuator and measurement-electronics power paths are deliberately separated;
-- ACS724, AFE and ADC/reference relationship use a coherent measurement-domain strategy;
-- high motor current shall not flow through sensitive measurement-ground wiring or solderless breadboard;
-- USB serial is the Rev-1 PC/MATLAB communication interface;
-- real-time acquisition/diagnostics remain independent of PC/MATLAB;
-- automatic motor shutdown is not part of Rev-1;
-- bench PSU current limiting is the initial active motor-current protection mechanism;
+- Rev-1 actuator/motor: **≤24 V DC** laboratory operation.
+- Calibrated current range: **0–5 A**, unidirectional.
+- Current sensor: **Pololu #4048 / ACS724LLCTR-05AU**.
+- Diagnostic band: **DC–10 kHz**; deterministic ADC baseline: **100 kS/s**.
+- MCU: **Arduino UNO R4 WiFi / Renesas RA4M1**.
+- AFE: **MCP6022-I/P**, approximately unity gain.
+- System accuracy after calibration: **≤ ±0.10 A**, stretch **±0.05 A**.
+- Reported-current resolution: **≤10 mA**.
+- USB serial is the Rev-1 PC/MATLAB interface.
+- Automatic motor shutdown is not part of Rev-1; bench-PSU current limiting is the initial active motor-current protection.
 - Rev-1 hobby hardware shall never be connected directly to industrial mains or a 400 V motor circuit.
 
 ## 12.1 — Integrated Rev-1 topology and physical partitioning
@@ -42,30 +31,18 @@ The integrated design must preserve at least the following accepted constraints:
 
 **Status:** Accepted
 
-Rev-1 shall be integrated as four deliberate physical/electrical regions:
+Rev-1 is partitioned into:
 
-1. **Actuator/high-current region** — bench PSU, high-current wiring/connectors, ACS724 primary current path and low-voltage DC motor/actuator.
-2. **Analog measurement region** — ACS724 secondary/output-side electronics, MCP6022-based AFE, deliberate anti-alias filtering and ADC-interface/protection circuitry.
-3. **Digital/processing region** — Arduino UNO R4 WiFi / RA4M1 performing deterministic ADC acquisition, buffering, calibrated-current conversion, signal-feature extraction, diagnostics and communication management.
-4. **Host region** — USB-connected PC/MATLAB environment for telemetry, waveform capture, calibration/characterization and engineering analysis.
+1. **Actuator/high-current region** — bench PSU, current-rated wiring/connectors, ACS724 primary path and motor.
+2. **Analog measurement region** — ACS724 secondary side, MCP6022 AFE, anti-alias filtering and ADC interface/protection.
+3. **Digital/processing region** — UNO R4 / RA4M1 for deterministic acquisition, processing, diagnostics and communication.
+4. **Host region** — USB-connected PC/MATLAB for telemetry, waveform capture, calibration and engineering analysis.
 
-The integrated signal path is:
+Integrated signal path:
 
-`motor current → ACS724 primary conductor → Hall measurement → ACS724 VOUT → AFE/anti-alias filter → ADC → MCU processing/diagnostics → USB → PC/MATLAB`
+`motor current → ACS724 → VOUT → AFE/anti-alias filter → ADC → MCU → USB → PC/MATLAB`
 
-The actuator current path is conceptually:
-
-`bench PSU (+) → ACS724 IP+ → ACS724 IP− → DC motor/actuator → bench PSU (−)`
-
-The ACS724 primary conductor forms the boundary between the multi-ampere actuator-current path and the low-voltage measurement signal chain. Motor current shall not be routed through the AFE, MCU, USB or measurement-ground wiring.
-
-The four-region partition is a functional and physical integration rule, not a claim that all four regions are mutually galvanically isolated. In particular, the analog measurement and MCU regions intentionally share the required low-voltage measurement reference, and USB/bench-instrument grounding may introduce additional earth/reference relationships that must be respected during implementation.
-
-Physical implementation shall preserve practical separation between high-current/noisy motor wiring and sensitive analog wiring. The exact enclosure, board placement and wire lengths are not frozen in Phase 12 unless later integration analysis shows they are necessary to guarantee the design.
-
-### Rationale
-
-The partition makes the accepted architecture buildable while preserving the critical distinction between the motor-energy path and the measurement signal path. It provides a concrete basis for later wiring, grounding, protection and assembly decisions without incorrectly treating the entire laboratory setup as galvanically isolated.
+The ACS724 primary conductor separates the multi-ampere actuator-current path from the low-voltage measurement signal chain. This partition does not imply that all laboratory regions are mutually galvanically isolated.
 
 ## 12.2 — Actuator current-path wiring architecture
 
@@ -73,38 +50,15 @@ The partition makes the accepted architecture buildable while preserving the cri
 
 **Status:** Accepted
 
-The Rev-1 actuator-current path shall be wired as:
+Current path:
 
-`bench PSU (+) → ACS724 IP+ → ACS724 IP− → motor/actuator (+) → motor/actuator (−) → bench PSU (−)`
+`bench PSU (+) → ACS724 IP+ → ACS724 IP− → motor (+) → motor (−) → bench PSU (−)`
 
-This establishes the positive current convention through the unidirectional ACS724-05AU and keeps the sensor on the positive/high side of the low-voltage actuator supply.
+Dedicated insulated current-rated conductors/connectors shall be used. Motor current shall not pass through a solderless breadboard, MCU header wiring or measurement-ground conductors. Connections shall be mechanically secure and strain relieved.
 
-The current path shall use dedicated insulated copper conductors and connectors suitable for the selected motor's normal, startup and controlled fault-test currents. The path shall not pass through a solderless breadboard, MCU header wiring or measurement-ground conductors.
+The **0–5 A** range is the calibrated measurement range, not a continuous-current target or survival rating. Bidirectional/regenerative current characterization is outside Rev-1 scope.
 
-The ACS724 primary terminals and all motor-current connections shall be mechanically secure. The final assembly shall provide strain relief or equivalent support so that motor/PSU leads do not load the sensor PCB or create intermittent high-current contacts.
-
-The physical build shall clearly identify at least:
-
-- `PSU+`;
-- `ACS724 IP+`;
-- `ACS724 IP−`;
-- `MOTOR+`;
-- `MOTOR−`;
-- `PSU−`.
-
-The **0–5 A** range is the calibrated measurement range, not a requirement to operate the motor continuously near 5 A and not the electrical survival rating. The selected motor shall provide useful measurement margin below 5 A during normal operation while still allowing controlled startup/load/stall experiments without routinely exceeding the valid measurement range.
-
-Because the Rev-1 sensor variant is unidirectional, the build shall preserve the defined current direction through the sensor. Bidirectional/regenerative current characterization is outside the Rev-1 calibrated scope.
-
-### Procurement dependency
-
-The exact motor/actuator has **not yet been selected**, and dedicated current-rated motor wiring/connectors are **not yet available**. These are explicit Phase 12 procurement items.
-
-The current-path topology is nevertheless frozen. Exact conductor gauge, connector type and current rating shall be selected after INT-011 freezes the Rev-1 motor electrical envelope. Those choices must be completed before Phase 12 closure because they are build-defining, not measurement-dependent TBDs.
-
-### Rationale
-
-A fixed current direction is required by the unidirectional ACS724 transfer function. A dedicated high-current path prevents motor current from flowing through inappropriate prototyping interconnects and creates a clean basis for later wire/connector sizing once the motor is selected.
+**Procurement dependency:** the exact motor and current-rated wiring/connectors are not yet selected/available. Exact conductor gauge and connector type shall be frozen after INT-011 establishes the motor electrical envelope.
 
 ## 12.3 — Measurement-electronics power distribution
 
@@ -112,29 +66,19 @@ A fixed current direction is required by the unidirectional ACS724 transfer func
 
 **Status:** Accepted
 
-Rev-1 measurement electronics shall use the Arduino UNO R4 WiFi board's **+5 V header rail** as the common measurement-electronics supply while the UNO R4 WiFi itself is powered through its USB-C connection during normal laboratory development.
+Normal development power topology:
 
-The measurement-power topology is:
+`USB-C → UNO R4 WiFi → UNO +5 V header → ACS724 VCC + MCP6022 VDD`
 
-`USB-C → UNO R4 WiFi power architecture → UNO +5 V header → ACS724 VCC + MCP6022 VDD`
-
-and the corresponding low-voltage reference is:
+with:
 
 `UNO GND → ACS724 GND + MCP6022 VSS/GND + ADC measurement reference domain`
 
-The motor/actuator shall **not** be powered from the UNO 5 V rail. It remains exclusively on the separate bench-PSU actuator path defined by INT-001/INT-002.
+The motor remains exclusively on the separate bench-PSU actuator path.
 
-The ACS724 output is ratiometric with its supply. Rev-1 therefore intentionally keeps the sensor supply and ADC voltage interpretation within the same board-level measurement/reference architecture rather than assuming an independent ideal 5.000 V sensor supply. The actual measurement rail shall be treated as approximately 5 V and characterized during implementation/calibration; software and engineering calculations shall not assume it is exactly 5.000 V.
+The actual measurement rail is approximately 5 V and shall be characterized during implementation/calibration rather than assumed to equal exactly 5.000 V. No external precision 5 V regulator/reference is required unless measured performance later demonstrates it is necessary to satisfy the accepted accuracy requirement.
 
-No external precision 5 V regulator/reference is required in the Rev-1 baseline. Such a component may be introduced only if implementation evidence shows that the accepted **≤ ±0.10 A** calibrated system-accuracy requirement cannot be achieved with the baseline architecture.
-
-The ACS724 and MCP6022 shall receive local supply decoupling close to their supply connections. Exact decoupling components and placement are frozen with the component-level analog/BOM integration decisions later in Phase 12.
-
-The build shall avoid connecting independent external 5 V sources in parallel with the UNO 5 V rail. Any alternate powering arrangement used during laboratory work must first be checked against the UNO R4 power architecture rather than assuming that two nominally 5 V sources can safely be tied together.
-
-### Rationale
-
-Using the UNO-derived measurement rail minimizes unnecessary power hardware and preserves the first-order ratiometric relationship between the ACS724 signal and the ADC measurement domain. The added analog loads are the sensor and AFE, not the motor. Characterizing the actual rail during calibration is more appropriate than adding a precision reference without evidence that it is needed.
+Independent external 5 V sources shall not be paralleled with the UNO rail by assumption.
 
 ## 12.4 — Ground/reference and laboratory-instrument architecture
 
@@ -142,30 +86,18 @@ Using the UNO-derived measurement rail minimizes unnecessary power hardware and 
 
 **Status:** Accepted
 
-Rev-1 shall use one common low-voltage measurement reference for the sensor secondary side, AFE and MCU/ADC:
-
 `GND_MEAS = GND_UNO = GND_AFE = GND_ACS724-secondary`
 
-The actuator/motor current return remains a dedicated high-current conductor from the motor back to the bench PSU. Motor load current shall not use `GND_MEAS` conductors as part of its return path.
+The motor-current return remains a separate high-current conductor to the bench PSU.
 
-The integrated build shall provide or clearly identify the following measurement points:
+Required identified test points:
 
-- `TP_GND` — measurement-electronics reference ground;
-- `TP_5V` — measurement-domain supply rail;
-- `TP_SENSOR` — raw ACS724 `VOUT` before the deliberate AFE anti-alias filter;
-- `TP_AFE` — filtered AFE output presented toward the ADC interface.
+- `TP_GND` — measurement reference;
+- `TP_5V` — measurement rail;
+- `TP_SENSOR` — raw ACS724 VOUT;
+- `TP_AFE` — filtered AFE output toward the ADC.
 
-Ordinary single-ended oscilloscope measurements of `TP_SENSOR`, `TP_AFE` and `TP_5V` shall reference `TP_GND`.
-
-The Rev-1 design shall **not assume oscilloscope or function-generator grounds are floating or isolated**. Before connecting laboratory equipment, its ground/earth relationship shall be understood. An ordinary ground-referenced probe ground shall not be casually connected to `PSU+`, `ACS724 IP+`, `ACS724 IP−` or another actuator-current node because doing so may create an unintended current path or short through instrument/earth wiring.
-
-Any measurement directly across a floating/high-current actuator node shall require an explicitly appropriate measurement method rather than reusing the low-level analog probing convention by assumption. Exact differential-probing technique and instrument setup are Stage B laboratory-procedure details.
-
-The same rule applies to the integrated function generator: its output return/ground relationship shall be established before connection to the AFE or other circuit node. Bench PSU and function-generator outputs shall not be directly paralleled to combine DC and AC sources.
-
-### Rationale
-
-The ACS724 output, AFE and ADC require a common reference for accurate single-ended measurement, while the motor-current return must remain outside that sensitive path. Explicit test points make intended low-voltage probing unambiguous, and the instrument-ground rule prevents the isolation provided by the current sensor from being defeated by an accidental earth-referenced laboratory connection.
+Ordinary single-ended probing of the low-voltage analog chain references `TP_GND`. Oscilloscope/function-generator grounds shall not be assumed floating. Ordinary probe grounds shall not be casually connected to actuator-current nodes such as `PSU+`, `IP+` or `IP−`. Differential/high-current measurements require an appropriate verified method during Stage B.
 
 ## 12.5 — ACS724 secondary-side interface
 
@@ -173,36 +105,67 @@ The ACS724 output, AFE and ADC require a common reference for accurate single-en
 
 **Status:** Accepted
 
-The Pololu #4048 / ACS724 secondary-side interface shall be wired as:
-
 `5V_MEAS → ACS724 VCC`
 
 `GND_MEAS → ACS724 GND`
 
 `ACS724 VOUT → TP_SENSOR → AFE input`
 
-The sensor's low-level `VOUT` conductor shall be routed as an analog signal and shall not share a conductor carrying motor load current.
+The Pololu carrier's stock **1 nF FILTER capacitor remains unchanged**, preserving the accepted approximately 90 kHz carrier bandwidth. It is not the ADC anti-alias filter.
 
-The Pololu carrier's stock **1 nF FILTER capacitor shall remain unchanged**. This preserves the accepted assembled-carrier bandwidth of approximately **90 kHz**. The carrier FILTER network shall not be treated as the ADC anti-alias filter; the deliberate DC–10 kHz measurement-chain filtering remains the responsibility of the AFE defined in Phase 5 and frozen later in Phase 12.
+Provide **100 nF ceramic local bypass capacitance** between sensor VCC and GND close to the carrier supply connection. No additional gain/divider/offset network is inserted before the accepted AFE. `TP_SENSOR` exposes the raw sensor output before deliberate AFE filtering.
 
-A **100 nF ceramic bypass capacitor** shall be provided locally between ACS724 `VCC` and `GND`, close to the carrier's secondary-side supply connection. This is additional local supply decoupling and does not replace or modify the carrier's FILTER capacitor.
+## 12.6 — AFE implementation and component-value freeze
 
-No additional gain, divider or offset network shall be inserted ahead of the accepted AFE merely to force the nominal sensor span to different values. The nominal transfer remains approximately:
+Phase 5 established a fourth-order Butterworth low-pass AFE using the two MCP6022 amplifiers as cascaded unity-gain Sallen-Key second-order sections, with nominal overall cutoff near **15 kHz**. Phase 12 freezes the practical realization.
 
-- `0 A → 0.5 V`;
-- `5 A → 4.5 V`;
+### INT-006A — Unity-gain Sallen-Key section realization
 
-at nominal 5 V supply, while the actual offset and sensitivity remain calibration parameters under Phase 11.
+**Status:** Accepted
 
-`TP_SENSOR` shall expose the raw sensor output before deliberate AFE anti-alias filtering so the sensor output and filtered ADC-facing signal can be compared independently during implementation and verification.
+Both second-order sections shall use the unity-gain Sallen-Key low-pass topology with equal resistor pairs within each section. For this realization:
 
-### Rationale
+`f0 = 1 / (2π R sqrt(C1 C2))`
 
-A direct secondary-side interface preserves the characterized sensor behavior and avoids adding unnecessary pre-filter errors. Retaining the carrier's stock FILTER configuration keeps Phase 3 assumptions valid, while local supply decoupling improves the electrical integration of the sensor into the shared measurement rail. The raw-output test point preserves observability of the sensor separately from the AFE.
+`Q = 0.5 sqrt(C1 / C2)`
+
+The fourth-order Butterworth sections target:
+
+- low-Q section: `Q1 ≈ 0.5412`;
+- high-Q section: `Q2 ≈ 1.3066`.
+
+The sections therefore deliberately use different capacitor ratios; they shall not be implemented as two identical RC networks.
+
+### INT-006B — Standard component values and nominal response
+
+**Status:** Accepted
+
+The Rev-1 filter values are frozen as:
+
+| Section | R1 | R2 | C1 | C2 | Nominal f0 | Nominal Q |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Low-Q | 9.76 kΩ | 9.76 kΩ | 1.2 nF | 1.0 nF | ≈14.89 kHz | ≈0.548 |
+| High-Q | 4.07 kΩ | 4.07 kΩ | 6.8 nF | 1.0 nF | ≈15.00 kHz | ≈1.304 |
+
+Use **1% resistors** and preferably **≤5% tolerance capacitors** suitable for stable filter use.
+
+The nominal cascaded response is approximately:
+
+- **10 kHz:** `−0.124 dB`;
+- **15 kHz:** `−2.99 dB`;
+- **50 kHz:** `−41.9 dB`.
+
+This satisfies the accepted Phase 4 limits of no more than 1 dB attenuation at 10 kHz and at least 20 dB attenuation at the 50 kHz Nyquist frequency with substantial nominal margin.
+
+The exact E96 resistor values and tolerance-controlled capacitors are treated as BOM items if not already available. The design shall not be degraded merely to use unsuitable assortment parts. Actual filter response and component tolerances shall be verified during implementation.
+
+### INT-006 remaining sub-decisions
+
+- **INT-006C — MCP6022 pin-level allocation, supply and decoupling**;
+- **INT-006D — complete AFE net-level circuit and voltage/headroom verification**.
 
 ## Phase 12 integration work packages remaining
 
-6. **INT-006 — AFE implementation and component-value freeze**
 7. **INT-007 — ADC interface and input protection**
 8. **INT-008 — MCU I/O and resource allocation**
 9. **INT-009 — USB/PC physical and logical integration boundary**
@@ -214,12 +177,8 @@ A direct secondary-side interface preserves the characterized sensor behavior an
 15. **INT-015 — Configuration and build identity**
 16. **INT-016 — Integration completeness review**
 
-Additional integration decisions may be introduced if the detailed reconciliation exposes a genuine build-defining gap.
+Additional integration decisions may be introduced if detailed reconciliation exposes a genuine build-defining gap.
 
 ## Phase 12 completion criterion
 
-Phase 12 is complete only when the Rev-1 design has a sufficiently concrete integration specification that implementation does not require invention of missing product-level wiring, component, interface or protection decisions.
-
-Hardware-dependent measured quantities may remain `TBD — measure during implementation/verification` where measurement is genuinely required. A TBD that prevents the hardware from being built is not acceptable at Phase 12 closure.
-
-No Phase 12 engineering decision is baselined until explicitly approved.
+Phase 12 is complete only when another engineer can proceed into the Rev-1 build without inventing missing product-level wiring, component, interface or protection decisions. Hardware-dependent measured quantities may remain `TBD — measure during implementation/verification`; build-blocking TBDs may not.
