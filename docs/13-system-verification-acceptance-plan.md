@@ -65,12 +65,55 @@ A **NOT TESTED** result is not equivalent to PASS and cannot satisfy an acceptan
 
 Progressive verification localizes defects before they become ambiguous system-level failures while preserving the distinction between subsystem evidence and proof of final product requirements. Recording the exact build/configuration with each result also prevents evidence from one system state being incorrectly applied to another.
 
+## 13.2 — Requirements-to-verification traceability
+
+### VER-002 — Mandatory requirement → verification → acceptance → evidence mapping
+
+**Status:** Accepted
+
+Every mandatory acceptance-relevant Rev-1 requirement shall have an explicit verification route before Phase 13 closes. The traceability relationship is:
+
+`requirement → verification ID → method → acceptance criterion → retained evidence`
+
+No requirement is considered covered merely because it appears in a design document or because a related subsystem test exists. Where one requirement needs more than one verification activity, all required activities shall be identified. Conversely, one verification activity may support several requirements where the evidence genuinely demonstrates each criterion.
+
+The Phase 13 verification matrix shall include at least the following baseline coverage:
+
+| Rev-1 requirement / design claim | Verification intent | Acceptance basis |
+| --- | --- | --- |
+| 0–5 A calibrated unidirectional range | complete-chain calibrated-current verification across the valid range | valid readings throughout intended range; overrange treated separately |
+| ≤ ±0.10 A system current accuracy after calibration | compare complete-chain calibrated current against an appropriate reference | absolute current error ≤0.10 A over the accepted verification conditions |
+| ±0.05 A stretch accuracy | evaluate from the same calibrated evidence | may be claimed only if demonstrated; failure does not fail the mandatory ±0.10 A requirement |
+| ≤10 mA reported-current resolution | verify numerical reporting and useful distinguishability/noise behavior | reporting and effective measurement behavior support the accepted resolution requirement without confusing resolution with accuracy |
+| DC–10 kHz diagnostic information band | verify complete relevant analog-chain response through the required band | required signal information is preserved through 10 kHz within the accepted response limits |
+| anti-alias AFE: ≤1 dB at 10 kHz, ≥20 dB at 50 kHz | measured AFE/chain frequency-response verification | both attenuation criteria satisfied |
+| deterministic 100 kS/s acquisition | timing/sample-rate verification independent of USB host timing | measured sample timing/rate meets the deterministic acquisition requirement with no unacceptable sample loss/jitter behavior |
+| startup/current waveform capture | operate/capture representative motor startup | waveform captured with correct time/current interpretation and without invalid saturation for the accepted test condition |
+| average/load and changing-load information | controlled motor operating-condition comparison | expected current/load changes are measurable and retained in data/features |
+| commutation/current-ripple information | waveform/spectral observation under suitable motor operation | repeatable current structure is observable within the implemented measurement band where physically present |
+| overload detection ≤1 s | controlled sustained-overload condition | valid overload criteria produce detection within ≤1 s |
+| stall detection ≤100 ms | controlled stall/jam condition with safe current limiting | valid stall criteria produce detection within ≤100 ms |
+| no automatic Rev-1 shutdown claim | observe diagnostic response without relying on MCU motor interruption | detection is reported; bench PSU current limit/protection remains independent |
+| 0–5 A validity boundary distinct from survival | controlled approach to/outside valid range without exceeding safe hardware conditions | software/data clearly identify invalid/overrange rather than reporting false calibrated current |
+| USB/PC/MATLAB engineering interface | capture/configuration/export/import exercise | data and metadata transfer correctly; host activity does not control deterministic sampling |
+| Build/configuration/calibration traceability | inspect retained dataset and verification records | evidence unambiguously identifies applicable hardware, firmware, calibration, motor and configuration identities |
+| ≤24 VDC laboratory actuator architecture | build inspection and powered integration verification | Rev-1 actuator supply does not exceed accepted low-voltage boundary |
+| separated high-current and measurement wiring | inspection plus integration checks | motor current follows the dedicated rated path and is not carried by breadboard/Dupont/measurement-ground conductors |
+
+This table is the baseline matrix, not permission to omit a requirement discovered during the final traceability audit. Phase 13 closure shall compare the authoritative requirements/design documents against the verification matrix and add any missing acceptance-relevant coverage.
+
+Detailed laboratory procedures, exact test-point counts, scope timebases, fixture construction and sample-count choices remain Stage C procedure details unless a particular value is necessary to define whether the requirement passes.
+
+### Rationale
+
+Traceability prevents verification from becoming a collection of interesting experiments that fails to prove the product requirements. Defining the acceptance basis before observing the final results also prevents criteria from being relaxed retrospectively to turn a failure into a pass.
+
 ## Phase 13 work packages
 
 The plan will define, at an appropriate product level:
 
 1. verification levels and sequencing — **VER-001 accepted**;
-2. requirements-to-verification traceability;
+2. requirements-to-verification traceability — **VER-002 accepted**;
 3. sensor and complete measurement-chain calibration/accuracy acceptance;
 4. noise and useful-resolution acceptance;
 5. AFE frequency-response and anti-alias acceptance;
