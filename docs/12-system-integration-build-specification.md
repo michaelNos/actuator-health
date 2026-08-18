@@ -106,9 +106,38 @@ The current-path topology is nevertheless frozen. Exact conductor gauge, connect
 
 A fixed current direction is required by the unidirectional ACS724 transfer function. A dedicated high-current path prevents motor current from flowing through inappropriate prototyping interconnects and creates a clean basis for later wire/connector sizing once the motor is selected.
 
+## 12.3 — Measurement-electronics power distribution
+
+### INT-003 — UNO-derived coherent 5 V measurement domain
+
+**Status:** Accepted
+
+Rev-1 measurement electronics shall use the Arduino UNO R4 WiFi board's **+5 V header rail** as the common measurement-electronics supply while the UNO R4 WiFi itself is powered through its USB-C connection during normal laboratory development.
+
+The measurement-power topology is:
+
+`USB-C → UNO R4 WiFi power architecture → UNO +5 V header → ACS724 VCC + MCP6022 VDD`
+
+and the corresponding low-voltage reference is:
+
+`UNO GND → ACS724 GND + MCP6022 VSS/GND + ADC measurement reference domain`
+
+The motor/actuator shall **not** be powered from the UNO 5 V rail. It remains exclusively on the separate bench-PSU actuator path defined by INT-001/INT-002.
+
+The ACS724 output is ratiometric with its supply. Rev-1 therefore intentionally keeps the sensor supply and ADC voltage interpretation within the same board-level measurement/reference architecture rather than assuming an independent ideal 5.000 V sensor supply. The actual measurement rail shall be treated as approximately 5 V and characterized during implementation/calibration; software and engineering calculations shall not assume it is exactly 5.000 V.
+
+No external precision 5 V regulator/reference is required in the Rev-1 baseline. Such a component may be introduced only if implementation evidence shows that the accepted **≤ ±0.10 A** calibrated system-accuracy requirement cannot be achieved with the baseline architecture.
+
+The ACS724 and MCP6022 shall receive local supply decoupling close to their supply connections. Exact decoupling components and placement are frozen with the component-level analog/BOM integration decisions later in Phase 12.
+
+The build shall avoid connecting independent external 5 V sources in parallel with the UNO 5 V rail. Any alternate powering arrangement used during laboratory work must first be checked against the UNO R4 power architecture rather than assuming that two nominally 5 V sources can safely be tied together.
+
+### Rationale
+
+Using the UNO-derived measurement rail minimizes unnecessary power hardware and preserves the first-order ratiometric relationship between the ACS724 signal and the ADC measurement domain. The added analog loads are the sensor and AFE, not the motor. Characterizing the actual rail during calibration is more appropriate than adding a precision reference without evidence that it is needed.
+
 ## Phase 12 integration work packages remaining
 
-3. **INT-003 — Measurement-electronics power distribution**
 4. **INT-004 — Ground/reference and laboratory-instrument connection architecture**
 5. **INT-005 — ACS724 secondary-side interface**
 6. **INT-006 — AFE implementation and component-value freeze**
