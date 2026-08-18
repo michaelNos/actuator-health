@@ -50,9 +50,28 @@ Rev-1 does not require an integrated motor power converter or automatic diagnost
 
 Separating the high-current actuator path from sensitive measurement electronics reduces coupling of motor-current disturbances into the sensing/processing supply and preserves the architecture's isolation boundary. The existing laboratory PSU already provides controlled low-voltage actuator power and adjustable current limiting, so adding an integrated actuator supply or shutdown stage would increase Rev-1 complexity without being necessary to validate the monitoring concept.
 
+## 10.2 — Measurement rail and ADC reference relationship
+
+### PWR-002 — Coherent 5 V measurement/reference domain
+
+**Status:** Accepted
+
+Rev-1 shall use a coherent **5 V measurement/reference domain** so that the ACS724 supply, AFE supply and ADC voltage interpretation are intentionally related rather than treated as independent ideal 5.000 V quantities.
+
+Conceptually:
+
+`5 V measurement domain → ACS724 electronics + MCP6022 AFE + ADC reference/supply relationship`
+
+Because the ACS724 output is ratiometric with its supply, changes in sensor supply voltage affect both offset and sensitivity. The ADC conversion/calibration therefore shall account for the actual relationship between the sensor supply and ADC reference rather than assuming a fixed nominal value in software.
+
+Phase 10 establishes this reference architecture but does not freeze the exact regulator/reference implementation. Final component selection, decoupling and distribution details shall be completed with the integration/BOM work, while actual rail/reference behavior remains subject to implementation measurement and calibration.
+
+### Rationale
+
+Treating the sensor supply and ADC reference as unrelated ideal voltages would convert supply variation into measurement error. A coherent measurement/reference domain allows the ratiometric behavior to be managed deliberately and keeps the power architecture consistent with the Phase 4 accuracy allocation and Phase 6 ADC requirements.
+
 ## Phase 10 design topics remaining
 
-- 5 V measurement rail and ADC/reference relationship;
 - grounding/reference and noise-return strategy;
 - electrical protection boundaries for the sensor, AFE, ADC/MCU and actuator-current path.
 
