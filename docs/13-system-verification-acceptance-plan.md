@@ -108,13 +108,56 @@ Detailed laboratory procedures, exact test-point counts, scope timebases, fixtur
 
 Traceability prevents verification from becoming a collection of interesting experiments that fails to prove the product requirements. Defining the acceptance basis before observing the final results also prevents criteria from being relaxed retrospectively to turn a failure into a pass.
 
+## 13.3 — Calibration and complete-chain accuracy acceptance
+
+### VER-003 — Independent post-calibration complete-chain accuracy verification
+
+**Status:** Accepted
+
+The mandatory current-accuracy requirement shall be verified on the complete calibrated measurement chain:
+
+`I_reference → ACS724 → AFE → ADC → calibration → I_reported`
+
+For each verification condition, current error shall be evaluated as:
+
+`e_I = I_reported - I_reference`
+
+The mandatory acceptance criterion is:
+
+`|e_I| ≤ 0.10 A`
+
+throughout the accepted **0–5 A calibrated measurement range** under the defined verification conditions.
+
+Calibration and verification data shall be meaningfully independent. The same exact set of current points used to fit the calibration model shall not by itself be used to claim independent accuracy verification. Stage C shall therefore establish calibration coefficients using multiple reference-current points spanning the intended range and then evaluate the calibrated system at separate verification points, including intermediate current values not used for fitting.
+
+The verification set shall include, at minimum at product level:
+
+- zero-current behavior;
+- representative low-, mid- and high-range current conditions;
+- one or more intermediate points not used as calibration-fit points;
+- evidence near the upper valid measurement range without intentionally exceeding safe hardware/test conditions.
+
+The exact number and spacing of points are Stage C procedure details provided the resulting evidence adequately covers the valid range and includes independent points.
+
+The current reference used for calibration/verification shall have sufficient known accuracy, resolution and stability relative to the **±0.10 A** system requirement that reference uncertainty does not make the pass/fail conclusion meaningless. The exact reference instrument/fixture may be selected during implementation/verification from suitable available or procured equipment; its suitability shall be documented with the retained evidence.
+
+Acceptance evidence shall preserve the applicable calibration identity and include the measured reference current, reported current and resulting residual/error at each verification point. A residual table and/or error-versus-current plot shall be retained so range-dependent behavior and outliers are visible rather than hidden by a single aggregate statistic.
+
+If any mandatory verification point produces `|e_I| > 0.10 A`, the complete-chain accuracy requirement is **FAIL** for that build/configuration until the cause is corrected and verification repeated, or the requirement/design is formally revised through the engineering change process.
+
+The **±0.05 A stretch target** shall be evaluated from the same independent verification evidence. It may be reported as achieved only if the measured evidence supports it throughout the claimed conditions; failure to meet the stretch target does not by itself fail the mandatory ±0.10 A acceptance requirement.
+
+### Rationale
+
+Using the complete chain proves the actual system requirement rather than isolated component accuracy. Separating calibration-fit points from verification points prevents the calibration model from being evaluated only against the data that created it, while retaining residuals across the range exposes nonlinearities or range-dependent errors that a single-point check could miss.
+
 ## Phase 13 work packages
 
 The plan will define, at an appropriate product level:
 
 1. verification levels and sequencing — **VER-001 accepted**;
 2. requirements-to-verification traceability — **VER-002 accepted**;
-3. sensor and complete measurement-chain calibration/accuracy acceptance;
+3. sensor and complete measurement-chain calibration/accuracy acceptance — **VER-003 accepted**;
 4. noise and useful-resolution acceptance;
 5. AFE frequency-response and anti-alias acceptance;
 6. deterministic ADC sampling/timing acceptance;
