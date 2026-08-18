@@ -32,16 +32,16 @@ Detailed test steps that do not change product design should be consolidated int
 |---|---|---|
 | 1 | System Requirements | Complete / baselined |
 | 2 | System Architecture | Complete / baselined |
-| 3 | ACS724 Sensor Design and Verification Plan | Design complete / ready for review |
-| 4 | Measurement-Chain Requirements and Error-Budget Allocation | Planned |
-| 5 | Analog Front End and Anti-Alias Filter Design | Planned |
-| 6 | ADC and Deterministic Acquisition Design | Planned |
-| 7 | MCU Firmware and Signal-Processing Architecture | Planned |
-| 8 | Diagnostics / Health-Monitoring Logic | Planned |
-| 9 | Communication Interface Design | Planned |
-| 10 | Power and Protection Design | Planned |
-| 11 | Calibration and PC/MATLAB Analysis Design | Planned |
-| 12 | System Integration, Wiring, BOM and Build Specification | Planned |
+| 3 | ACS724 Sensor Design and Verification Plan | Design complete / baselined |
+| 4 | Measurement-Chain Requirements and Error-Budget Allocation | Design complete / baselined |
+| 5 | Analog Front End and Anti-Alias Filter Design | Design complete / baselined |
+| 6 | ADC and Deterministic Acquisition Design | Design complete / baselined |
+| 7 | MCU Firmware and Signal-Processing Architecture | Design complete / baselined |
+| 8 | Diagnostics / Health-Monitoring Logic | Design complete / baselined |
+| 9 | Communication Interface Design | Design complete / baselined |
+| 10 | Power and Protection Design | Design complete / baselined |
+| 11 | Calibration and PC/MATLAB Analysis Design | Design complete / baselined |
+| 12 | System Integration, Wiring, BOM and Build Specification | Design complete / ready for PR review |
 | 13 | System Verification and Acceptance Plan | Planned |
 | 14 | Rev-1 Design Review and Design Freeze | Planned |
 
