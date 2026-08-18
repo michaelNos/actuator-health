@@ -136,9 +136,39 @@ The build shall avoid connecting independent external 5 V sources in parallel wi
 
 Using the UNO-derived measurement rail minimizes unnecessary power hardware and preserves the first-order ratiometric relationship between the ACS724 signal and the ADC measurement domain. The added analog loads are the sensor and AFE, not the motor. Characterizing the actual rail during calibration is more appropriate than adding a precision reference without evidence that it is needed.
 
+## 12.4 — Ground/reference and laboratory-instrument architecture
+
+### INT-004 — Common measurement ground with designated analog test points
+
+**Status:** Accepted
+
+Rev-1 shall use one common low-voltage measurement reference for the sensor secondary side, AFE and MCU/ADC:
+
+`GND_MEAS = GND_UNO = GND_AFE = GND_ACS724-secondary`
+
+The actuator/motor current return remains a dedicated high-current conductor from the motor back to the bench PSU. Motor load current shall not use `GND_MEAS` conductors as part of its return path.
+
+The integrated build shall provide or clearly identify the following measurement points:
+
+- `TP_GND` — measurement-electronics reference ground;
+- `TP_5V` — measurement-domain supply rail;
+- `TP_SENSOR` — raw ACS724 `VOUT` before the deliberate AFE anti-alias filter;
+- `TP_AFE` — filtered AFE output presented toward the ADC interface.
+
+Ordinary single-ended oscilloscope measurements of `TP_SENSOR`, `TP_AFE` and `TP_5V` shall reference `TP_GND`.
+
+The Rev-1 design shall **not assume oscilloscope or function-generator grounds are floating or isolated**. Before connecting laboratory equipment, its ground/earth relationship shall be understood. An ordinary ground-referenced probe ground shall not be casually connected to `PSU+`, `ACS724 IP+`, `ACS724 IP−` or another actuator-current node because doing so may create an unintended current path or short through instrument/earth wiring.
+
+Any measurement directly across a floating/high-current actuator node shall require an explicitly appropriate measurement method rather than reusing the low-level analog probing convention by assumption. Exact differential-probing technique and instrument setup are Stage B laboratory-procedure details.
+
+The same rule applies to the integrated function generator: its output return/ground relationship shall be established before connection to the AFE or other circuit node. Bench PSU and function-generator outputs shall not be directly paralleled to combine DC and AC sources.
+
+### Rationale
+
+The ACS724 output, AFE and ADC require a common reference for accurate single-ended measurement, while the motor-current return must remain outside that sensitive path. Explicit test points make intended low-voltage probing unambiguous, and the instrument-ground rule prevents the isolation provided by the current sensor from being defeated by an accidental earth-referenced laboratory connection.
+
 ## Phase 12 integration work packages remaining
 
-4. **INT-004 — Ground/reference and laboratory-instrument connection architecture**
 5. **INT-005 — ACS724 secondary-side interface**
 6. **INT-006 — AFE implementation and component-value freeze**
 7. **INT-007 — ADC interface and input protection**
