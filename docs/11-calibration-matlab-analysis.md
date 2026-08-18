@@ -22,11 +22,36 @@ This phase defines what must be calibrated, how calibration data is conceptually
 - USB telemetry plus on-demand waveform capture is the accepted Rev-1 PC interface;
 - healthy motor current-signature reference data is deliberately established during characterization and frozen during ordinary monitoring.
 
-## Phase 11 design topics
+## 11.1 — Calibration model
 
-The phase will resolve the minimum product-defining choices for:
+### CAL-001 — Two-parameter linear current calibration
 
-- calibration model and parameters;
+**Status:** Accepted
+
+Rev-1 shall use a measured two-parameter linear calibration as the baseline current-conversion model rather than relying on nominal ACS724 offset and sensitivity values.
+
+The calibrated relationship may be represented as:
+
+`I = aV + b`
+
+or equivalently by measured `Voffset` and sensitivity `S` in:
+
+`I = (V - Voffset) / S`
+
+Calibration shall determine both zero-current offset and gain/sensitivity from measured reference-current data spanning the intended **0–5 A** range.
+
+The calibration shall use multiple known current points rather than a single-point correction. Residual error across the range shall be evaluated against the accepted **≤ ±0.10 A** system accuracy requirement.
+
+If measured residuals demonstrate that a linear model cannot satisfy the requirement, a more appropriate compensation model may be introduced based on evidence. Rev-1 shall not adopt higher-order or temperature-dependent compensation merely by assumption.
+
+Temperature compensation remains `TBD` unless implementation measurements demonstrate that temperature-dependent residual error is significant enough to threaten the accuracy requirement.
+
+### Rationale
+
+The ACS724's nominal offset and sensitivity are not exact device-specific calibration constants. Measuring both offset and gain corrects the dominant linear errors while preserving a simple, auditable conversion model. Evaluating residuals across the full calibrated range ensures that calibration performance is demonstrated rather than inferred from nominal sensor specifications.
+
+## Phase 11 design topics remaining
+
 - calibration ownership/storage/application and traceability;
 - PC/MATLAB analysis responsibilities and reproducible data products;
 - relationship between calibration data and the healthy diagnostic reference.
