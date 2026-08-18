@@ -1,6 +1,6 @@
 # Phase 14 — Rev-1 Design Freeze and Implementation Handoff
 
-**Status:** In development  
+**Status:** Design complete / ready for PR review  
 **Project:** Actuator Health Monitoring System
 
 ## Purpose
@@ -55,25 +55,17 @@ Stage B may choose or tune implementation details only within the boundaries alr
 
 If implementation or verification demonstrates that a frozen decision is incorrect, infeasible or materially inadequate, the result shall be retained and the baseline shall be revised explicitly through controlled engineering change. The implementation shall not simply diverge from the documentation without recording that change.
 
-Therefore:
-
 `Stage A design freeze ≠ immutable forever`
 
-but:
+but
 
 `material post-freeze change → explicit engineering revision + traceability`
-
-### Rationale
-
-A design freeze creates a stable reference from which the physical implementation can be built and verified. Allowing legitimate measured/implementation parameters to remain open prevents false precision, while requiring controlled changes prevents the prototype from evolving into a different undocumented product during debugging.
 
 ## 14.2 — Frozen versus implementation-selectable items
 
 ### FRZ-002 — Implementation freedom is bounded by the frozen product baseline
 
 **Status:** Accepted
-
-Stage B shall distinguish **frozen product/design decisions** from **implementation-selectable details**.
 
 Frozen decisions include, at minimum:
 
@@ -92,36 +84,22 @@ Frozen decisions include, at minimum:
 
 Implementation-selectable or measurement-derived details include, where the earlier baseline deliberately permits them:
 
-- exact RA4M1 ADC/timer/register configuration used to realize the frozen deterministic sampling behavior;
-- exact DTC/DMA-like transfer strategy supported by the selected implementation environment;
-- acquisition/buffer sizes and internal scheduling details that preserve required continuity and timing;
-- FFT length, window, overlap and related DSP realization details within the accepted diagnostic architecture;
-- detailed serial packet/framing realization and integrity mechanism, provided the accepted communication behavior and versioning/integrity requirements are met;
+- exact RA4M1 ADC/timer/register configuration used to realize deterministic sampling;
+- exact DTC/DMA-like transfer strategy;
+- acquisition/buffer sizes and internal scheduling details;
+- FFT length, window, overlap and related DSP realization details;
+- detailed serial framing and integrity mechanism within the accepted communication contract;
 - MATLAB script/function/file organization;
 - motor-derived diagnostic thresholds, persistence/tuning values and healthy-reference values;
 - measured calibration coefficients and calibration identity;
 - final fuse rating selected from motor characterization and current-path capability;
-- exact physical component placement, routing and mechanical arrangement that preserve the frozen electrical/wiring/isolation rules.
+- exact physical component placement/routing that preserves the frozen wiring/isolation rules.
 
 An implementation-selectable choice becomes a controlled design change if it alters or invalidates a frozen requirement, architecture boundary, safety assumption, interface contract or acceptance criterion.
 
-Examples:
-
-- changing FFT length while preserving the accepted diagnostic behavior is an implementation choice;
-- selecting ADC registers/timers that demonstrably produce 100 kS/s is an implementation choice;
-- changing nominal sampling from 100 kS/s to 20 kS/s is **not** an implementation choice;
-- tuning a stall threshold from measured motor data is an implementation choice;
-- replacing the ACS724 with a different current-sensor architecture is **not** an implementation choice;
-- choosing a fuse rating from measured motor current is an implementation output;
-- removing the independent bench-current-limit/protection boundary is **not** an implementation choice.
-
-The governing rule is:
+Examples: changing FFT length while preserving accepted behavior is an implementation choice; changing 100 kS/s to 20 kS/s is not. Tuning a stall threshold from measured motor data is an implementation choice; replacing the ACS724 architecture is not.
 
 `implementation freedom is permitted only inside the frozen Rev-1 design envelope`
-
-### Rationale
-
-The implementation must have enough freedom to realize hardware and firmware efficiently without forcing arbitrary low-level choices during design. At the same time, labeling a material product change as an "implementation detail" would defeat the purpose of the design freeze. This boundary provides a practical test for deciding when engineering-change control is required.
 
 ## 14.3 — Measured-TBD register and closure ownership
 
@@ -129,9 +107,7 @@ The implementation must have enough freedom to realize hardware and firmware eff
 
 **Status:** Accepted
 
-Values intentionally left unknown during Stage A shall remain in a controlled **measured-TBD register**. A TBD shall not be removed merely by assuming, estimating or selecting a convenient value where the baseline requires physical characterization or verification.
-
-The initial Rev-1 register is:
+Values intentionally left unknown during Stage A remain in a controlled measured-TBD register. A TBD shall not be removed merely by assuming or estimating a convenient value where physical characterization or verification is required.
 
 | Measured / derived TBD | Primary closure stage | Closure evidence / purpose |
 | --- | --- | --- |
@@ -142,31 +118,23 @@ The initial Rev-1 register is:
 | actual ACS724 zero-current output | Stage B calibration | measured sensor/chain zero behavior |
 | actual ACS724/chain sensitivity and gain | Stage B calibration | reference-current calibration data |
 | complete-chain offset/gain calibration coefficients | Stage B calibration | fitted calibration record with calibration ID |
-| implemented AFE frequency response | Stage B characterization, confirmed Stage C | measured transfer-response evidence including 10 kHz/50 kHz criteria |
-| ADC/complete-chain noise and effective resolution | Stage B characterization, confirmed Stage C | captured raw data and noise/resolution statistics |
-| actual 100 kS/s timing and jitter behavior | Stage B implementation characterization, confirmed Stage C | independent timing evidence |
-| normal motor ripple/commutation/spectral characteristics | Stage B characterization | valid waveform/spectral captures under documented conditions |
-| healthy-reference feature values/tolerances | Stage B characterization/calibration | healthy baseline dataset and derived reference configuration |
-| overload threshold/persistence values | Stage B diagnostic tuning | motor-derived configuration subsequently verified against ≤1 s requirement |
-| stall/jam threshold/persistence values | Stage B diagnostic tuning | motor-derived configuration subsequently verified against ≤100 ms requirement |
-| anomaly thresholds/tolerances | Stage B diagnostic tuning | healthy/fault-condition evidence supporting selected configuration |
-| final inline fuse rating | Stage B after motor characterization | documented selection from measured motor current and current-path capability |
-| bench-PSU current-limit settings for characterization/fault tests | Stage B/C procedure setup | documented safe settings appropriate to each test |
-| complete-chain calibrated accuracy across 0–5 A | Stage C verification | independent post-calibration evidence against ±0.10 A mandatory criterion |
+| implemented AFE frequency response | Stage B, confirmed Stage C | measured transfer-response evidence |
+| ADC/complete-chain noise and effective resolution | Stage B, confirmed Stage C | raw data and noise/resolution statistics |
+| actual 100 kS/s timing and jitter behavior | Stage B, confirmed Stage C | independent timing evidence |
+| normal motor ripple/commutation/spectral characteristics | Stage B characterization | valid waveform/spectral captures |
+| healthy-reference feature values/tolerances | Stage B characterization/calibration | healthy baseline and reference configuration |
+| overload threshold/persistence values | Stage B diagnostic tuning | motor-derived configuration verified against ≤1 s |
+| stall/jam threshold/persistence values | Stage B diagnostic tuning | motor-derived configuration verified against ≤100 ms |
+| anomaly thresholds/tolerances | Stage B diagnostic tuning | healthy/fault evidence supporting configuration |
+| final inline fuse rating | Stage B after motor characterization | selection from measured current and path capability |
+| bench-PSU current-limit settings | Stage B/C procedure setup | documented safe settings appropriate to test |
+| complete-chain calibrated accuracy across 0–5 A | Stage C verification | independent evidence against ±0.10 A |
 | usable ≤10 mA reported-current resolution | Stage C verification | controlled distinguishability/noise evidence |
-| final diagnostic detection latency and false-detection performance | Stage C verification | timestamped event evidence under accepted configuration |
+| final diagnostic latency and false-detection performance | Stage C verification | timestamped event evidence |
 
-Stage B owns **characterization, calibration, implementation and tuning** needed to turn these unknowns into controlled configuration values. Stage C owns **independent acceptance evidence** where a measured value is tied to a mandatory requirement.
+Stage B owns characterization, calibration, implementation and tuning. Stage C owns independent acceptance evidence where a measured value is tied to a mandatory requirement. A Stage B measurement does not automatically count as Stage C acceptance where Phase 13 requires independent verification.
 
-A Stage B measurement does not automatically count as Stage C acceptance where Phase 13 requires independent verification. Conversely, Stage C shall not be forced to invent configuration values that should have been established during Stage B.
-
-Every closed TBD shall retain sufficient context to identify the build, firmware, calibration/configuration, motor and test condition that produced it. If a later implementation change invalidates the measurement, the corresponding TBD/configuration item shall be reopened or re-characterized rather than silently reusing stale evidence.
-
-No numerical value shall be introduced solely to eliminate a TBD. If physical evidence is unavailable, the item remains explicitly open.
-
-### Rationale
-
-A controlled TBD is an engineering commitment to obtain missing evidence; an undocumented assumption is a hidden design risk. Assigning closure stages prevents characterization, tuning and final acceptance from being mixed together and preserves the independence required by the verification plan.
+Every closed TBD retains enough context to identify the build, firmware, calibration/configuration, motor and test condition. A later implementation change that invalidates the measurement reopens the affected item. No numerical value is introduced solely to eliminate a TBD.
 
 ## 14.4 — Stage B implementation sequence and entry criteria
 
@@ -174,62 +142,127 @@ A controlled TBD is an engineering commitment to obtain missing evidence; an und
 
 **Status:** Accepted
 
-Stage B shall implement and characterize Rev-1 progressively rather than assemble every subsystem first and debug the complete system as one unknown unit.
-
-The intended implementation flow is:
+Stage B proceeds progressively:
 
 `inspect/setup → motor characterization → ACS724 bring-up → AFE bring-up → deterministic ADC acquisition → calibration/current conversion → USB/MATLAB → healthy characterization → diagnostics tuning → protection finalization → complete build → integration checks`
 
-The working sequence is:
+Working sequence:
 
-1. **Inspect and establish safe bench setup.** Confirm available parts, motor condition, intended wiring, measurement equipment and a controlled bench-PSU/current-limit arrangement before energizing the actuator path.
-2. **Characterize the 24 V motor.** Establish safe startup, no-load/representative-load and current-limited stall/jam behavior needed by later measurement, protection and diagnostic decisions.
-3. **Bring up the ACS724 measurement carrier.** Verify supply, zero-current output, polarity/current direction and real sensor response before depending on it as an AFE source.
-4. **Build and characterize the MCP6022 AFE independently.** Establish DC operating behavior and measured transfer response before connecting its output to the final acquisition path.
-5. **Implement deterministic RA4M1 acquisition.** Realize the frozen 100 kS/s behavior using suitable hardware triggering/transfer mechanisms and characterize timing before adding host-dependent processing.
-6. **Integrate calibration and current conversion.** Establish controlled calibration coefficients/identity and validity/overrange behavior from reference-current evidence.
-7. **Implement USB transport and MATLAB engineering tooling.** Preserve sample order, timing/configuration metadata, integrity and validity while keeping host activity outside the ADC timing loop.
-8. **Characterize healthy motor-current signatures.** Capture startup, load, ripple/commutation and spectral behavior under documented healthy conditions and derive the healthy-reference configuration.
-9. **Tune diagnostic configuration.** Derive overload, current-based stall/jam and anomaly thresholds/persistence from measured motor/system behavior rather than arbitrary assumptions.
-10. **Finalize protection configuration.** Select/document the series fuse and appropriate bench-current-limit settings from actual motor characterization and current-path capability.
-11. **Assemble the complete Rev-1 integrated build.** Apply the Phase 12 physical partitioning, current-path, grounding, decoupling, test-point and wiring rules.
-12. **Perform Stage B integration checks.** Resolve implementation defects and establish a stable, identified build/configuration before handing the system to formal Stage C acceptance verification.
+1. inspect parts and establish safe bench/current-limit setup;
+2. characterize the 24 V motor;
+3. bring up and characterize the ACS724 carrier;
+4. build and characterize the MCP6022 AFE independently;
+5. implement and characterize deterministic RA4M1 100 kS/s acquisition;
+6. integrate calibration, current conversion and validity behavior;
+7. implement USB transport and MATLAB engineering tooling;
+8. characterize healthy motor-current signatures;
+9. tune overload/stall/anomaly configuration from measured behavior;
+10. finalize fuse and current-limit configuration;
+11. assemble the complete Rev-1 build;
+12. perform Stage B integration checks before formal acceptance.
 
-A subsystem shall not be treated as established merely because the next subsystem can be connected to it. Material defects discovered during bring-up shall be resolved, documented as an open limitation, or escalated through engineering-change control before dependent acceptance work proceeds.
+Stage B may begin after Phase 14 is approved/merged, the items needed for the next activity are available, the applicable frozen design can be identified, and the work can be performed without violating an unresolved safety dependency. Material defects are resolved, documented as limitations, or escalated through engineering change before dependent acceptance work proceeds.
 
-### Stage B entry criteria
+## 14.5 — Stage C verification sequence and evidence handoff
 
-Stage B may begin after:
+### FRZ-005 — Formal acceptance uses a stable identified Stage B configuration
 
-- Phase 14 is approved and merged, establishing the frozen Stage A baseline;
-- the physical items and instrumentation required for the **next planned implementation activity** are available and suitable for safe use;
-- the applicable frozen design documentation can be identified from the repository;
-- the work can be performed without knowingly violating an unresolved safety/protection dependency.
+**Status:** Accepted
 
-Stage B entry does **not** require every component, consumable or accessory needed for all later Stage B/C activities to be physically present on day one. Missing future items shall be tracked as procurement dependencies and shall block only the work that genuinely depends on them.
+Stage B develops, characterizes, calibrates and tunes the system. Stage C independently determines whether the resulting Rev-1 configuration satisfies the frozen requirements and Phase 13 acceptance criteria.
 
-If a required part is unavailable, independent software/documentation work may proceed where it does not require invented measurement results or a material deviation from the frozen design.
+The Stage C sequence follows the Phase 13 hierarchy:
 
-### Rationale
+`component/subsystem → measurement chain → diagnostics/data → complete system`
 
-Progressive bring-up keeps each new unknown small enough to diagnose with available laboratory equipment. It also prevents a failure in the motor, sensor, AFE, ADC timing, firmware or host path from becoming an ambiguous complete-system symptom. Allowing Stage B to start with only the items needed for the immediate work avoids unnecessary procurement gating while preserving safety and design control.
+Before formal Stage C acceptance, Stage B shall hand over a stable identified configuration including, as applicable:
 
-## Phase 14 work packages
+`Build ID + hardware revision + firmware revision + calibration ID + configuration ID + motor ID`
 
-Phase 14 will establish:
+Formal acceptance evidence shall be produced against that identified configuration. Acceptance tests shall not be silently converted into tuning sessions. If a mandatory test fails, the observed FAIL is retained. The system returns to Stage B for correction/tuning where appropriate; the changed calibration/configuration/build receives a distinguishable identity; and affected verification is repeated.
 
-1. authoritative design-freeze baseline and configuration boundary — **FRZ-001 accepted**;
-2. frozen versus implementation-selectable items — **FRZ-002 accepted**;
-3. measured-TBD register and closure ownership — **FRZ-003 accepted**;
-4. Stage B implementation sequence and entry criteria — **FRZ-004 accepted**;
-5. Stage C verification sequence and evidence handoff;
-6. engineering-change control after design freeze;
-7. implementation readiness / procurement-blocker review;
-8. future-extension boundary, including FPGA/Verilog work outside Rev-1;
-9. final Stage A completeness audit and handoff decision.
+For example, if current-based stall detection is measured at 140 ms against the mandatory ≤100 ms criterion, the test is FAIL for that configuration. Adjusting a threshold or persistence parameter creates a changed configuration and requires the affected verification to be rerun rather than rewriting the original result.
 
-Additional work packages may be introduced only if the freeze audit exposes a genuine implementation-blocking gap.
+Stage C evidence shall retain the traceability and result-status requirements established in Phase 13. Only evidence belonging to the accepted configuration may support final Rev-1 acceptance unless an explicit analysis demonstrates that a particular unchanged result remains valid across a controlled revision.
+
+## 14.6 — Engineering change control after design freeze
+
+### FRZ-006 — Material post-freeze changes require explicit impact analysis and re-verification
+
+**Status:** Accepted
+
+A post-freeze change is material when it affects a frozen requirement, product/component architecture, electrical interface, safety/protection assumption, sampling or diagnostic architecture, calibration meaning, communication contract or verification PASS criterion.
+
+Material changes follow:
+
+`problem/evidence → impact analysis → proposed change → approval → baseline update → implementation → affected verification repeated`
+
+The change record shall identify why the frozen baseline is inadequate, what is changed, which requirements/design documents/configurations are affected, and which prior characterization or verification evidence must be repeated or invalidated.
+
+Implementation-selectable details already permitted by FRZ-002 do not require formal change control merely because a low-level implementation choice is made. They do require normal configuration/source-control traceability where relevant.
+
+A failed test shall not be hidden by silently modifying the requirement or implementation. The original result remains part of the engineering record; correction and re-verification establish the new result.
+
+## 14.7 — Future FPGA / Verilog extension boundary
+
+### FRZ-007 — FPGA/Verilog processing is a post-Rev-1 extension, not a Rev-1 dependency
+
+**Status:** Accepted
+
+The frozen Rev-1 signal path remains:
+
+`ACS724 → analog AFE → RA4M1 → USB → PC/MATLAB`
+
+FPGA/Verilog work is explicitly reserved as a future engineering extension after Rev-1 implementation and verification. It is not required to build, calibrate or accept Rev-1 and shall not become an implementation blocker.
+
+A future extension may reuse live or recorded Rev-1 current data to investigate hardware realization of functions such as digital filtering, mean/RMS/peak calculations, threshold/event detection, spectral processing, fixed-point arithmetic, pipelining and deterministic streaming processing.
+
+The engineering purpose is to compare suitable MCU software DSP with FPGA hardware processing and study the consequences for determinism, throughput, latency, numeric representation and resource use. FPGA functionality shall not be added merely to claim that the project contains Verilog.
+
+If a future FPGA revision changes the accepted acquisition/diagnostic architecture, it becomes a separately controlled revision rather than being retroactively treated as part of Rev-1.
+
+## 14.8 — Final Stage A completeness audit and implementation handoff
+
+### FRZ-008 — Stage A closes only after a cross-phase implementation-readiness audit
+
+**Status:** Accepted
+
+The final Stage A audit reviewed the authoritative Phase 1–13 baseline together with the Phase 14 freeze decisions for:
+
+1. **consistency** — later decisions do not silently contradict frozen requirements;
+2. **completeness** — the product architecture and interfaces needed to begin implementation are defined;
+3. **TBD correctness** — remaining unknowns genuinely require implementation, characterization, tuning or verification rather than representing forgotten Stage A decisions;
+4. **verification closure** — mandatory Rev-1 requirements have measurable verification routes and objective acceptance logic.
+
+The audit specifically cross-checked the Phase 1 requirements against the later sensor/AFE/ADC, firmware/diagnostic, communication, power/protection, calibration, integration and Phase 13 verification baselines. The major frozen values remain coherent: 0–5 A calibrated unidirectional range, DC–10 kHz diagnostic band, 100 kS/s deterministic acquisition, ≤±0.10 A mandatory calibrated accuracy, ≤10 mA reported-current resolution, overload ≤1 s, current-based stall/jam ≤100 ms and ≤24 VDC Rev-1 laboratory operation.
+
+The audit also confirmed that higher-frequency characterization above 10 kHz remains a validation obligation rather than being lost at freeze; deterministic acquisition remains hardware-timed and independent of USB workload; communication remains versioned/integrity-aware downstream of acquisition; protection remains independent of diagnostic shutdown; and Stage C acceptance remains requirement-driven rather than inferred from Stage B bring-up success.
+
+No implementation-blocking Stage A contradiction or missing product-level decision was identified. Remaining open numerical values are appropriately measurement/configuration-derived and are controlled by FRZ-003. Register-level firmware details, buffer/DSP choices, calibration coefficients, motor-derived thresholds, healthy-reference values, fuse rating and measured performance are therefore legitimate Stage B/C outputs rather than reasons to continue Stage A design.
+
+### Handoff decision
+
+**READY FOR STAGE B IMPLEMENTATION**, subject to Phase 14 PR review and merge.
+
+This decision means the design is sufficiently defined to begin implementation. It does **not** mean that the physical Rev-1 has passed any Stage C acceptance test.
+
+If Stage B exposes a frozen assumption that is physically incorrect or infeasible, FRZ-006 engineering change control applies.
+
+## Phase 14 closure summary
+
+Accepted Phase 14 decisions:
+
+1. **FRZ-001** — authoritative Rev-1 Stage A baseline;
+2. **FRZ-002** — frozen versus implementation-selectable boundary;
+3. **FRZ-003** — measured-TBD register and closure ownership;
+4. **FRZ-004** — Stage B implementation sequence and entry criteria;
+5. **FRZ-005** — Stage C verification sequence and evidence handoff;
+6. **FRZ-006** — engineering-change control after freeze;
+7. **FRZ-007** — future FPGA/Verilog extension boundary;
+8. **FRZ-008** — final Stage A audit and READY FOR STAGE B handoff decision.
+
+The proposed procurement-blocker work package was rejected during review and is not part of the Phase 14 baseline.
 
 ## Completion criterion
 
-Phase 14 is complete when the Rev-1 design baseline is explicitly frozen, remaining measured/implementation TBDs are controlled and assigned to later work, and implementation can begin without silently redefining accepted product requirements or architecture.
+Phase 14 is complete when this document is approved and merged. At that point Stage A design is frozen and complete, and work proceeds to Stage B implementation under the controlled baseline above.
