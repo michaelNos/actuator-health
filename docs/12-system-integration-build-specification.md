@@ -207,14 +207,37 @@ Labels shall identify `PSU+`, `FUSE`, `IP+`, `IP−`, `MOTOR+`, `MOTOR−`, `PSU
 
 Motor-current wiring, Dupont jumpers and analog hookup wire shall be treated as different interconnect classes and shall not be substituted for one another merely because a connector physically fits.
 
+## 12.14 — Mechanical and assembly constraints
+
+### INT-014 — Secure open laboratory prototype with physically controlled current and analog regions
+
+**Status:** Accepted
+
+Rev-1 shall be implemented as a **secure open laboratory prototype**. A finished product enclosure is not required for Rev-1, but the assembly shall be mechanically stable, electrically controlled and suitable for repeatable bench testing.
+
+The **motor/high-current path shall not use a solderless breadboard**. The 18 AWG current harness, inline fuse holder, ACS724 primary path and motor connections shall use mechanically secure current-rated terminations. Current-path wiring shall be routed and restrained so accidental movement cannot pull conductors free or transfer excessive force into component PCBs.
+
+The **ACS724 carrier shall be mechanically supported**. Its 18 AWG primary-current pigtails shall receive strain relief so repeated cable movement does not flex the carrier or its solder joints. The primary-current terminals and secondary low-voltage pins shall remain physically distinguishable and accessible without encouraging cross-connection.
+
+The **low-current AFE may initially be assembled on a solderless breadboard** because its signal/power currents are small. The AFE shall nevertheless be compact: Sallen-Key components, MCP6022 decoupling and analog interconnects shall be kept short and orderly. If Stage B verification shows that breadboard parasitics, contact quality, noise pickup or mechanical instability prevent the accepted measurement/filter performance, the AFE shall migrate to perfboard or another soldered prototype construction without changing the accepted circuit topology unless a formal design revision is required.
+
+The **UNO R4 WiFi shall be positioned and supported** so its USB-C cable and A0/5V/GND wiring do not impose significant mechanical load on the board/header connections.
+
+The analog measurement region shall be kept physically separated from the motor body, motor-current harness and other likely switching/noise sources where practical. Sensitive analog leads shall not be bundled tightly with the 18 AWG motor-current conductors.
+
+The accepted test points `TP_GND`, `TP_5V`, `TP_SENSOR` and `TP_AFE` shall remain physically accessible for oscilloscope/DMM probing without requiring disturbance of the high-current wiring. Probe access shall not require contact with exposed actuator-current conductors.
+
+Exposed conductive parts, loose leads, tools or probe accessories shall not be able to accidentally bridge the 24 V actuator path into the 5 V measurement domain during normal bench operation. Physical spacing, routing, support and insulation shall be used accordingly.
+
+The exact baseplate, breadboard size, mounting hardware, cable lengths, strain-relief method and enclosure style are Stage B implementation choices. They may be selected for practicality provided they preserve the accepted electrical partitioning, current-path integrity, analog separation and safe probe access.
+
 ### Rationale
 
-A fixed 18 AWG harness provides conservative current-carrying margin for the ≤5 A calibrated Rev-1 measurement envelope and expected startup/stall characterization while remaining practical for a laboratory build. Explicit separation between high-current and analog wiring reduces contact-heating, breadboard misuse and noise-coupling risks and makes the final build unambiguous.
+Rev-1 is an engineering prototype rather than a finished packaged product. Requiring mechanical stability and segregation where electrical/safety performance depends on them provides a repeatable build without prematurely designing an enclosure. Allowing breadboard construction only in the low-current analog region preserves fast experimentation while explicitly providing a path to soldered construction if real measurement performance requires it.
 
 ## Phase 12 integration work packages remaining
 
 - Complete **INT-007 — ADC interface and input protection** after explicit approval.
-- **INT-014 — Mechanical/assembly constraints**.
 - **INT-015 — Configuration and build identity**.
 - **INT-016 — Integration completeness review**.
 
