@@ -119,9 +119,38 @@ Nominal valid 0.5–4.5 V span leaves approximately 0.5 V rail headroom; no leve
 
 ## 12.7 — ADC interface and input protection
 
-### INT-007 — Pending approval
+### INT-007 — Dedicated A0 interface with series isolation and local sampling capacitor
 
-Candidate only, **not baselined**: `TP_AFE → 1 kΩ → A0`, 100 pF from ADC-side node to `GND_MEAS`, no external clamp diodes. Explicit approval remains required.
+**Status:** Accepted
+
+The Rev-1 AFE-to-ADC interface shall be:
+
+`TP_AFE → 1 kΩ series resistor → ADC_IN / UNO A0`
+
+with a **100 pF capacitor from the ADC-side A0 node to `GND_MEAS`**.
+
+The local RC pole is approximately:
+
+`fc = 1 / (2π × 1 kΩ × 100 pF) ≈ 1.59 MHz`
+
+This network is therefore not an additional anti-alias filter and has negligible intended effect on the accepted DC–10 kHz diagnostic band. The 1 kΩ resistor provides source isolation and limits transient current into the ADC input; the 100 pF capacitor provides local charge support for the ADC sample-and-hold interface.
+
+UNO **A0 is dedicated to the Rev-1 current-monitoring ADC signal**. The RA4M1 ADC shall be configured during Stage B with sampling/acquisition time sufficient to settle through the accepted source/interface network while maintaining the required deterministic **100 kS/s** sample rate.
+
+No external Schottky clamp diodes are included in the baseline Rev-1 ADC interface. Under normal operation the MCP6022 output and RA4M1 ADC share the same approximately 5 V measurement domain, while the valid signal is nominally approximately **0.5–4.5 V**. Additional clamp devices would add leakage/capacitance to the precision measurement node without providing credible protection against a gross 24 V misconnection.
+
+Approaching or reaching the ADC rails shall be treated as clipping/overrange and shall not be interpreted as a calibrated current value. Accidental connection of the 24 V actuator rail to A0 is explicitly **outside the Rev-1 ADC protection capability** and is prevented by the physical/wiring segregation rules rather than by this small-signal interface network.
+
+Stage B verification shall demonstrate:
+
+- correct ADC settling at 100 kS/s;
+- no meaningful passband degradation from the interface network;
+- no clipping throughout the intended valid 0.5–4.5 V AFE span;
+- effective ADC-domain voltage resolution of **≤2 mV** under actual acquisition conditions.
+
+### Rationale
+
+A small series resistor and local capacitor provide practical ADC-drive isolation without burdening the precision analog path or duplicating the deliberately designed 15 kHz anti-alias filter. Avoiding unnecessary clamps preserves low leakage/capacitance while keeping the system boundary explicit: the ADC interface is protected for intended low-voltage analog operation, not arbitrary actuator-rail miswiring.
 
 ## 12.8 — MCU I/O and resource allocation
 
@@ -129,7 +158,7 @@ Candidate only, **not baselined**: `TP_AFE → 1 kΩ → A0`, 100 pF from ADC-si
 
 **Status:** Accepted
 
-Reserve UNO **A0** (subject to INT-007), one ADC channel, one hardware timer for deterministic **100 kS/s**, one DMA/DTC-class transfer resource, and the USB/native serial path. Other MCU resources remain uncommitted unless required later.
+Reserve UNO **A0**, one ADC channel, one hardware timer for deterministic **100 kS/s**, one DMA/DTC-class transfer resource, and the USB/native serial path. Other MCU resources remain uncommitted unless required later.
 
 ## 12.9 — USB/PC physical and logical integration boundary
 
@@ -171,7 +200,7 @@ Motor-specific no-load, normal-load, startup/inrush and stall/jam currents remai
 
 Core available hardware: UNO R4 WiFi, Pololu #4048 ACS724-05AU, MCP6022-I/P, Philips/Saeco 24 V gearmotor, Jesverty SPS-3010V, HANMATEK DOS1102S, and general passive-component assortments.
 
-Required/verify procurement includes: 9.76 kΩ 1% ×2; 4.07 kΩ 1% ×2; controlled-tolerance 1.0 nF ×2, 1.2 nF ×1, 6.8 nF ×1; 10 µF reservoir if absent; current-rated wire/connectors; inline fuse holder; low-current hookup wire as needed; prototype construction hardware as needed.
+Required/verify procurement includes: 9.76 kΩ 1% ×2; 4.07 kΩ 1% ×2; controlled-tolerance 1.0 nF ×2, 1.2 nF ×1, 6.8 nF ×1; **1 kΩ resistor ×1; 100 pF capacitor ×1** for the ADC interface; 10 µF reservoir if absent; current-rated wire/connectors; inline fuse holder; low-current hookup wire as needed; prototype construction hardware as needed.
 
 Filter resistors shall be **1% metal-film**. Filter capacitors should preferably be **C0G/NP0** or another stable controlled-tolerance dielectric. Exact fuse rating is selected after safe Stage B motor-current characterization.
 
@@ -217,23 +246,11 @@ Rev-1 shall be implemented as a **secure open laboratory prototype**. A finished
 
 The **motor/high-current path shall not use a solderless breadboard**. The 18 AWG current harness, inline fuse holder, ACS724 primary path and motor connections shall use mechanically secure current-rated terminations. Current-path wiring shall be routed and restrained so accidental movement cannot pull conductors free or transfer excessive force into component PCBs.
 
-The **ACS724 carrier shall be mechanically supported**. Its 18 AWG primary-current pigtails shall receive strain relief so repeated cable movement does not flex the carrier or its solder joints. The primary-current terminals and secondary low-voltage pins shall remain physically distinguishable and accessible without encouraging cross-connection.
+The **ACS724 carrier shall be mechanically supported**. Its 18 AWG primary-current pigtails shall receive strain relief so repeated cable movement does not flex the carrier or its solder joints.
 
-The **low-current AFE may initially be assembled on a solderless breadboard** because its signal/power currents are small. The AFE shall nevertheless be compact: Sallen-Key components, MCP6022 decoupling and analog interconnects shall be kept short and orderly. If Stage B verification shows that breadboard parasitics, contact quality, noise pickup or mechanical instability prevent the accepted measurement/filter performance, the AFE shall migrate to perfboard or another soldered prototype construction without changing the accepted circuit topology unless a formal design revision is required.
+The **low-current AFE may initially be assembled on a solderless breadboard**. The AFE shall nevertheless be compact. If Stage B verification shows that breadboard parasitics, contact quality, noise pickup or mechanical instability prevent accepted performance, the AFE shall migrate to perfboard or another soldered prototype construction without changing the accepted circuit topology unless a formal design revision is required.
 
-The **UNO R4 WiFi shall be positioned and supported** so its USB-C cable and A0/5V/GND wiring do not impose significant mechanical load on the board/header connections.
-
-The analog measurement region shall be kept physically separated from the motor body, motor-current harness and other likely switching/noise sources where practical. Sensitive analog leads shall not be bundled tightly with the 18 AWG motor-current conductors.
-
-The accepted test points `TP_GND`, `TP_5V`, `TP_SENSOR` and `TP_AFE` shall remain physically accessible for oscilloscope/DMM probing without requiring disturbance of the high-current wiring. Probe access shall not require contact with exposed actuator-current conductors.
-
-Exposed conductive parts, loose leads, tools or probe accessories shall not be able to accidentally bridge the 24 V actuator path into the 5 V measurement domain during normal bench operation. Physical spacing, routing, support and insulation shall be used accordingly.
-
-The exact baseplate, breadboard size, mounting hardware, cable lengths, strain-relief method and enclosure style are Stage B implementation choices. They may be selected for practicality provided they preserve the accepted electrical partitioning, current-path integrity, analog separation and safe probe access.
-
-### Rationale
-
-Rev-1 is an engineering prototype rather than a finished packaged product. Requiring mechanical stability and segregation where electrical/safety performance depends on them provides a repeatable build without prematurely designing an enclosure. Allowing breadboard construction only in the low-current analog region preserves fast experimentation while explicitly providing a path to soldered construction if real measurement performance requires it.
+The analog measurement region shall be kept physically separated from the motor body and motor-current harness where practical. Test points `TP_GND`, `TP_5V`, `TP_SENSOR` and `TP_AFE` shall remain physically accessible without disturbing the high-current wiring.
 
 ## 12.15 — Configuration and build identity
 
@@ -243,34 +260,14 @@ Rev-1 is an engineering prototype rather than a finished packaged product. Requi
 
 Every meaningful Rev-1 engineering dataset, calibration/reference record and verification result shall be traceable to the system configuration that produced it.
 
-The logical Rev-1 build identity is:
-
 `Build ID = (hardware revision, firmware revision, calibration ID, motor ID, configuration ID)`
 
-At minimum, measurement/capture metadata shall identify:
+At minimum, measurement/capture metadata shall identify hardware revision, firmware revision/Git commit, active calibration ID, motor ID, acquisition configuration ID, and diagnostic/reference identity where applicable.
 
-- **hardware revision** — initially `REV1` unless the hardware baseline is formally revised;
-- **firmware revision** — version and/or Git commit sufficient to identify the executing acquisition/diagnostic implementation;
-- **active calibration ID** — identifying the offset/sensitivity and other accepted calibration parameters applied to the data;
-- **motor ID** — identifying the Philips/Saeco 24 VDC Rev-1 actuator or any formally approved replacement;
-- **acquisition configuration ID** — sufficient to recover important acquisition settings, including the nominal sample rate and any configuration that changes interpretation of the captured data;
-- **diagnostic/reference configuration identity** where applicable — sufficient to associate derived health results with the active diagnostic thresholds/baseline/reference configuration.
+A configuration/calibration change that can materially alter numerical interpretation or diagnostic results shall produce a new corresponding identity/version rather than silently reusing the previous identifier. Exact serialization/file naming remains Stage B implementation detail.
 
-The identity need not use a database or complex asset-management system. A compact versioned metadata structure/file and corresponding telemetry/capture fields are sufficient provided the relationship between a dataset and its configuration is unambiguous.
+## Phase 12 integration work package remaining
 
-A configuration/calibration change that can materially alter numerical interpretation or diagnostic results shall produce a new corresponding identity/version rather than silently reusing the previous identifier.
-
-Waveform exports and MATLAB analysis inputs shall preserve this metadata so results from different builds/configurations are not accidentally treated as directly comparable. Phase 13 verification evidence shall likewise record the applicable build identity.
-
-Exact string formatting, serialization, file naming and metadata packet layout remain Stage B implementation choices. They shall not weaken the traceability requirement.
-
-### Rationale
-
-The health-monitoring system will evolve during implementation and calibration. Explicit build/configuration identity makes measured behavior reproducible and prevents changes in firmware, calibration, acquisition settings or motor configuration from being mistaken for changes in actuator health.
-
-## Phase 12 integration work packages remaining
-
-- Complete **INT-007 — ADC interface and input protection** after explicit approval.
 - **INT-016 — Integration completeness review**.
 
 Additional integration decisions may be introduced if detailed reconciliation exposes a genuine build-defining gap.
