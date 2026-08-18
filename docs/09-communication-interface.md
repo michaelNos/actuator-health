@@ -18,11 +18,30 @@ This phase selects the Rev-1 physical/logical communication strategy and the pro
 - MAX485 and MCP2551 modules are available but shall not be selected merely because they are on hand;
 - Rev-1 is a low-voltage laboratory system; industrial scalability remains architectural rather than direct reuse of hobby hardware.
 
-## Phase 9 design topics
+## 9.1 — Primary Rev-1 communication interface
 
-The phase will resolve the minimum product-defining choices needed for communication, including:
+### COM-001 — USB serial for laboratory PC/MATLAB integration
 
-- primary Rev-1 physical interface;
+**Status:** Accepted
+
+Rev-1 shall use the Arduino UNO R4 WiFi's **USB serial connection** as the primary communication interface to the laboratory PC/MATLAB environment.
+
+USB is selected because Rev-1 is a low-voltage laboratory prototype and already provides the required direct PC connection without an additional external physical-layer transceiver. It supports development, logging, analysis and diagnostic interaction while keeping the hardware build simple.
+
+Communication remains downstream of the deterministic acquisition path:
+
+`ADC → RAM buffering → processing/diagnostics → USB communication`
+
+USB activity, host latency or temporary communication congestion shall not control or perturb the hardware-timed 100 kS/s ADC sampling cadence. Where communication cannot keep pace with generated data, the firmware shall manage that condition explicitly rather than allowing transmission work to block deterministic acquisition.
+
+Available MAX485 and MCP2551 hardware is not made mandatory for Rev-1 merely because it is available. RS-485 and CAN remain candidate future industrial communication layers where longer cables, noisy environments, differential signaling or networked nodes justify them.
+
+### Rationale
+
+USB provides the simplest appropriate Rev-1 path to the required PC/MATLAB environment. Separating the application data model from the physical transport preserves future scalability without adding industrial communication hardware before the laboratory monitoring concept is validated.
+
+## Phase 9 design topics remaining
+
 - separation of live telemetry from high-rate/raw data transfer where needed;
 - message/data model and integrity/versioning requirements;
 - industrial-interface scalability only where it affects Rev-1 architecture.
