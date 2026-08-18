@@ -169,47 +169,51 @@ Motor-specific no-load, normal-load, startup/inrush and stall/jam currents remai
 
 **Status:** Accepted
 
-The Rev-1 BOM is classified into hardware already available, items requiring purchase/verification, and values that genuinely depend on Stage B characterization.
+Core available hardware: UNO R4 WiFi, Pololu #4048 ACS724-05AU, MCP6022-I/P, Philips/Saeco 24 V gearmotor, Jesverty SPS-3010V, HANMATEK DOS1102S, and general passive-component assortments.
 
-| Item | Rev-1 requirement | Status / action |
-| --- | --- | --- |
-| Arduino UNO R4 WiFi | RA4M1 acquisition/processing platform | **Available** |
-| Pololu #4048 / ACS724-05AU | 0–5 A current sensor | **Available** |
-| MCP6022-I/P | dual op-amp for AFE | **Available** |
-| Philips/Saeco gearmotor | 24 VDC Rev-1 actuator | **Available** |
-| Jesverty SPS-3010V | motor bench supply with adjustable current limit | **Available** |
-| HANMATEK DOS1102S | verification oscilloscope/function generator | **Available** |
-| 100 nF ceramic capacitors | ACS724 and MCP6022 local bypass | **Available from component assortment; verify values before assembly** |
-| 10 µF capacitor | AFE local reservoir | **Verify availability/value before assembly; purchase if absent** |
-| 9.76 kΩ 1% resistors ×2 | low-Q filter | **Purchase unless exact suitable parts are verified available** |
-| 4.07 kΩ 1% resistors ×2 | high-Q filter | **Purchase unless exact suitable parts are verified available** |
-| 1.0 nF ≤5% capacitors ×2 | filter | **Purchase controlled-tolerance parts unless verified suitable parts are available** |
-| 1.2 nF ≤5% capacitor ×1 | filter | **Purchase** |
-| 6.8 nF ≤5% capacitor ×1 | filter | **Purchase** |
-| Current-rated insulated copper wire | motor/high-current path | **Purchase** |
-| Current-rated connectors/terminals | PSU/sensor/motor interconnect | **Purchase** |
-| Inline/series fuse holder | motor-path passive protection | **Purchase** |
-| Replaceable fuse(s) | motor-path backup protection | **Rating TBD after safe Stage B motor characterization** |
-| USB-C data cable | UNO ↔ PC | **Verify available** |
-| Low-current hookup/jumper wire | 5 V measurement-domain interconnect | **Verify available; purchase if absent** |
-| Prototype construction hardware | breadboard/perfboard/terminal support as appropriate | **Verify available; final physical use constrained by INT-013/INT-014** |
+Required/verify procurement includes: 9.76 kΩ 1% ×2; 4.07 kΩ 1% ×2; controlled-tolerance 1.0 nF ×2, 1.2 nF ×1, 6.8 nF ×1; 10 µF reservoir if absent; current-rated wire/connectors; inline fuse holder; low-current hookup wire as needed; prototype construction hardware as needed.
 
-For the filter network, use **1% metal-film resistors**. The filter capacitors should preferably be **C0G/NP0 ceramic** (or another suitably stable, controlled-tolerance dielectric) because their capacitance directly determines the filter pole/Q realization. Generic high-K ceramic assortment parts shall not be assumed suitable merely because their nominal capacitance matches.
+Filter resistors shall be **1% metal-film**. Filter capacitors should preferably be **C0G/NP0** or another stable controlled-tolerance dielectric. Exact fuse rating is selected after safe Stage B motor-current characterization.
 
-The motor/high-current path shall not use ordinary Dupont jumper leads or solderless-breadboard contacts. Dedicated current-rated wire and connectors are mandatory procurement items.
+## 12.13 — Wiring/interconnect specification
 
-The exact fuse rating is deliberately not purchased/frozen yet. Initial motor characterization shall be performed with conservative bench-PSU current limiting; measured startup, normal and controlled-stall behavior then informs the replaceable fuse selection while respecting conductor, connector and sensor-path ratings.
+### INT-013 — 18 AWG motor-current harness with segregated low-level wiring
 
-Exact current-wire gauge and connector family remain to be finalized in INT-013. Their selection shall support the Rev-1 current envelope with appropriate margin and shall not depend on the precision measurement range being interpreted as a hardware survival rating.
+**Status:** Accepted
+
+The complete Rev-1 motor-current path shall use **18 AWG stranded insulated copper conductors** as the baseline harness specification:
+
+`PSU+ → inline fuse holder → ACS724 IP+ → ACS724 IP− → polarized motor connection → motor → PSU−`
+
+The ACS724 primary-path pigtails shall be soldered directly into the carrier's high-current connection holes unless an equally suitable mechanically secure current-rated termination is deliberately selected during assembly. The pigtails shall be strain relieved so cable movement and connector forces are not transferred directly to the sensor PCB.
+
+Where a detachable motor/PSU interconnect is required, use a **polarized two-conductor connector rated at least 10 A and 30 VDC**. The existing Philips/Saeco motor connector may be reused only if its current/voltage/mechanical condition can be verified suitable; otherwise replace it with a connector meeting the accepted rating.
+
+The inline fuse holder shall be located in the positive actuator-supply path close to the PSU-side connection where practical. Its wiring and contact rating shall be at least consistent with the selected 18 AWG harness and Rev-1 current envelope. The fuse value itself remains TBD until Stage B motor characterization.
+
+Low-current measurement-electronics connections (`5V_MEAS`, `GND_MEAS`, sensor VOUT, AFE nets, ADC signal) shall use ordinary suitable **22–24 AWG hookup/jumper wiring** or equivalent board interconnect. These conductors shall not be used in the motor-current path.
+
+Analog/signal wiring shall be kept short and separated from the motor/high-current harness where practical. Long parallel routing between sensitive analog lines and motor-current conductors shall be avoided.
+
+The build shall use an unambiguous polarity/color convention. Baseline convention:
+
+- red high-current conductor: actuator `PSU+ / +24 V` side;
+- black high-current conductor: actuator return / `PSU−`;
+- red low-current conductor: `5V_MEAS`;
+- black low-current conductor: `GND_MEAS`;
+- a distinct non-red/non-black color: analog signal nets.
+
+Labels shall identify `PSU+`, `FUSE`, `IP+`, `IP−`, `MOTOR+`, `MOTOR−`, `PSU−`, `5V_MEAS`, `GND_MEAS`, `TP_SENSOR`, `TP_AFE` and `A0` where applicable.
+
+Motor-current wiring, Dupont jumpers and analog hookup wire shall be treated as different interconnect classes and shall not be substituted for one another merely because a connector physically fits.
 
 ### Rationale
 
-This BOM freezes the components that define the accepted electrical design while separating true procurement gaps from quantities that can only be chosen responsibly after the real motor is characterized. Precision filter components are treated as deliberate design parts rather than whatever values happen to be present in a general-purpose assortment.
+A fixed 18 AWG harness provides conservative current-carrying margin for the ≤5 A calibrated Rev-1 measurement envelope and expected startup/stall characterization while remaining practical for a laboratory build. Explicit separation between high-current and analog wiring reduces contact-heating, breadboard misuse and noise-coupling risks and makes the final build unambiguous.
 
 ## Phase 12 integration work packages remaining
 
 - Complete **INT-007 — ADC interface and input protection** after explicit approval.
-- **INT-013 — Wiring/interconnect specification**.
 - **INT-014 — Mechanical/assembly constraints**.
 - **INT-015 — Configuration and build identity**.
 - **INT-016 — Integration completeness review**.
