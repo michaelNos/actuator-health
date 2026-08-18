@@ -16,7 +16,7 @@ Phase 12 converts the accepted subsystem designs from Phases 1–11 into one coh
 - MCU: **Arduino UNO R4 WiFi / Renesas RA4M1**.
 - AFE: **MCP6022-I/P**, approximately unity gain.
 - System accuracy after calibration: **≤ ±0.10 A**, stretch **±0.05 A**.
-- Reported-current resolution: **≤10mA**.
+- Reported-current resolution: **≤10 mA**.
 - USB serial is the Rev-1 PC/MATLAB interface.
 - Automatic motor shutdown is not part of Rev-1; bench-PSU current limiting is the initial active motor-current protection.
 - Rev-1 hobby hardware shall never be connected directly to industrial mains or a 400 V motor circuit.
@@ -41,17 +41,13 @@ Rev-1 is partitioned into actuator/high-current, analog measurement, digital/pro
 
 Dedicated current-rated conductors/connectors shall be used; no motor current through solderless breadboard, MCU header wiring or measurement-ground conductors.
 
-**Procurement dependency:** exact current-rated wiring/connectors are not yet selected/available. Final sizing follows INT-011/INT-012 using the selected motor and conservative Rev-1 current envelope.
-
 ## 12.3 — Measurement-electronics power distribution
 
 ### INT-003 — UNO-derived coherent 5 V measurement domain
 
 **Status:** Accepted
 
-`USB-C → UNO R4 WiFi → UNO +5 V header → ACS724 VCC + MCP6022 VDD`
-
-with common `GND_MEAS`. Motor power remains on the separate bench-PSU path. Actual measurement rail is characterized rather than assumed exactly 5.000 V.
+`USB-C → UNO R4 WiFi → UNO +5 V header → ACS724 VCC + MCP6022 VDD`, with common `GND_MEAS`. Motor power remains on the separate bench-PSU path. Actual measurement rail is characterized rather than assumed exactly 5.000 V.
 
 ## 12.4 — Ground/reference and laboratory-instrument architecture
 
@@ -141,9 +137,7 @@ Reserve UNO **A0** (subject to INT-007), one ADC channel, one hardware timer for
 
 **Status:** Accepted
 
-UNO R4 WiFi USB-C is the sole baseline host interface. It supports normal telemetry, requested waveform capture and configuration/calibration exchange.
-
-USB/PC timing shall not control deterministic ADC sampling or real-time diagnostics. Host disconnection/backpressure shall not stall acquisition. Optional data loss/unavailability must be explicit. Engineering datasets retain acquisition configuration, calibration identity, firmware/build identity and validity/health metadata. Exact framing/protocol remains Stage B implementation detail.
+UNO R4 WiFi USB-C is the sole baseline host interface. It supports normal telemetry, requested waveform capture and configuration/calibration exchange. USB/PC timing shall not control deterministic ADC sampling or real-time diagnostics.
 
 ## 12.10 — Protection implementation
 
@@ -151,19 +145,13 @@ USB/PC timing shall not control deterministic ADC sampling or real-time diagnost
 
 **Status:** Accepted
 
-Rev-1 protection shall deliberately distinguish **motor/current-path protection**, **measurement-electronics protection**, and **measurement-validity handling**.
-
-The actuator-current path shall become:
+The actuator-current path is:
 
 `bench PSU (+) → series fuse → ACS724 IP+ → ACS724 IP− → motor → bench PSU (−)`
 
-The **bench PSU adjustable current limit is the primary active motor-current protection** during Rev-1 laboratory operation. It shall be configured to an appropriate value before motor energization. A **replaceable series fuse near the PSU-positive side** shall provide an independent passive backup against gross overcurrent/wiring faults or inappropriate PSU current-limit configuration.
+The bench PSU adjustable current limit is the primary active motor-current protection. A replaceable series fuse near PSU+ provides passive backup. The exact fuse rating remains a Stage B selection after safe motor-current characterization; it is not chosen merely from the 5 A measurement range.
 
-The fuse rating/type remains to be frozen in INT-012 from the selected motor/current envelope and conductor rating; it shall not be chosen merely as 5 A because the sensor's calibrated measurement range is 0–5 A.
-
-Software/diagnostic handling shall distinguish **overrange/invalid measurement** from electrical damage or valid high-current measurement. **5 A is a measurement-validity boundary, not by itself the hardware survival threshold, fuse rating, PSU-current-limit setting, or automatic shutdown threshold**.
-
-Rev-1 does not add automatic MCU-controlled motor disconnection.
+Software/diagnostics distinguish overrange/invalid measurement from electrical damage. **5 A is the calibrated measurement-validity boundary, not automatically a hardware survival, fuse or shutdown threshold.**
 
 ## 12.11 — Rev-1 motor/actuator selection
 
@@ -171,38 +159,56 @@ Rev-1 does not add automatic MCU-controlled motor disconnection.
 
 **Status:** Accepted
 
-The Rev-1 actuator shall be the available **Philips/Saeco brew-group gearmotor from the user's failed coffee machine**, identified by the user as a **24 VDC** unit.
+The Rev-1 actuator is the available **Philips/Saeco 24 VDC brew-group gearmotor** recovered from the user's failed coffee machine.
 
-This satisfies the accepted Rev-1 actuator-voltage boundary:
+Motor-specific no-load, normal-load, startup/inrush and stall/jam currents remain **TBD — measure during Stage B implementation/verification**. Normal/intended tests should remain within the 0–5 A calibrated range wherever practical; any excursion above 5 A is treated as measurement overrange and constrained by PSU current limiting.
 
-`V_motor ≤ 24 VDC`
+## 12.12 — Rev-1 BOM and procurement status
 
-The motor shall be powered only from the laboratory bench PSU through the fused ACS724 current path defined by INT-002/INT-010; it shall never be powered from the UNO/measurement 5 V rail.
+### INT-012 — Build BOM classification and procurement baseline
 
-The motor is suitable for the intended current-signature study because a brushed/geared DC actuator provides meaningful startup, changing-load, commutation/current-ripple and stall/jam behavior for Rev-1 characterization.
+**Status:** Accepted
 
-The following motor-specific quantities remain **TBD — measure during Stage B implementation/verification**:
+The Rev-1 BOM is classified into hardware already available, items requiring purchase/verification, and values that genuinely depend on Stage B characterization.
 
-- no-load current;
-- representative normal-load current;
-- startup/inrush current;
-- stall/jam current;
-- current variation across practical mechanical load conditions.
+| Item | Rev-1 requirement | Status / action |
+| --- | --- | --- |
+| Arduino UNO R4 WiFi | RA4M1 acquisition/processing platform | **Available** |
+| Pololu #4048 / ACS724-05AU | 0–5 A current sensor | **Available** |
+| MCP6022-I/P | dual op-amp for AFE | **Available** |
+| Philips/Saeco gearmotor | 24 VDC Rev-1 actuator | **Available** |
+| Jesverty SPS-3010V | motor bench supply with adjustable current limit | **Available** |
+| HANMATEK DOS1102S | verification oscilloscope/function generator | **Available** |
+| 100 nF ceramic capacitors | ACS724 and MCP6022 local bypass | **Available from component assortment; verify values before assembly** |
+| 10 µF capacitor | AFE local reservoir | **Verify availability/value before assembly; purchase if absent** |
+| 9.76 kΩ 1% resistors ×2 | low-Q filter | **Purchase unless exact suitable parts are verified available** |
+| 4.07 kΩ 1% resistors ×2 | high-Q filter | **Purchase unless exact suitable parts are verified available** |
+| 1.0 nF ≤5% capacitors ×2 | filter | **Purchase controlled-tolerance parts unless verified suitable parts are available** |
+| 1.2 nF ≤5% capacitor ×1 | filter | **Purchase** |
+| 6.8 nF ≤5% capacitor ×1 | filter | **Purchase** |
+| Current-rated insulated copper wire | motor/high-current path | **Purchase** |
+| Current-rated connectors/terminals | PSU/sensor/motor interconnect | **Purchase** |
+| Inline/series fuse holder | motor-path passive protection | **Purchase** |
+| Replaceable fuse(s) | motor-path backup protection | **Rating TBD after safe Stage B motor characterization** |
+| USB-C data cable | UNO ↔ PC | **Verify available** |
+| Low-current hookup/jumper wire | 5 V measurement-domain interconnect | **Verify available; purchase if absent** |
+| Prototype construction hardware | breadboard/perfboard/terminal support as appropriate | **Verify available; final physical use constrained by INT-013/INT-014** |
 
-These measured quantities shall be used to tune diagnostics and validate the selected fuse/current-limit strategy. They shall not be invented during Stage A.
+For the filter network, use **1% metal-film resistors**. The filter capacitors should preferably be **C0G/NP0 ceramic** (or another suitably stable, controlled-tolerance dielectric) because their capacitance directly determines the filter pole/Q realization. Generic high-K ceramic assortment parts shall not be assumed suitable merely because their nominal capacitance matches.
 
-The selected motor remains acceptable only within the safety/protection architecture. Normal operation and the intended measurement tests should remain within the **0–5 A calibrated range** wherever practical. If startup or controlled stall behavior exceeds 5 A, that condition becomes **measurement overrange** for the ACS724-05AU Rev-1 calibrated model; PSU current limiting shall prevent uncontrolled current, and such an event shall not be represented as an accurate calibrated current above 5 A.
+The motor/high-current path shall not use ordinary Dupont jumper leads or solderless-breadboard contacts. Dedicated current-rated wire and connectors are mandatory procurement items.
 
-Selection of the motor does not yet freeze exact wire gauge, connectors, fuse rating or initial PSU current-limit value. INT-012 shall choose those conservatively from the Rev-1 ≤5 A measurement envelope, available hardware ratings and the need to safely characterize unknown motor current during first implementation runs. Motor-specific measured currents may later justify lower operational limits without requiring a redesign.
+The exact fuse rating is deliberately not purchased/frozen yet. Initial motor characterization shall be performed with conservative bench-PSU current limiting; measured startup, normal and controlled-stall behavior then informs the replaceable fuse selection while respecting conductor, connector and sensor-path ratings.
+
+Exact current-wire gauge and connector family remain to be finalized in INT-013. Their selection shall support the Rev-1 current envelope with appropriate margin and shall not depend on the precision measurement range being interpreted as a hardware survival rating.
 
 ### Rationale
 
-The available 24 VDC gearmotor fits the accepted laboratory-voltage scope and avoids purchasing an artificial demonstration load before the existing actuator is evaluated. Its electromechanical behavior is also representative enough to exercise the current-based monitoring architecture without requiring any direct connection to mains-powered coffee-machine circuitry.
+This BOM freezes the components that define the accepted electrical design while separating true procurement gaps from quantities that can only be chosen responsibly after the real motor is characterized. Precision filter components are treated as deliberate design parts rather than whatever values happen to be present in a general-purpose assortment.
 
 ## Phase 12 integration work packages remaining
 
 - Complete **INT-007 — ADC interface and input protection** after explicit approval.
-- **INT-012 — Complete BOM and procurement status**, including conservative wire/connectors/fuse selection.
 - **INT-013 — Wiring/interconnect specification**.
 - **INT-014 — Mechanical/assembly constraints**.
 - **INT-015 — Configuration and build identity**.
