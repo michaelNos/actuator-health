@@ -168,6 +168,52 @@ No numerical value shall be introduced solely to eliminate a TBD. If physical ev
 
 A controlled TBD is an engineering commitment to obtain missing evidence; an undocumented assumption is a hidden design risk. Assigning closure stages prevents characterization, tuning and final acceptance from being mixed together and preserves the independence required by the verification plan.
 
+## 14.4 — Stage B implementation sequence and entry criteria
+
+### FRZ-004 — Progressive subsystem bring-up before complete Rev-1 integration
+
+**Status:** Accepted
+
+Stage B shall implement and characterize Rev-1 progressively rather than assemble every subsystem first and debug the complete system as one unknown unit.
+
+The intended implementation flow is:
+
+`inspect/setup → motor characterization → ACS724 bring-up → AFE bring-up → deterministic ADC acquisition → calibration/current conversion → USB/MATLAB → healthy characterization → diagnostics tuning → protection finalization → complete build → integration checks`
+
+The working sequence is:
+
+1. **Inspect and establish safe bench setup.** Confirm available parts, motor condition, intended wiring, measurement equipment and a controlled bench-PSU/current-limit arrangement before energizing the actuator path.
+2. **Characterize the 24 V motor.** Establish safe startup, no-load/representative-load and current-limited stall/jam behavior needed by later measurement, protection and diagnostic decisions.
+3. **Bring up the ACS724 measurement carrier.** Verify supply, zero-current output, polarity/current direction and real sensor response before depending on it as an AFE source.
+4. **Build and characterize the MCP6022 AFE independently.** Establish DC operating behavior and measured transfer response before connecting its output to the final acquisition path.
+5. **Implement deterministic RA4M1 acquisition.** Realize the frozen 100 kS/s behavior using suitable hardware triggering/transfer mechanisms and characterize timing before adding host-dependent processing.
+6. **Integrate calibration and current conversion.** Establish controlled calibration coefficients/identity and validity/overrange behavior from reference-current evidence.
+7. **Implement USB transport and MATLAB engineering tooling.** Preserve sample order, timing/configuration metadata, integrity and validity while keeping host activity outside the ADC timing loop.
+8. **Characterize healthy motor-current signatures.** Capture startup, load, ripple/commutation and spectral behavior under documented healthy conditions and derive the healthy-reference configuration.
+9. **Tune diagnostic configuration.** Derive overload, current-based stall/jam and anomaly thresholds/persistence from measured motor/system behavior rather than arbitrary assumptions.
+10. **Finalize protection configuration.** Select/document the series fuse and appropriate bench-current-limit settings from actual motor characterization and current-path capability.
+11. **Assemble the complete Rev-1 integrated build.** Apply the Phase 12 physical partitioning, current-path, grounding, decoupling, test-point and wiring rules.
+12. **Perform Stage B integration checks.** Resolve implementation defects and establish a stable, identified build/configuration before handing the system to formal Stage C acceptance verification.
+
+A subsystem shall not be treated as established merely because the next subsystem can be connected to it. Material defects discovered during bring-up shall be resolved, documented as an open limitation, or escalated through engineering-change control before dependent acceptance work proceeds.
+
+### Stage B entry criteria
+
+Stage B may begin after:
+
+- Phase 14 is approved and merged, establishing the frozen Stage A baseline;
+- the physical items and instrumentation required for the **next planned implementation activity** are available and suitable for safe use;
+- the applicable frozen design documentation can be identified from the repository;
+- the work can be performed without knowingly violating an unresolved safety/protection dependency.
+
+Stage B entry does **not** require every component, consumable or accessory needed for all later Stage B/C activities to be physically present on day one. Missing future items shall be tracked as procurement dependencies and shall block only the work that genuinely depends on them.
+
+If a required part is unavailable, independent software/documentation work may proceed where it does not require invented measurement results or a material deviation from the frozen design.
+
+### Rationale
+
+Progressive bring-up keeps each new unknown small enough to diagnose with available laboratory equipment. It also prevents a failure in the motor, sensor, AFE, ADC timing, firmware or host path from becoming an ambiguous complete-system symptom. Allowing Stage B to start with only the items needed for the immediate work avoids unnecessary procurement gating while preserving safety and design control.
+
 ## Phase 14 work packages
 
 Phase 14 will establish:
@@ -175,7 +221,7 @@ Phase 14 will establish:
 1. authoritative design-freeze baseline and configuration boundary — **FRZ-001 accepted**;
 2. frozen versus implementation-selectable items — **FRZ-002 accepted**;
 3. measured-TBD register and closure ownership — **FRZ-003 accepted**;
-4. Stage B implementation sequence and entry criteria;
+4. Stage B implementation sequence and entry criteria — **FRZ-004 accepted**;
 5. Stage C verification sequence and evidence handoff;
 6. engineering-change control after design freeze;
 7. implementation readiness / procurement-blocker review;
