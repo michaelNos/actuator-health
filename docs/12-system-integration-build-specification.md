@@ -172,7 +172,7 @@ Channel allocation:
 - **MCP6022 channel A:** low-Q section (`Q ≈ 0.548`);
 - **MCP6022 channel B:** high-Q section (`Q ≈ 1.304`).
 
-The low-Q-first/high-Q-second ordering is frozen for Rev-1. The ideal cascaded transfer function is independent of section order, but this ordering avoids placing the higher-Q behavior at the first active stage and provides one unambiguous implementation.
+The low-Q-first/high-Q-second ordering is frozen for Rev-1.
 
 Power connections:
 
@@ -184,13 +184,74 @@ Provide:
 - **100 nF ceramic local bypass capacitor** directly between MCP6022 VDD and VSS, physically close to the IC supply pins;
 - **10 µF bulk/local reservoir capacitor** between `5V_MEAS` and `GND_MEAS` near the AFE analog section.
 
-The MCP6022 is used as a single-supply RRIO amplifier, but rail-to-rail capability shall not be interpreted as guaranteed zero-error operation exactly at either supply rail. The nominal ACS724 signal span of approximately **0.5–4.5 V** intentionally leaves headroom. Actual output swing, loading, distortion and filter response shall be checked during Stage B verification.
+### INT-006D — Complete MCP6022 PDIP-8 net-level AFE circuit and headroom
 
-Detailed DIP-8 physical pin numbers and exact net-by-net Sallen-Key wiring are completed in INT-006D so the final AFE circuit is reviewed as one coherent build specification rather than as disconnected pin facts.
+**Status:** Accepted
 
-### INT-006 remaining sub-decision
+The MCP6022-I/P PDIP-8 pin allocation is frozen as:
 
-- **INT-006D — complete AFE net-level circuit and voltage/headroom verification**.
+| Pin | Function | Rev-1 connection |
+| ---: | --- | --- |
+| 1 | OUTA | low-Q stage output / Stage B input |
+| 2 | IN−A | tied to pin 1 for unity-gain follower |
+| 3 | IN+A | low-Q Sallen-Key input node `N2A` |
+| 4 | VSS | `GND_MEAS` |
+| 5 | IN+B | high-Q Sallen-Key input node `N2B` |
+| 6 | IN−B | tied to pin 7 for unity-gain follower |
+| 7 | OUTB | `TP_AFE` / ADC-interface source |
+| 8 | VDD | `5V_MEAS` |
+
+#### Low-Q stage — channel A
+
+Net-level connections:
+
+`TP_SENSOR / ACS724 VOUT → R1A 9.76 kΩ → N1A`
+
+`N1A → R2A 9.76 kΩ → N2A → MCP6022 pin 3 (IN+A)`
+
+`N2A → C2A 1.0 nF → GND_MEAS`
+
+`N1A → C1A 1.2 nF → MCP6022 pin 1 (OUTA)`
+
+`MCP6022 pin 1 (OUTA) → MCP6022 pin 2 (IN−A)`
+
+Pin 1 is also the source feeding the second filter stage.
+
+#### High-Q stage — channel B
+
+Net-level connections:
+
+`MCP6022 pin 1 (OUTA) → R1B 4.07 kΩ → N1B`
+
+`N1B → R2B 4.07 kΩ → N2B → MCP6022 pin 5 (IN+B)`
+
+`N2B → C2B 1.0 nF → GND_MEAS`
+
+`N1B → C1B 6.8 nF → MCP6022 pin 7 (OUTB)`
+
+`MCP6022 pin 7 (OUTB) → MCP6022 pin 6 (IN−B)`
+
+`MCP6022 pin 7 (OUTB) → TP_AFE → ADC interface`
+
+The `C1A` and `C1B` capacitors are deliberately connected between the first resistor-junction node and the corresponding op-amp output; they are not additional shunt capacitors to ground. These feedback connections are required by the selected unity-gain Sallen-Key realization.
+
+#### Supply and local decoupling
+
+`pin 8 (VDD) → 5V_MEAS`
+
+`pin 4 (VSS) → GND_MEAS`
+
+A **100 nF ceramic capacitor** shall be connected locally between pins 8 and 4. The accepted **10 µF** analog-section reservoir capacitor shall be connected between `5V_MEAS` and `GND_MEAS` near the AFE.
+
+#### Voltage/headroom check
+
+The nominal valid ACS724/AFE signal range is approximately:
+
+`0.5 V ≤ V_AFE ≤ 4.5 V`
+
+with an approximately 5 V MCP6022 supply. This leaves approximately **0.5 V nominal headroom from each supply rail**. The accepted unity-gain AFE therefore requires no deliberate level shift or attenuation for the Rev-1 valid measurement range.
+
+Rail-to-rail operation shall not be interpreted as permission to operate exactly at the rails. Actual minimum/maximum AFE output, distortion, loading and clipping margin shall be verified during Stage B. Excursions caused by sensor overrange or faults are handled by the ADC-interface/protection design rather than by redefining the valid 0–5 A calibrated range.
 
 ## Phase 12 integration work packages remaining
 
