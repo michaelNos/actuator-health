@@ -167,9 +167,41 @@ The same rule applies to the integrated function generator: its output return/gr
 
 The ACS724 output, AFE and ADC require a common reference for accurate single-ended measurement, while the motor-current return must remain outside that sensitive path. Explicit test points make intended low-voltage probing unambiguous, and the instrument-ground rule prevents the isolation provided by the current sensor from being defeated by an accidental earth-referenced laboratory connection.
 
+## 12.5 — ACS724 secondary-side interface
+
+### INT-005 — Direct sensor-to-AFE interface with stock FILTER and local decoupling
+
+**Status:** Accepted
+
+The Pololu #4048 / ACS724 secondary-side interface shall be wired as:
+
+`5V_MEAS → ACS724 VCC`
+
+`GND_MEAS → ACS724 GND`
+
+`ACS724 VOUT → TP_SENSOR → AFE input`
+
+The sensor's low-level `VOUT` conductor shall be routed as an analog signal and shall not share a conductor carrying motor load current.
+
+The Pololu carrier's stock **1 nF FILTER capacitor shall remain unchanged**. This preserves the accepted assembled-carrier bandwidth of approximately **90 kHz**. The carrier FILTER network shall not be treated as the ADC anti-alias filter; the deliberate DC–10 kHz measurement-chain filtering remains the responsibility of the AFE defined in Phase 5 and frozen later in Phase 12.
+
+A **100 nF ceramic bypass capacitor** shall be provided locally between ACS724 `VCC` and `GND`, close to the carrier's secondary-side supply connection. This is additional local supply decoupling and does not replace or modify the carrier's FILTER capacitor.
+
+No additional gain, divider or offset network shall be inserted ahead of the accepted AFE merely to force the nominal sensor span to different values. The nominal transfer remains approximately:
+
+- `0 A → 0.5 V`;
+- `5 A → 4.5 V`;
+
+at nominal 5 V supply, while the actual offset and sensitivity remain calibration parameters under Phase 11.
+
+`TP_SENSOR` shall expose the raw sensor output before deliberate AFE anti-alias filtering so the sensor output and filtered ADC-facing signal can be compared independently during implementation and verification.
+
+### Rationale
+
+A direct secondary-side interface preserves the characterized sensor behavior and avoids adding unnecessary pre-filter errors. Retaining the carrier's stock FILTER configuration keeps Phase 3 assumptions valid, while local supply decoupling improves the electrical integration of the sensor into the shared measurement rail. The raw-output test point preserves observability of the sensor separately from the AFE.
+
 ## Phase 12 integration work packages remaining
 
-5. **INT-005 — ACS724 secondary-side interface**
 6. **INT-006 — AFE implementation and component-value freeze**
 7. **INT-007 — ADC interface and input protection**
 8. **INT-008 — MCU I/O and resource allocation**
