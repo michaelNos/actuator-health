@@ -243,6 +243,48 @@ Evidence shall retain the waveform/data around each event, applicable diagnostic
 
 Measuring latency from a defined diagnostic criterion separates algorithm response time from an uncontrolled mechanical transition. Testing normal behavior as well as fault conditions prevents a trivially sensitive detector from passing latency requirements while producing unusable false alarms. The explicit current-based scope also avoids claiming mechanical stall confirmation from a system that intentionally has no speed sensor in Rev-1.
 
+## 13.9 — Overrange, fault handling and protection acceptance
+
+### VER-009 — Safe verification of validity boundaries, detectable faults and installed protection
+
+**Status:** Accepted
+
+Rev-1 verification shall explicitly distinguish **measurement validity** from **electrical survival/protection**. A circuit remaining operational outside the calibrated range does not make its reported current a valid calibrated measurement.
+
+The accepted calibrated current range is **0–5 A**. Stage C shall safely verify behavior approaching the upper valid boundary and shall demonstrate that the system does not prematurely clip or invalidate a legitimately in-range condition that is required for acceptance.
+
+Where a controlled condition moves outside the valid calibrated range without exceeding safe hardware/test limits, the system shall expose the measurement as **overrange/invalid** rather than present a saturated, clipped or extrapolated value as trustworthy calibrated current. ADC/AFE clipping or saturation shall therefore be incompatible with a normal-valid current indication.
+
+Detectable measurement faults or implausible states implemented by Rev-1 shall be exercised where this can be done non-destructively. The exact set depends on the implemented observability; Phase 13 does not require software to diagnose electrical faults that the architecture cannot distinguish. Any fault that is detected shall be represented explicitly rather than silently converted into plausible measurement data.
+
+Motor-current-path protection shall be inspected and verified against the implemented build, including:
+
+- the installed inline fuse/fuse holder and its documented rating;
+- the selected fuse rating being justified from actual motor characterization and wiring/current-path capability rather than guessed before characterization;
+- the bench PSU current limit being configured appropriately for controlled overload/stall work;
+- dedicated motor-current conductors/connectors being used rather than breadboard/Dupont measurement wiring;
+- the Rev-1 diagnostic system not being credited as the independent protective shutdown mechanism.
+
+Verification does **not** require intentionally destructive testing. In particular, Stage C shall not deliberately short the motor supply merely to prove that a fuse can open, shall not intentionally exceed component absolute-maximum ratings, and shall not apply the 24 V actuator rail to the MCU ADC/AFE input. Accidental 24 V connection to A0 is outside the accepted Rev-1 ADC-interface protection capability and is a prohibited misuse condition, not an acceptance test.
+
+If a safe current-limited test naturally causes the installed fuse to operate, that result may be retained as evidence, but fuse destruction is not a mandatory acceptance event.
+
+### Acceptance
+
+PASS requires:
+
+1. the valid 0–5 A measurement region is usable without premature invalidation/clipping under the accepted conditions;
+2. safely produced out-of-range/clipped conditions are not represented as normal calibrated current;
+3. implemented detectable fault states are exposed consistently where safely testable;
+4. installed fuse, wiring and bench-current-limit configuration are consistent with the characterized motor and accepted Rev-1 protection architecture; and
+5. no acceptance claim depends on destructive misuse testing or MCU-controlled automatic shutdown.
+
+Evidence shall retain the Build ID/configuration, relevant current/voltage observations, validity/fault indications, installed fuse rating and motor-characterization basis used to justify the final protection configuration.
+
+### Rationale
+
+Protection and measurement accuracy solve different problems. Explicitly testing the validity boundary prevents clipped signals from becoming false calibrated measurements, while inspection and safe functional checks establish the intended protection architecture without damaging hardware merely to demonstrate known destructive limits.
+
 ## Phase 13 work packages
 
 The plan will define, at an appropriate product level:
@@ -255,7 +297,7 @@ The plan will define, at an appropriate product level:
 6. deterministic ADC sampling/timing acceptance — **VER-006 accepted**;
 7. waveform/data-integrity and USB/MATLAB acceptance — **VER-007 accepted**;
 8. diagnostic-feature, overload and stall acceptance — **VER-008 accepted**;
-9. overrange, fault handling and protection checks;
+9. overrange, fault handling and protection checks — **VER-009 accepted**;
 10. power/grounding/integration checks;
 11. build/configuration/calibration traceability evidence;
 12. system-level acceptance and treatment of deviations;
