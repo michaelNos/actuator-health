@@ -70,10 +70,33 @@ Phase 10 establishes this reference architecture but does not freeze the exact r
 
 Treating the sensor supply and ADC reference as unrelated ideal voltages would convert supply variation into measurement error. A coherent measurement/reference domain allows the ratiometric behavior to be managed deliberately and keeps the power architecture consistent with the Phase 4 accuracy allocation and Phase 6 ADC requirements.
 
-## Phase 10 design topics remaining
+## 10.3 — Grounding and current-return architecture
 
-- grounding/reference and noise-return strategy;
-- electrical protection boundaries for the sensor, AFE, ADC/MCU and actuator-current path.
+### PWR-003 — Common measurement reference with segregated actuator-current return
+
+**Status:** Accepted
+
+The low-voltage measurement electronics shall use a common signal/reference ground shared by the ACS724 secondary/output-side electronics, MCP6022 AFE and MCU/ADC as required for correct single-ended signal interpretation.
+
+Conceptually:
+
+`GND_sensor = GND_AFE = GND_MCU`
+
+The high-current actuator return shall be physically routed through the actuator power wiring back to its bench supply and shall not use sensitive measurement-ground conductors as part of the motor-current path:
+
+`I_motor` shall not flow through `GND_measurement`.
+
+This requirement concerns current-return routing and noise control; it does not mean that every conductor or laboratory instrument is galvanically isolated. USB, oscilloscope and function-generator ground relationships shall be checked during implementation before connections are made.
+
+Exact star-point placement, wire routing, connector assignment, decoupling placement and physical layout are Phase 12/Stage B details. They shall implement the principle that large/pulsed actuator currents are kept out of the sensitive analog/ADC return path.
+
+### Rationale
+
+The sensor output, AFE and ADC require a defined common voltage reference, while motor current can create substantial voltage drops and switching/commutation noise in shared conductors. Keeping the high-current return out of the measurement reference path reduces ground-induced measurement error and noise without falsely assuming that all bench equipment is isolated.
+
+## Phase 10 design topic remaining
+
+Define the electrical protection boundaries for the sensor, AFE, ADC/MCU and actuator-current path without expanding into detailed wiring or bench procedure.
 
 ## Planned output
 
