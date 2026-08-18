@@ -31,12 +31,7 @@ Phase 12 still does **not** perform the physical build, firmware implementation,
 
 **Status:** Accepted
 
-Rev-1 is partitioned into:
-
-1. **Actuator/high-current region** — bench PSU, current-rated wiring/connectors, ACS724 primary path and motor.
-2. **Analog measurement region** — ACS724 secondary side, MCP6022 AFE, anti-alias filtering and ADC interface/protection.
-3. **Digital/processing region** — UNO R4 / RA4M1 for deterministic acquisition, processing, diagnostics and communication.
-4. **Host region** — USB-connected PC/MATLAB for telemetry, waveform capture, calibration and engineering analysis.
+Rev-1 is partitioned into actuator/high-current, analog measurement, digital/processing and host regions.
 
 Integrated signal path:
 
@@ -70,15 +65,9 @@ Normal development power topology:
 
 `USB-C → UNO R4 WiFi → UNO +5 V header → ACS724 VCC + MCP6022 VDD`
 
-with:
+with common `GND_MEAS` for UNO, ACS724 secondary side and MCP6022. The motor remains exclusively on the separate bench-PSU actuator path.
 
-`UNO GND → ACS724 GND + MCP6022 VSS/GND + ADC measurement reference domain`
-
-The motor remains exclusively on the separate bench-PSU actuator path.
-
-The actual measurement rail is approximately 5 V and shall be characterized during implementation/calibration rather than assumed to equal exactly 5.000 V. No external precision 5 V regulator/reference is required unless measured performance later demonstrates it is necessary to satisfy the accepted accuracy requirement.
-
-Independent external 5 V sources shall not be paralleled with the UNO rail by assumption.
+The actual measurement rail is approximately 5 V and shall be characterized during implementation/calibration rather than assumed to equal exactly 5.000 V. No external precision 5 V regulator/reference is required unless measured performance later demonstrates it is necessary.
 
 ## 12.4 — Ground/reference and laboratory-instrument architecture
 
@@ -88,16 +77,9 @@ Independent external 5 V sources shall not be paralleled with the UNO rail by as
 
 `GND_MEAS = GND_UNO = GND_AFE = GND_ACS724-secondary`
 
-The motor-current return remains a separate high-current conductor to the bench PSU.
+Required identified test points are `TP_GND`, `TP_5V`, `TP_SENSOR` and `TP_AFE`.
 
-Required identified test points:
-
-- `TP_GND` — measurement reference;
-- `TP_5V` — measurement rail;
-- `TP_SENSOR` — raw ACS724 VOUT;
-- `TP_AFE` — filtered AFE output toward the ADC.
-
-Ordinary single-ended probing of the low-voltage analog chain references `TP_GND`. Oscilloscope/function-generator grounds shall not be assumed floating. Ordinary probe grounds shall not be casually connected to actuator-current nodes such as `PSU+`, `IP+` or `IP−`. Differential/high-current measurements require an appropriate verified method during Stage B.
+Oscilloscope/function-generator grounds shall not be assumed floating. Ordinary probe grounds shall not be casually connected to actuator-current nodes. Differential/high-current measurements require an appropriate verified method during Stage B.
 
 ## 12.5 — ACS724 secondary-side interface
 
@@ -111,160 +93,115 @@ Ordinary single-ended probing of the low-voltage analog chain references `TP_GND
 
 `ACS724 VOUT → TP_SENSOR → AFE input`
 
-The Pololu carrier's stock **1 nF FILTER capacitor remains unchanged**, preserving the accepted approximately 90 kHz carrier bandwidth. It is not the ADC anti-alias filter.
-
-Provide **100 nF ceramic local bypass capacitance** between sensor VCC and GND close to the carrier supply connection. No additional gain/divider/offset network is inserted before the accepted AFE. `TP_SENSOR` exposes the raw sensor output before deliberate AFE filtering.
+The Pololu carrier's stock **1 nF FILTER capacitor remains unchanged**. Provide **100 nF ceramic local bypass capacitance** between sensor VCC and GND close to the carrier supply connection.
 
 ## 12.6 — AFE implementation and component-value freeze
 
-Phase 5 established a fourth-order Butterworth low-pass AFE using the two MCP6022 amplifiers as cascaded unity-gain Sallen-Key second-order sections, with nominal overall cutoff near **15 kHz**. Phase 12 freezes the practical realization.
+Phase 5 established a fourth-order Butterworth low-pass AFE using the two MCP6022 amplifiers as cascaded unity-gain Sallen-Key second-order sections, with nominal overall cutoff near **15 kHz**.
 
 ### INT-006A — Unity-gain Sallen-Key section realization
 
 **Status:** Accepted
 
-Both second-order sections shall use the unity-gain Sallen-Key low-pass topology with equal resistor pairs within each section. For this realization:
-
-`f0 = 1 / (2π R sqrt(C1 C2))`
-
-`Q = 0.5 sqrt(C1 / C2)`
-
-The fourth-order Butterworth sections target:
-
-- low-Q section: `Q1 ≈ 0.5412`;
-- high-Q section: `Q2 ≈ 1.3066`.
-
-The sections therefore deliberately use different capacitor ratios; they shall not be implemented as two identical RC networks.
+Both sections use unity-gain Sallen-Key low-pass topology with equal resistor pairs within each section. Target Q values are approximately 0.5412 and 1.3066.
 
 ### INT-006B — Standard component values and nominal response
 
 **Status:** Accepted
-
-The Rev-1 filter values are frozen as:
 
 | Section | R1 | R2 | C1 | C2 | Nominal f0 | Nominal Q |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | Low-Q | 9.76 kΩ | 9.76 kΩ | 1.2 nF | 1.0 nF | ≈14.89 kHz | ≈0.548 |
 | High-Q | 4.07 kΩ | 4.07 kΩ | 6.8 nF | 1.0 nF | ≈15.00 kHz | ≈1.304 |
 
-Use **1% resistors** and preferably **≤5% tolerance capacitors** suitable for stable filter use.
-
-The nominal cascaded response is approximately:
-
-- **10 kHz:** `−0.124 dB`;
-- **15 kHz:** `−2.99 dB`;
-- **50 kHz:** `−41.9 dB`.
-
-This satisfies the accepted Phase 4 limits of no more than 1 dB attenuation at 10 kHz and at least 20 dB attenuation at the 50 kHz Nyquist frequency with substantial nominal margin.
-
-The exact E96 resistor values and tolerance-controlled capacitors are treated as BOM items if not already available. The design shall not be degraded merely to use unsuitable assortment parts. Actual filter response and component tolerances shall be verified during implementation.
+Use **1% resistors** and preferably **≤5% tolerance capacitors**. Nominal cascaded response is approximately −0.124 dB at 10 kHz, −2.99 dB at 15 kHz and −41.9 dB at 50 kHz.
 
 ### INT-006C — MCP6022 channel allocation, supply and decoupling
 
 **Status:** Accepted
 
-The MCP6022-I/P dual op-amp shall implement the two Sallen-Key sections in this signal order:
+Signal order:
 
-`ACS724 VOUT → low-Q section → high-Q section → TP_AFE → ADC interface`
+`ACS724 VOUT → low-Q channel A → high-Q channel B → TP_AFE → ADC interface`
 
-Channel allocation:
+`MCP6022 VDD → 5V_MEAS`; `VSS → GND_MEAS`.
 
-- **MCP6022 channel A:** low-Q section (`Q ≈ 0.548`);
-- **MCP6022 channel B:** high-Q section (`Q ≈ 1.304`).
-
-The low-Q-first/high-Q-second ordering is frozen for Rev-1.
-
-Power connections:
-
-- `MCP6022 VDD → 5V_MEAS`;
-- `MCP6022 VSS → GND_MEAS`.
-
-Provide:
-
-- **100 nF ceramic local bypass capacitor** directly between MCP6022 VDD and VSS, physically close to the IC supply pins;
-- **10 µF bulk/local reservoir capacitor** between `5V_MEAS` and `GND_MEAS` near the AFE analog section.
+Provide **100 nF** local bypass directly across the MCP6022 supply and **10 µF** bulk/local reservoir capacitance near the AFE.
 
 ### INT-006D — Complete MCP6022 PDIP-8 net-level AFE circuit and headroom
 
 **Status:** Accepted
 
-The MCP6022-I/P PDIP-8 pin allocation is frozen as:
+MCP6022-I/P PDIP-8 allocation:
 
 | Pin | Function | Rev-1 connection |
 | ---: | --- | --- |
-| 1 | OUTA | low-Q stage output / Stage B input |
-| 2 | IN−A | tied to pin 1 for unity-gain follower |
-| 3 | IN+A | low-Q Sallen-Key input node `N2A` |
+| 1 | OUTA | low-Q output / Stage B input |
+| 2 | IN−A | tied to pin 1 |
+| 3 | IN+A | low-Q node `N2A` |
 | 4 | VSS | `GND_MEAS` |
-| 5 | IN+B | high-Q Sallen-Key input node `N2B` |
-| 6 | IN−B | tied to pin 7 for unity-gain follower |
+| 5 | IN+B | high-Q node `N2B` |
+| 6 | IN−B | tied to pin 7 |
 | 7 | OUTB | `TP_AFE` / ADC-interface source |
 | 8 | VDD | `5V_MEAS` |
 
-#### Low-Q stage — channel A
+Low-Q stage:
 
-Net-level connections:
-
-`TP_SENSOR / ACS724 VOUT → R1A 9.76 kΩ → N1A`
-
-`N1A → R2A 9.76 kΩ → N2A → MCP6022 pin 3 (IN+A)`
+`TP_SENSOR → R1A 9.76 kΩ → N1A → R2A 9.76 kΩ → N2A → pin 3`
 
 `N2A → C2A 1.0 nF → GND_MEAS`
 
-`N1A → C1A 1.2 nF → MCP6022 pin 1 (OUTA)`
+`N1A → C1A 1.2 nF → pin 1`; `pin 1 → pin 2`.
 
-`MCP6022 pin 1 (OUTA) → MCP6022 pin 2 (IN−A)`
+High-Q stage:
 
-Pin 1 is also the source feeding the second filter stage.
-
-#### High-Q stage — channel B
-
-Net-level connections:
-
-`MCP6022 pin 1 (OUTA) → R1B 4.07 kΩ → N1B`
-
-`N1B → R2B 4.07 kΩ → N2B → MCP6022 pin 5 (IN+B)`
+`pin 1 → R1B 4.07 kΩ → N1B → R2B 4.07 kΩ → N2B → pin 5`
 
 `N2B → C2B 1.0 nF → GND_MEAS`
 
-`N1B → C1B 6.8 nF → MCP6022 pin 7 (OUTB)`
+`N1B → C1B 6.8 nF → pin 7`; `pin 7 → pin 6`; `pin 7 → TP_AFE`.
 
-`MCP6022 pin 7 (OUTB) → MCP6022 pin 6 (IN−B)`
+The nominal valid 0.5–4.5 V AFE span leaves approximately 0.5 V headroom from each nominal 5 V supply rail. No deliberate level shift or attenuation is required. Actual swing/distortion/clipping margin is verified in Stage B.
 
-`MCP6022 pin 7 (OUTB) → TP_AFE → ADC interface`
+## 12.7 — ADC interface and input protection
 
-The `C1A` and `C1B` capacitors are deliberately connected between the first resistor-junction node and the corresponding op-amp output; they are not additional shunt capacitors to ground. These feedback connections are required by the selected unity-gain Sallen-Key realization.
+### INT-007 — Pending approval
 
-#### Supply and local decoupling
+A candidate interface has been proposed but is **not baselined**: `TP_AFE → 1 kΩ → A0`, with 100 pF from the ADC-side node to `GND_MEAS` and no external clamp diodes. This remains pending explicit approval and shall not be treated as a frozen Rev-1 circuit.
 
-`pin 8 (VDD) → 5V_MEAS`
+## 12.8 — MCU I/O and resource allocation
 
-`pin 4 (VSS) → GND_MEAS`
+### INT-008 — Minimal dedicated acquisition-resource reservation
 
-A **100 nF ceramic capacitor** shall be connected locally between pins 8 and 4. The accepted **10 µF** analog-section reservoir capacitor shall be connected between `5V_MEAS` and `GND_MEAS` near the AFE.
+**Status:** Accepted
 
-#### Voltage/headroom check
+Rev-1 shall reserve only the MCU resources required by the accepted monitoring architecture:
 
-The nominal valid ACS724/AFE signal range is approximately:
+- **UNO A0** — reserved exclusively for the current-monitoring ADC signal, subject to final INT-007 electrical-interface approval;
+- **one RA4M1 ADC channel** — dedicated to current acquisition;
+- **one hardware timer resource** — dedicated to deterministic **100 kS/s** ADC triggering;
+- **one hardware-assisted transfer resource (DMA/DTC as appropriate to the final RA4M1 implementation)** — dedicated to moving ADC samples into RAM/buffers without software-timed per-sample acquisition;
+- **USB/native serial communication path** — reserved for Rev-1 PC/MATLAB telemetry, status and waveform transfer.
 
-`0.5 V ≤ V_AFE ≤ 4.5 V`
+The remaining analog and digital I/O shall remain uncommitted unless a later Phase 12 integration decision identifies a genuine Rev-1 requirement. Rev-1 shall not reserve MCU PWM/motor-driver outputs merely because a motor is present: the baseline monitor does not command or power the motor. Likewise, RS-485/CAN resources are not reserved because those interfaces are outside the accepted Rev-1 communication baseline.
 
-with an approximately 5 V MCP6022 supply. This leaves approximately **0.5 V nominal headroom from each supply rail**. The accepted unity-gain AFE therefore requires no deliberate level shift or attenuation for the Rev-1 valid measurement range.
+Exact RA4M1 timer instance/channel, ADC channel mapping corresponding to the UNO A0 header, event-link routing, DMA/DTC configuration, interrupt assignments and register settings remain Stage B implementation details. Those choices must implement the already accepted deterministic-acquisition architecture without changing its external product behavior.
 
-Rail-to-rail operation shall not be interpreted as permission to operate exactly at the rails. Actual minimum/maximum AFE output, distortion, loading and clipping margin shall be verified during Stage B. Excursions caused by sensor overrange or faults are handled by the ADC-interface/protection design rather than by redefining the valid 0–5 A calibrated range.
+### Rationale
+
+Reserving the functional resources now prevents later integration conflicts while avoiding unnecessary pin/peripheral commitments. It preserves flexibility for implementation and future expansion without weakening the deterministic 100 kS/s acquisition requirement.
 
 ## Phase 12 integration work packages remaining
 
-7. **INT-007 — ADC interface and input protection**
-8. **INT-008 — MCU I/O and resource allocation**
-9. **INT-009 — USB/PC physical and logical integration boundary**
-10. **INT-010 — Protection implementation**
-11. **INT-011 — Rev-1 motor/actuator selection requirements**
-12. **INT-012 — Complete BOM and procurement status**
-13. **INT-013 — Wiring/interconnect specification**
-14. **INT-014 — Mechanical/assembly constraints**
-15. **INT-015 — Configuration and build identity**
-16. **INT-016 — Integration completeness review**
+- Complete **INT-007 — ADC interface and input protection** after explicit approval.
+- **INT-009 — USB/PC physical and logical integration boundary**.
+- **INT-010 — Protection implementation**.
+- **INT-011 — Rev-1 motor/actuator selection requirements**.
+- **INT-012 — Complete BOM and procurement status**.
+- **INT-013 — Wiring/interconnect specification**.
+- **INT-014 — Mechanical/assembly constraints**.
+- **INT-015 — Configuration and build identity**.
+- **INT-016 — Integration completeness review**.
 
 Additional integration decisions may be introduced if detailed reconciliation exposes a genuine build-defining gap.
 
