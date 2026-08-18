@@ -188,6 +188,43 @@ PASS requires both mandatory attenuation limits to be met and no observed instab
 
 Component tolerances, breadboard/perfboard parasitics and real op-amp behavior can shift the implemented response away from the nominal calculation. Simultaneous input/output measurement verifies the realized transfer function directly while preserving the distinction between the dedicated AFE anti-alias filter and the ACS724 carrier's separate sensor FILTER network.
 
+## 13.6 — Deterministic ADC sampling/timing acceptance
+
+### VER-006 — Measured deterministic 100 kS/s acquisition independent of host timing
+
+**Status:** Accepted
+
+Rev-1 shall demonstrate that ADC acquisition is actually performed at the accepted nominal rate of:
+
+`fs = 100 kS/s`
+
+corresponding to nominal sample spacing:
+
+`Ts = 10 µs`.
+
+Verification shall establish the timing behavior of the implemented hardware-triggered acquisition path rather than infer it from firmware configuration constants or the number of samples eventually received by the PC.
+
+Stage C shall measure or independently observe acquisition timing using a suitable timing/debug indication, timestamp mechanism and/or oscilloscope-referenced method. The exact instrumentation method is an implementation/procedure choice provided it can expose timing errors that average throughput alone would hide.
+
+Acceptance shall demonstrate:
+
+- nominal sample spacing consistent with **10 µs / 100 kS/s**;
+- no unexplained missing, duplicated or reordered samples during representative waveform captures;
+- timing variation/jitter is measured and sufficiently bounded that it does not materially compromise the accepted **DC–10 kHz diagnostic information band**;
+- acquisition timing remains deterministic while normal USB telemetry/capture/configuration activity occurs;
+- host/USB scheduling does not pace ADC conversions;
+- buffer-transfer behavior does not silently corrupt sample ordering or continuity.
+
+No arbitrary numerical jitter limit is introduced in Phase 13 because the authoritative design baseline did not specify one. Stage C shall retain measured timing/jitter evidence and demonstrate that observed timing behavior is compatible with the waveform and spectral requirements. If verification shows timing uncertainty large enough to distort or invalidate the required 10 kHz information, VER-006 is **FAIL** even if the long-term average sample rate equals 100 kS/s.
+
+USB disconnection, delayed host reads or representative host-side load shall not alter the hardware sample schedule. Buffer overflow may be reported as an explicit data-validity fault where the architecture permits it, but it shall not silently convert missing samples into apparently continuous valid data.
+
+PASS requires demonstrated 100 kS/s nominal deterministic acquisition, valid sample ordering/continuity for accepted captures, host-independent conversion timing and measured timing quality compatible with the 10 kHz diagnostic band.
+
+### Rationale
+
+Average data throughput can appear correct even when individual conversions are software-paced, irregular or silently lost. Direct timing verification proves the real-time acquisition property separately from asynchronous USB transport and establishes that the sampled waveform has a trustworthy time axis.
+
 ## Phase 13 work packages
 
 The plan will define, at an appropriate product level:
@@ -197,7 +234,7 @@ The plan will define, at an appropriate product level:
 3. calibration and complete-chain accuracy acceptance — **VER-003 accepted**;
 4. noise and useful-resolution acceptance — **VER-004 accepted**;
 5. AFE frequency-response and anti-alias acceptance — **VER-005 accepted**;
-6. deterministic ADC sampling/timing acceptance;
+6. deterministic ADC sampling/timing acceptance — **VER-006 accepted**;
 7. waveform/data-integrity and USB/MATLAB acceptance;
 8. diagnostic-feature, overload and stall acceptance;
 9. overrange, fault handling and protection checks;
