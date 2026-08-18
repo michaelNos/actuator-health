@@ -151,6 +151,39 @@ The **±0.05 A stretch target** shall be evaluated from the same independent ver
 
 Using the complete chain proves the actual system requirement rather than isolated component accuracy. Separating calibration-fit points from verification points prevents the calibration model from being evaluated only against the data that created it, while retaining residuals across the range exposes nonlinearities or range-dependent errors that a single-point check could miss.
 
+## 13.4 — Noise and useful-resolution acceptance
+
+### VER-004 — Separate raw-chain noise/resolution from usable reported-current resolution
+
+**Status:** Accepted
+
+Rev-1 verification shall distinguish **raw acquisition-chain voltage resolution/noise** from **usable reported-current resolution**. ADC nominal bit depth alone is not evidence that either requirement is achieved.
+
+The accepted raw-chain target is an effective ADC-facing voltage resolution/noise contribution of **≤2 mV equivalent** under the intended acquisition conditions. With the nominal ACS724 sensitivity of approximately 0.8 V/A, 2 mV corresponds nominally to approximately 2.5 mA; this provides design margin relative to the 10 mA reported-current requirement but does not by itself prove that requirement.
+
+Stage C shall characterize the complete measurement chain under at least zero-current and stable-current conditions using representative 100 kS/s acquisition. The retained evidence shall quantify the observed raw-sample distribution/noise using appropriate statistics and/or peak behavior rather than inferring useful resolution from ADC code width.
+
+The mandatory reported-current requirement is **≤10 mA usable resolution**. Verification shall demonstrate that the intended reported-current representation can meaningfully resolve a current change of approximately 10 mA under the accepted operating conditions. This may use controlled nearby current levels and the legitimate filtering/averaging/feature computation defined by the implemented system.
+
+The 10 mA requirement does **not** require every individual 100 kS/s raw sample to remain within a 10 mA band. Raw samples preserve the diagnostic bandwidth and may contain higher instantaneous noise; the reporting path may legitimately reduce noise provided it does not falsify the measurement or invalidate timing/bandwidth requirements applicable to that path.
+
+Noise shall not cause materially unstable reported current, repeated false threshold crossings or false diagnostic events under a stable valid input. Any filtering/averaging used to satisfy usable reporting resolution shall be part of the recorded configuration and shall be included when verifying diagnostic latency requirements if those diagnostics depend on the filtered quantity.
+
+Acceptance evidence shall include the applicable Build ID/calibration/configuration, acquisition conditions, raw voltage/code noise characterization, current-equivalent interpretation, and evidence demonstrating the usable reported-current increment.
+
+### Acceptance
+
+PASS requires both:
+
+1. measured complete raw ADC-facing chain behavior supports **≤2 mV effective voltage resolution/noise equivalent** under the defined acquisition condition; and
+2. the implemented reporting path demonstrates **≤10 mA usable reported-current resolution** without unacceptable instability or false diagnostic behavior.
+
+Failure of either mandatory criterion is a VER-004 failure for that build/configuration.
+
+### Rationale
+
+Nominal ADC resolution and numerical display precision can both exaggerate real measurement capability. Measuring raw-chain noise and independently demonstrating the smallest useful reported-current change establishes what the system can actually resolve while preserving the distinction between high-bandwidth waveform acquisition and lower-noise reporting.
+
 ## Phase 13 work packages
 
 The plan will define, at an appropriate product level:
@@ -158,7 +191,7 @@ The plan will define, at an appropriate product level:
 1. verification levels and sequencing — **VER-001 accepted**;
 2. requirements-to-verification traceability — **VER-002 accepted**;
 3. sensor and complete measurement-chain calibration/accuracy acceptance — **VER-003 accepted**;
-4. noise and useful-resolution acceptance;
+4. noise and useful-resolution acceptance — **VER-004 accepted**;
 5. AFE frequency-response and anti-alias acceptance;
 6. deterministic ADC sampling/timing acceptance;
 7. waveform/data-integrity and USB/MATLAB acceptance;
