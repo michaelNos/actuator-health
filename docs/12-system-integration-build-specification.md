@@ -16,7 +16,7 @@ Phase 12 converts the accepted subsystem designs from Phases 1–11 into one coh
 - MCU: **Arduino UNO R4 WiFi / Renesas RA4M1**.
 - AFE: **MCP6022-I/P**, approximately unity gain.
 - System accuracy after calibration: **≤ ±0.10 A**, stretch **±0.05 A**.
-- Reported-current resolution: **≤10 mA**.
+- Reported-current resolution: **≤10mA**.
 - USB serial is the Rev-1 PC/MATLAB interface.
 - Automatic motor shutdown is not part of Rev-1; bench-PSU current limiting is the initial active motor-current protection.
 - Rev-1 hobby hardware shall never be connected directly to industrial mains or a 400 V motor circuit.
@@ -133,15 +133,7 @@ Candidate only, **not baselined**: `TP_AFE → 1 kΩ → A0`, 100 pF from ADC-si
 
 **Status:** Accepted
 
-Reserve:
-
-- UNO **A0** exclusively for current ADC input, subject to final INT-007;
-- one RA4M1 ADC channel;
-- one hardware timer for deterministic **100 kS/s** triggering;
-- one DMA/DTC-class hardware transfer resource;
-- USB/native serial communication path.
-
-Other MCU I/O remains uncommitted unless later required. No motor-control PWM and no RS-485/CAN resources are reserved in Rev-1. Exact timer/channel/event/register selections remain Stage B implementation detail.
+Reserve UNO **A0** (subject to INT-007), one ADC channel, one hardware timer for deterministic **100 kS/s**, one DMA/DTC-class transfer resource, and the USB/native serial path. Other MCU resources remain uncommitted unless required later.
 
 ## 12.9 — USB/PC physical and logical integration boundary
 
@@ -149,30 +141,47 @@ Other MCU I/O remains uncommitted unless later required. No motor-control PWM an
 
 **Status:** Accepted
 
-Rev-1 shall use the Arduino UNO R4 WiFi **USB-C connection as the sole baseline host interface** to the PC/MATLAB environment.
+UNO R4 WiFi USB-C is the sole baseline host interface. It supports normal telemetry, requested waveform capture and configuration/calibration exchange.
 
-The USB logical interface shall support three product-level functions:
+USB/PC timing shall not control deterministic ADC sampling or real-time diagnostics. Host disconnection/backpressure shall not stall acquisition. Optional data loss/unavailability must be explicit. Engineering datasets retain acquisition configuration, calibration identity, firmware/build identity and validity/health metadata. Exact framing/protocol remains Stage B implementation detail.
 
-1. **normal telemetry** — calibrated current/features, diagnostic state, validity/health information and relevant status;
-2. **on-demand waveform capture transfer** — delivery of buffered raw/current waveform datasets for engineering analysis;
-3. **configuration/calibration exchange** — transfer of approved configuration/calibration information needed by the accepted Phase 7/11 architecture.
+## 12.10 — Protection implementation
 
-The USB/host path shall be architecturally asynchronous from deterministic acquisition and diagnostics. The PC, MATLAB process, USB service rate or host read timing shall **not control the 100 kS/s ADC sampling schedule** and shall not be required for real-time diagnostic operation.
+### INT-010 — Layered motor, electronics and measurement-validity protection
 
-If the host is disconnected, slow, or unable to consume output data, the MCU shall continue acquisition and real-time diagnostic processing. Host-side backpressure shall not stall the deterministic sampling path. Where finite buffers cannot preserve optional telemetry/capture data, the implementation shall expose loss/unavailability explicitly rather than corrupting acquisition timing or silently presenting incomplete data as complete.
+**Status:** Accepted
 
-Transferred engineering datasets shall retain sufficient metadata to associate them with the acquisition configuration, active calibration identity, firmware/build identity and measurement validity/health state, consistent with Phases 7, 9 and 11.
+Rev-1 protection shall deliberately distinguish **motor/current-path protection**, **measurement-electronics protection**, and **measurement-validity handling**.
 
-The exact serial framing, packet encoding, command syntax, baud/USB abstraction details, MATLAB importer and buffering implementation are Stage B choices provided they preserve these architectural guarantees.
+The actuator-current path shall become:
+
+`bench PSU (+) → series fuse → ACS724 IP+ → ACS724 IP− → motor → bench PSU (−)`
+
+The **bench PSU adjustable current limit is the primary active motor-current protection** during Rev-1 laboratory operation. It shall be configured to an appropriate value before motor energization. A **replaceable series fuse near the PSU-positive side** shall provide an independent passive backup against gross overcurrent/wiring faults or inappropriate PSU current-limit configuration.
+
+The fuse rating/type is intentionally **TBD pending INT-011 motor selection**. It shall be selected from the motor's rated/normal current, startup/inrush behavior, expected controlled stall experiments, conductor rating and sensor-path limits; it shall not be chosen merely as 5 A because the sensor's calibrated measurement range is 0–5 A.
+
+The motor-current wiring shall preserve the accepted polarity convention and shall be clearly identified so that accidental reverse routing through the unidirectional sensor is less likely. Current-path conductors/connectors shall be sized from the selected motor envelope and protected consistently with the fuse/current-limit strategy.
+
+The ACS724 Hall-isolated primary/secondary architecture and physical separation rules remain the principal barrier preventing normal motor-path voltage/current from entering the low-voltage signal chain. The 5 V measurement electronics shall not receive indiscriminate extra TVS/clamp networks that could degrade analog accuracy without a demonstrated need. ADC-node protection is handled separately by INT-007 and remains pending.
+
+Software/diagnostic handling shall distinguish **overrange/invalid measurement** from electrical damage or valid high-current measurement. The calibrated Rev-1 range is:
+
+`0 A ≤ I ≤ 5 A`
+
+A reported/inferred condition outside that range shall not automatically be interpreted as a calibrated current value. The acquisition/diagnostic architecture shall mark the measurement invalid/overrange as appropriate while preserving any separately available fault indication.
+
+Accordingly, **5 A is a measurement-validity boundary, not by itself the hardware survival threshold, fuse rating, PSU-current-limit setting, or automatic shutdown threshold**.
+
+Rev-1 does not add automatic MCU-controlled motor disconnection. Protective shutdown beyond PSU current limiting and the passive fuse remains outside the baseline unless later implementation evidence requires a design revision.
 
 ### Rationale
 
-USB is already available on the selected MCU platform and is sufficient for the Rev-1 laboratory host role. Separating host communication from the real-time acquisition path ensures that PC/MATLAB remains an engineering and analysis environment rather than an unintended timing dependency of the health monitor.
+Layered protection prevents one adjustable laboratory setting from being the only defense against a current-path fault while avoiding unnecessary circuitry in the precision analog chain. Keeping measurement validity separate from electrical survival also prevents the 0–5 A calibrated range from being misused as a component damage specification.
 
 ## Phase 12 integration work packages remaining
 
 - Complete **INT-007 — ADC interface and input protection** after explicit approval.
-- **INT-010 — Protection implementation**.
 - **INT-011 — Rev-1 motor/actuator selection requirements**.
 - **INT-012 — Complete BOM and procurement status**.
 - **INT-013 — Wiring/interconnect specification**.
