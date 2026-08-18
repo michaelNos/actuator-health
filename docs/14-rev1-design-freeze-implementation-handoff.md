@@ -123,13 +123,58 @@ The governing rule is:
 
 The implementation must have enough freedom to realize hardware and firmware efficiently without forcing arbitrary low-level choices during design. At the same time, labeling a material product change as an "implementation detail" would defeat the purpose of the design freeze. This boundary provides a practical test for deciding when engineering-change control is required.
 
+## 14.3 — Measured-TBD register and closure ownership
+
+### FRZ-003 — Deferred measured values remain explicit until Stage B/C evidence closes them
+
+**Status:** Accepted
+
+Values intentionally left unknown during Stage A shall remain in a controlled **measured-TBD register**. A TBD shall not be removed merely by assuming, estimating or selecting a convenient value where the baseline requires physical characterization or verification.
+
+The initial Rev-1 register is:
+
+| Measured / derived TBD | Primary closure stage | Closure evidence / purpose |
+| --- | --- | --- |
+| motor no-load current | Stage B characterization | measured repeatable operating-current data |
+| motor representative loaded current | Stage B characterization | controlled load/current observations |
+| startup/inrush peak and duration | Stage B characterization | captured startup waveform and conditions |
+| current under controlled stall/jam | Stage B characterization | current-limited safe stall waveform/data |
+| actual ACS724 zero-current output | Stage B calibration | measured sensor/chain zero behavior |
+| actual ACS724/chain sensitivity and gain | Stage B calibration | reference-current calibration data |
+| complete-chain offset/gain calibration coefficients | Stage B calibration | fitted calibration record with calibration ID |
+| implemented AFE frequency response | Stage B characterization, confirmed Stage C | measured transfer-response evidence including 10 kHz/50 kHz criteria |
+| ADC/complete-chain noise and effective resolution | Stage B characterization, confirmed Stage C | captured raw data and noise/resolution statistics |
+| actual 100 kS/s timing and jitter behavior | Stage B implementation characterization, confirmed Stage C | independent timing evidence |
+| normal motor ripple/commutation/spectral characteristics | Stage B characterization | valid waveform/spectral captures under documented conditions |
+| healthy-reference feature values/tolerances | Stage B characterization/calibration | healthy baseline dataset and derived reference configuration |
+| overload threshold/persistence values | Stage B diagnostic tuning | motor-derived configuration subsequently verified against ≤1 s requirement |
+| stall/jam threshold/persistence values | Stage B diagnostic tuning | motor-derived configuration subsequently verified against ≤100 ms requirement |
+| anomaly thresholds/tolerances | Stage B diagnostic tuning | healthy/fault-condition evidence supporting selected configuration |
+| final inline fuse rating | Stage B after motor characterization | documented selection from measured motor current and current-path capability |
+| bench-PSU current-limit settings for characterization/fault tests | Stage B/C procedure setup | documented safe settings appropriate to each test |
+| complete-chain calibrated accuracy across 0–5 A | Stage C verification | independent post-calibration evidence against ±0.10 A mandatory criterion |
+| usable ≤10 mA reported-current resolution | Stage C verification | controlled distinguishability/noise evidence |
+| final diagnostic detection latency and false-detection performance | Stage C verification | timestamped event evidence under accepted configuration |
+
+Stage B owns **characterization, calibration, implementation and tuning** needed to turn these unknowns into controlled configuration values. Stage C owns **independent acceptance evidence** where a measured value is tied to a mandatory requirement.
+
+A Stage B measurement does not automatically count as Stage C acceptance where Phase 13 requires independent verification. Conversely, Stage C shall not be forced to invent configuration values that should have been established during Stage B.
+
+Every closed TBD shall retain sufficient context to identify the build, firmware, calibration/configuration, motor and test condition that produced it. If a later implementation change invalidates the measurement, the corresponding TBD/configuration item shall be reopened or re-characterized rather than silently reusing stale evidence.
+
+No numerical value shall be introduced solely to eliminate a TBD. If physical evidence is unavailable, the item remains explicitly open.
+
+### Rationale
+
+A controlled TBD is an engineering commitment to obtain missing evidence; an undocumented assumption is a hidden design risk. Assigning closure stages prevents characterization, tuning and final acceptance from being mixed together and preserves the independence required by the verification plan.
+
 ## Phase 14 work packages
 
 Phase 14 will establish:
 
 1. authoritative design-freeze baseline and configuration boundary — **FRZ-001 accepted**;
 2. frozen versus implementation-selectable items — **FRZ-002 accepted**;
-3. measured-TBD register and closure ownership;
+3. measured-TBD register and closure ownership — **FRZ-003 accepted**;
 4. Stage B implementation sequence and entry criteria;
 5. Stage C verification sequence and evidence handoff;
 6. engineering-change control after design freeze;
