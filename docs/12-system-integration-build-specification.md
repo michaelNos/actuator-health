@@ -41,7 +41,7 @@ Rev-1 is partitioned into actuator/high-current, analog measurement, digital/pro
 
 Dedicated current-rated conductors/connectors shall be used; no motor current through solderless breadboard, MCU header wiring or measurement-ground conductors.
 
-**Procurement dependency:** exact motor and current-rated wiring/connectors are not yet selected/available. Final sizing follows INT-011.
+**Procurement dependency:** exact current-rated wiring/connectors are not yet selected/available. Final sizing follows INT-011/INT-012 using the selected motor and conservative Rev-1 current envelope.
 
 ## 12.3 — Measurement-electronics power distribution
 
@@ -159,31 +159,50 @@ The actuator-current path shall become:
 
 The **bench PSU adjustable current limit is the primary active motor-current protection** during Rev-1 laboratory operation. It shall be configured to an appropriate value before motor energization. A **replaceable series fuse near the PSU-positive side** shall provide an independent passive backup against gross overcurrent/wiring faults or inappropriate PSU current-limit configuration.
 
-The fuse rating/type is intentionally **TBD pending INT-011 motor selection**. It shall be selected from the motor's rated/normal current, startup/inrush behavior, expected controlled stall experiments, conductor rating and sensor-path limits; it shall not be chosen merely as 5 A because the sensor's calibrated measurement range is 0–5 A.
+The fuse rating/type remains to be frozen in INT-012 from the selected motor/current envelope and conductor rating; it shall not be chosen merely as 5 A because the sensor's calibrated measurement range is 0–5 A.
 
-The motor-current wiring shall preserve the accepted polarity convention and shall be clearly identified so that accidental reverse routing through the unidirectional sensor is less likely. Current-path conductors/connectors shall be sized from the selected motor envelope and protected consistently with the fuse/current-limit strategy.
+Software/diagnostic handling shall distinguish **overrange/invalid measurement** from electrical damage or valid high-current measurement. **5 A is a measurement-validity boundary, not by itself the hardware survival threshold, fuse rating, PSU-current-limit setting, or automatic shutdown threshold**.
 
-The ACS724 Hall-isolated primary/secondary architecture and physical separation rules remain the principal barrier preventing normal motor-path voltage/current from entering the low-voltage signal chain. The 5 V measurement electronics shall not receive indiscriminate extra TVS/clamp networks that could degrade analog accuracy without a demonstrated need. ADC-node protection is handled separately by INT-007 and remains pending.
+Rev-1 does not add automatic MCU-controlled motor disconnection.
 
-Software/diagnostic handling shall distinguish **overrange/invalid measurement** from electrical damage or valid high-current measurement. The calibrated Rev-1 range is:
+## 12.11 — Rev-1 motor/actuator selection
 
-`0 A ≤ I ≤ 5 A`
+### INT-011 — Philips/Saeco 24 VDC brew-group gearmotor selected as Rev-1 actuator
 
-A reported/inferred condition outside that range shall not automatically be interpreted as a calibrated current value. The acquisition/diagnostic architecture shall mark the measurement invalid/overrange as appropriate while preserving any separately available fault indication.
+**Status:** Accepted
 
-Accordingly, **5 A is a measurement-validity boundary, not by itself the hardware survival threshold, fuse rating, PSU-current-limit setting, or automatic shutdown threshold**.
+The Rev-1 actuator shall be the available **Philips/Saeco brew-group gearmotor from the user's failed coffee machine**, identified by the user as a **24 VDC** unit.
 
-Rev-1 does not add automatic MCU-controlled motor disconnection. Protective shutdown beyond PSU current limiting and the passive fuse remains outside the baseline unless later implementation evidence requires a design revision.
+This satisfies the accepted Rev-1 actuator-voltage boundary:
+
+`V_motor ≤ 24 VDC`
+
+The motor shall be powered only from the laboratory bench PSU through the fused ACS724 current path defined by INT-002/INT-010; it shall never be powered from the UNO/measurement 5 V rail.
+
+The motor is suitable for the intended current-signature study because a brushed/geared DC actuator provides meaningful startup, changing-load, commutation/current-ripple and stall/jam behavior for Rev-1 characterization.
+
+The following motor-specific quantities remain **TBD — measure during Stage B implementation/verification**:
+
+- no-load current;
+- representative normal-load current;
+- startup/inrush current;
+- stall/jam current;
+- current variation across practical mechanical load conditions.
+
+These measured quantities shall be used to tune diagnostics and validate the selected fuse/current-limit strategy. They shall not be invented during Stage A.
+
+The selected motor remains acceptable only within the safety/protection architecture. Normal operation and the intended measurement tests should remain within the **0–5 A calibrated range** wherever practical. If startup or controlled stall behavior exceeds 5 A, that condition becomes **measurement overrange** for the ACS724-05AU Rev-1 calibrated model; PSU current limiting shall prevent uncontrolled current, and such an event shall not be represented as an accurate calibrated current above 5 A.
+
+Selection of the motor does not yet freeze exact wire gauge, connectors, fuse rating or initial PSU current-limit value. INT-012 shall choose those conservatively from the Rev-1 ≤5 A measurement envelope, available hardware ratings and the need to safely characterize unknown motor current during first implementation runs. Motor-specific measured currents may later justify lower operational limits without requiring a redesign.
 
 ### Rationale
 
-Layered protection prevents one adjustable laboratory setting from being the only defense against a current-path fault while avoiding unnecessary circuitry in the precision analog chain. Keeping measurement validity separate from electrical survival also prevents the 0–5 A calibrated range from being misused as a component damage specification.
+The available 24 VDC gearmotor fits the accepted laboratory-voltage scope and avoids purchasing an artificial demonstration load before the existing actuator is evaluated. Its electromechanical behavior is also representative enough to exercise the current-based monitoring architecture without requiring any direct connection to mains-powered coffee-machine circuitry.
 
 ## Phase 12 integration work packages remaining
 
 - Complete **INT-007 — ADC interface and input protection** after explicit approval.
-- **INT-011 — Rev-1 motor/actuator selection requirements**.
-- **INT-012 — Complete BOM and procurement status**.
+- **INT-012 — Complete BOM and procurement status**, including conservative wire/connectors/fuse selection.
 - **INT-013 — Wiring/interconnect specification**.
 - **INT-014 — Mechanical/assembly constraints**.
 - **INT-015 — Configuration and build identity**.
