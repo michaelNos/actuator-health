@@ -32,11 +32,44 @@ Verification shall be **requirement-driven and evidence-based**. Each acceptance
 
 Measured quantities that were legitimately left TBD during design shall be populated during implementation/verification and assessed against the applicable acceptance requirement. Where a measured result contradicts the design assumption, the result shall be retained and the design shall be corrected rather than adjusted retrospectively to manufacture a pass.
 
+## 13.1 — Verification hierarchy and sequence
+
+### VER-001 — Progressive four-level verification hierarchy
+
+**Status:** Accepted
+
+Rev-1 verification shall proceed progressively through four levels:
+
+1. **Component/subsystem verification** — establish that individual hardware/firmware elements materially affecting system performance behave as required before relying on them in higher-level tests.
+2. **Measurement-chain verification** — verify the integrated sensor → AFE → ADC → calibrated-current path, including accuracy, noise, frequency response and sampling behavior.
+3. **Diagnostics/data verification** — verify current-feature computation, diagnostic behavior, data integrity, host communication and configuration/calibration traceability using a measurement chain whose relevant behavior has already been established.
+4. **Complete-system verification** — demonstrate the acceptance-relevant requirements with the integrated Rev-1 motor, measurement electronics, firmware and host workflow operating together.
+
+`component/subsystem → measurement chain → diagnostics/data → complete system`
+
+A material failure at a lower level shall be investigated and resolved, or formally recorded as an accepted deviation, before dependent higher-level acceptance is claimed.
+
+Passing a lower-level test does **not** automatically verify a system-level requirement. Requirements stated for the complete measurement/system chain shall be independently demonstrated at the applicable integrated level. In particular, the **≤ ±0.10 A calibrated system-current accuracy requirement** must be demonstrated on the complete calibrated measurement chain; subsystem calculations or individual-component passes alone are insufficient.
+
+Each executed acceptance test shall retain, at minimum:
+
+- test identity;
+- result status: **PASS**, **FAIL** or **NOT TESTED**;
+- measured/observed result sufficient to support the status;
+- applicable Build ID/configuration/calibration identity;
+- retained evidence or an unambiguous reference to it.
+
+A **NOT TESTED** result is not equivalent to PASS and cannot satisfy an acceptance requirement.
+
+### Rationale
+
+Progressive verification localizes defects before they become ambiguous system-level failures while preserving the distinction between subsystem evidence and proof of final product requirements. Recording the exact build/configuration with each result also prevents evidence from one system state being incorrectly applied to another.
+
 ## Phase 13 work packages
 
 The plan will define, at an appropriate product level:
 
-1. verification levels and sequencing;
+1. verification levels and sequencing — **VER-001 accepted**;
 2. requirements-to-verification traceability;
 3. sensor and complete measurement-chain calibration/accuracy acceptance;
 4. noise and useful-resolution acceptance;
