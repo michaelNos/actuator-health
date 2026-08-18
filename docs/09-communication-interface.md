@@ -40,9 +40,38 @@ Available MAX485 and MCP2551 hardware is not made mandatory for Rev-1 merely bec
 
 USB provides the simplest appropriate Rev-1 path to the required PC/MATLAB environment. Separating the application data model from the physical transport preserves future scalability without adding industrial communication hardware before the laboratory monitoring concept is validated.
 
+## 9.2 — Telemetry and waveform-transfer strategy
+
+### COM-002 — Continuous low-rate telemetry plus on-demand waveform capture
+
+**Status:** Accepted
+
+Rev-1 communication shall distinguish between routine monitoring information and high-rate waveform data rather than requiring continuous transmission of every 100 kS/s ADC sample.
+
+The **normal telemetry** data product shall provide the information needed for live monitoring, including as applicable:
+
+- mean/RMS/peak current and other selected current features;
+- current-signature/spectral feature outputs;
+- operating state;
+- diagnostic condition and retained event information;
+- measurement-pipeline/system-health state.
+
+A separate **waveform-capture** data product shall make raw and/or calibrated high-rate current samples available on demand for MATLAB analysis, characterization, calibration and debugging.
+
+At 100 kS/s, representing each ADC sample in a 16-bit storage word already produces approximately:
+
+`100,000 samples/s × 2 bytes/sample = 200 kB/s`
+
+before framing and metadata. Continuous full-rate transmission is therefore not required for normal condition monitoring and shall not be allowed to become an architectural dependency.
+
+Waveform capture shall preserve acquisition integrity. If communication is slower than the generated sample stream, capture/buffering and transfer shall be arranged so that USB transmission does not alter the deterministic sample cadence. Exact capture length, buffering implementation and transfer scheduling are Stage B details constrained by MCU memory and measured USB throughput.
+
+### Rationale
+
+Routine health monitoring requires compact features and diagnostic states, while development and detailed analysis sometimes require the original waveform. Separating these data products keeps ordinary communication lightweight without sacrificing access to high-resolution evidence when it is actually needed.
+
 ## Phase 9 design topics remaining
 
-- separation of live telemetry from high-rate/raw data transfer where needed;
 - message/data model and integrity/versioning requirements;
 - industrial-interface scalability only where it affects Rev-1 architecture.
 
