@@ -67,12 +67,68 @@ but:
 
 A design freeze creates a stable reference from which the physical implementation can be built and verified. Allowing legitimate measured/implementation parameters to remain open prevents false precision, while requiring controlled changes prevents the prototype from evolving into a different undocumented product during debugging.
 
+## 14.2 — Frozen versus implementation-selectable items
+
+### FRZ-002 — Implementation freedom is bounded by the frozen product baseline
+
+**Status:** Accepted
+
+Stage B shall distinguish **frozen product/design decisions** from **implementation-selectable details**.
+
+Frozen decisions include, at minimum:
+
+- calibrated 0–5 A unidirectional current range;
+- ≤ ±0.10 A mandatory calibrated system-current accuracy target;
+- ≤10 mA usable reported-current resolution target;
+- DC–10 kHz diagnostic information band;
+- deterministic 100 kS/s acquisition baseline;
+- Pololu #4048 / ACS724LLCTR-05AU + MCP6022 + UNO R4 / RA4M1 measurement architecture;
+- fourth-order approximately 15 kHz Butterworth AFE realization and accepted interface boundaries;
+- current-domain diagnostic architecture, including overload ≤1 s and current-based stall/jam ≤100 ms acceptance requirements;
+- USB PC/MATLAB engineering-interface architecture;
+- 24 VDC Rev-1 motor and accepted power/protection philosophy;
+- measurement-validity/overrange behavior and independence of protective current limiting from MCU diagnostics;
+- mandatory verification and PASS criteria established through Phase 13.
+
+Implementation-selectable or measurement-derived details include, where the earlier baseline deliberately permits them:
+
+- exact RA4M1 ADC/timer/register configuration used to realize the frozen deterministic sampling behavior;
+- exact DTC/DMA-like transfer strategy supported by the selected implementation environment;
+- acquisition/buffer sizes and internal scheduling details that preserve required continuity and timing;
+- FFT length, window, overlap and related DSP realization details within the accepted diagnostic architecture;
+- detailed serial packet/framing realization and integrity mechanism, provided the accepted communication behavior and versioning/integrity requirements are met;
+- MATLAB script/function/file organization;
+- motor-derived diagnostic thresholds, persistence/tuning values and healthy-reference values;
+- measured calibration coefficients and calibration identity;
+- final fuse rating selected from motor characterization and current-path capability;
+- exact physical component placement, routing and mechanical arrangement that preserve the frozen electrical/wiring/isolation rules.
+
+An implementation-selectable choice becomes a controlled design change if it alters or invalidates a frozen requirement, architecture boundary, safety assumption, interface contract or acceptance criterion.
+
+Examples:
+
+- changing FFT length while preserving the accepted diagnostic behavior is an implementation choice;
+- selecting ADC registers/timers that demonstrably produce 100 kS/s is an implementation choice;
+- changing nominal sampling from 100 kS/s to 20 kS/s is **not** an implementation choice;
+- tuning a stall threshold from measured motor data is an implementation choice;
+- replacing the ACS724 with a different current-sensor architecture is **not** an implementation choice;
+- choosing a fuse rating from measured motor current is an implementation output;
+- removing the independent bench-current-limit/protection boundary is **not** an implementation choice.
+
+The governing rule is:
+
+`implementation freedom is permitted only inside the frozen Rev-1 design envelope`
+
+### Rationale
+
+The implementation must have enough freedom to realize hardware and firmware efficiently without forcing arbitrary low-level choices during design. At the same time, labeling a material product change as an "implementation detail" would defeat the purpose of the design freeze. This boundary provides a practical test for deciding when engineering-change control is required.
+
 ## Phase 14 work packages
 
 Phase 14 will establish:
 
 1. authoritative design-freeze baseline and configuration boundary — **FRZ-001 accepted**;
-2. frozen versus implementation-selectable items;
+2. frozen versus implementation-selectable items — **FRZ-002 accepted**;
 3. measured-TBD register and closure ownership;
 4. Stage B implementation sequence and entry criteria;
 5. Stage C verification sequence and evidence handoff;
