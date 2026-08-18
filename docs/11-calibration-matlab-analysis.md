@@ -50,9 +50,34 @@ Temperature compensation remains `TBD` unless implementation measurements demons
 
 The ACS724's nominal offset and sensitivity are not exact device-specific calibration constants. Measuring both offset and gain corrects the dominant linear errors while preserving a simple, auditable conversion model. Evaluating residuals across the full calibrated range ensures that calibration performance is demonstrated rather than inferred from nominal sensor specifications.
 
+## 11.2 — Calibration ownership and traceability
+
+### CAL-002 — Versioned, traceable active calibration record
+
+**Status:** Accepted
+
+Rev-1 shall represent calibration as an explicit, versioned record rather than as undocumented constants embedded in firmware.
+
+The calibration record shall contain, as applicable:
+
+- the active offset/gain coefficients or equivalent `Voffset`/`S` parameters;
+- a calibration version or unique identity;
+- date/time or revision identity sufficient to trace when the calibration was established;
+- relevant measurement/reference conditions needed to interpret the calibration correctly;
+- validity/status information indicating whether the record is accepted for measurement use.
+
+Firmware shall apply one identifiable **active calibration set** when converting measurements into current-domain data. Data exported to the PC/MATLAB environment shall retain enough calibration identity to determine which calibration produced the reported current values.
+
+A missing, invalid or incompatible calibration shall propagate through the Phase 7 measurement-pipeline health mechanism rather than silently reverting to nominal constants while claiming calibrated accuracy.
+
+The exact nonvolatile storage structure, serialization format, host-file representation and update mechanism are Stage B implementation choices.
+
+### Rationale
+
+Calibration is part of the measurement system, not merely a mathematical constant. Versioning and traceability make results reproducible, prevent ambiguity after recalibration, and allow captured data to be associated with the exact conversion parameters that generated it.
+
 ## Phase 11 design topics remaining
 
-- calibration ownership/storage/application and traceability;
 - PC/MATLAB analysis responsibilities and reproducible data products;
 - relationship between calibration data and the healthy diagnostic reference.
 
