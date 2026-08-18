@@ -27,11 +27,51 @@ Phases 1–13 are merged and constitute the authoritative Rev-1 design/verificat
 - versioned build/calibration/configuration traceability;
 - requirement-driven verification and acceptance plan.
 
+## 14.1 — Authoritative Rev-1 design-freeze baseline
+
+### FRZ-001 — Merged Phases 1–13 define the frozen Stage A product baseline
+
+**Status:** Accepted
+
+The merged contents of **Phases 1–13** constitute the authoritative Rev-1 Stage A baseline for requirements, architecture, subsystem design, integration and verification acceptance.
+
+After Phase 14 closes, the following categories are considered frozen product-level decisions unless changed through explicit engineering change control:
+
+- system requirements and accepted performance targets;
+- sensor/measurement architecture and calibrated 0–5 A validity range;
+- AFE topology and accepted component realization;
+- ADC/sampling architecture and deterministic 100 kS/s baseline;
+- firmware/signal-processing responsibilities and validity propagation;
+- diagnostic architecture and fault/condition model;
+- communication architecture and PC/MATLAB boundary;
+- power/protection architecture;
+- calibration/healthy-reference architecture;
+- integrated wiring/build topology and physical partitioning;
+- verification methods and mandatory acceptance criteria.
+
+The freeze does **not** mean that every implementation value is already known. Items deliberately deferred to measurement, tuning or implementation remain valid Stage B/C outputs rather than unclosed Stage A design gaps. Examples include motor characterization currents, actual sensor/AFE/ADC behavior, calibration coefficients, diagnostic thresholds/persistence values, healthy-reference values, fuse rating, exact buffer sizes, DSP window/FFT details and measured timing/noise results.
+
+Stage B may choose or tune implementation details only within the boundaries already permitted by the frozen design. Such choices shall not silently change a product requirement, architecture boundary, accepted interface, safety/protection assumption or verification criterion.
+
+If implementation or verification demonstrates that a frozen decision is incorrect, infeasible or materially inadequate, the result shall be retained and the baseline shall be revised explicitly through controlled engineering change. The implementation shall not simply diverge from the documentation without recording that change.
+
+Therefore:
+
+`Stage A design freeze ≠ immutable forever`
+
+but:
+
+`material post-freeze change → explicit engineering revision + traceability`
+
+### Rationale
+
+A design freeze creates a stable reference from which the physical implementation can be built and verified. Allowing legitimate measured/implementation parameters to remain open prevents false precision, while requiring controlled changes prevents the prototype from evolving into a different undocumented product during debugging.
+
 ## Phase 14 work packages
 
 Phase 14 will establish:
 
-1. authoritative design-freeze baseline and configuration boundary;
+1. authoritative design-freeze baseline and configuration boundary — **FRZ-001 accepted**;
 2. frozen versus implementation-selectable items;
 3. measured-TBD register and closure ownership;
 4. Stage B implementation sequence and entry criteria;
