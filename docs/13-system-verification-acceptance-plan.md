@@ -181,21 +181,67 @@ Stage C shall demonstrate that, for an accepted complete waveform capture:
 - normal USB communication does not disturb the deterministic ADC acquisition established by VER-006;
 - an incomplete capture, buffer overflow or communication loss is explicitly identifiable as incomplete/invalid rather than silently represented as a complete valid waveform.
 
-A known injected signal and/or representative motor-current waveform may be observed independently on the oscilloscope and compared with the imported MATLAB waveform as an end-to-end sanity check. Because the oscilloscope and MCU use independent acquisition systems, exact sample-for-sample equality is not required; amplitude, dominant frequency, timing and waveform structure shall be consistent within the expected behavior of the respective measurement paths.
+A known injected signal and/or representative motor-current waveform may be observed independently on the oscilloscope and compared with the imported MATLAB waveform as an end-to-end sanity check. Exact sample-for-sample equality is not required between independent instruments; amplitude, dominant frequency, timing and waveform structure shall be consistent within the expected behavior of the respective paths.
 
-The exact transport framing, checksum/error-detection mechanism, MATLAB file format, importer implementation and capture length remain Stage B/C implementation choices. Whatever mechanism is selected must make unexplained corruption/loss incompatible with a PASS result.
+PASS requires a valid complete capture to traverse `AFE/ADC → MCU → USB → MATLAB` without unexplained loss, duplication, reordering or corruption, while retaining enough metadata for correct time/current interpretation and explicitly exposing incomplete/invalid data.
+
+## 13.8 — Diagnostic-feature, overload and stall acceptance
+
+### VER-008 — Current-signature behavior and controlled overload/stall detection
+
+**Status:** Accepted
+
+Rev-1 shall verify that the implemented diagnostic path extracts and reports useful current-signature information in addition to measuring current magnitude.
+
+Normal/representative operation shall provide evidence that the implemented system can observe and consistently process, where physically present in the selected motor/test condition:
+
+- startup/inrush waveform behavior;
+- average/current level and changes associated with changing mechanical/electrical load;
+- repeatable commutation/current-ripple structure;
+- implemented time-domain and spectral diagnostic features derived from valid waveform data.
+
+Absence of a particular spectral/commutation feature in a physical operating condition is not by itself a system failure if the feature is not physically present above the verified measurement/noise capability. The system shall not invent such a feature; retained evidence shall distinguish observed motor behavior from processing capability.
+
+#### Overload acceptance
+
+A controlled, safe condition shall be created in which the **implemented and documented overload criteria become valid**. Detection latency shall be measured from the instant those criteria are satisfied to the corresponding diagnostic assertion/report.
+
+Mandatory criterion:
+
+`t_overload ≤ 1 s`.
+
+#### Stall/jam acceptance
+
+A controlled stall/jam condition shall be created only with bench-current limiting and the accepted protection measures in place. Because Rev-1 has no independent speed/position sensor, this test verifies the **current-based stall diagnostic**, not an independent measurement of zero mechanical RPM.
+
+Detection latency shall be measured from the instant the implemented current-based stall criteria become valid to diagnostic assertion/report.
+
+Mandatory criterion:
+
+`t_stall ≤ 100 ms`.
+
+The latency clock shall therefore not begin merely when an operator starts applying load or touches the mechanism; it begins when the defined diagnostic input/criteria are actually satisfied. This keeps latency attributable to the monitoring system rather than to an uncontrolled mechanical transition.
+
+#### False-detection behavior
+
+Representative normal startup/inrush and ordinary load changes shall be exercised. They shall not repeatedly or systematically produce false overload/stall indications under the configuration being accepted. Any filtering, persistence or threshold logic used to suppress false detections is part of the verified configuration and its delay is included in the applicable detection-latency measurement.
+
+Rev-1 shall report diagnostic events but shall not rely on MCU-controlled automatic motor shutdown to pass these tests. Bench PSU current limiting and independent protection remain the safety boundary.
 
 ### Acceptance
 
-PASS requires demonstration that a valid complete capture can traverse:
+PASS requires:
 
-`AFE/ADC → MCU → USB → MATLAB`
+1. representative normal current-signature behavior is captured and processed consistently from valid waveform data;
+2. overload detection occurs within **≤1 s** from valid overload criteria;
+3. current-based stall/jam detection occurs within **≤100 ms** from valid stall criteria; and
+4. representative normal startup/load behavior does not demonstrate unacceptable systematic false overload/stall detections.
 
-without unexplained loss, duplication, reordering or corruption, while retaining enough metadata for correct time/current interpretation and explicitly exposing incomplete/invalid data.
+Evidence shall retain the waveform/data around each event, applicable diagnostic configuration/thresholds, Build ID/calibration identity, criterion-satisfaction time, diagnostic-assertion time and calculated latency.
 
 ### Rationale
 
-A correct analog measurement and deterministic ADC are not sufficient if the engineering dataset is altered or loses its context during buffering or transport. End-to-end verification establishes that MATLAB analyses the intended measurement rather than an apparently plausible but incomplete, reordered or mis-scaled dataset.
+Measuring latency from a defined diagnostic criterion separates algorithm response time from an uncontrolled mechanical transition. Testing normal behavior as well as fault conditions prevents a trivially sensitive detector from passing latency requirements while producing unusable false alarms. The explicit current-based scope also avoids claiming mechanical stall confirmation from a system that intentionally has no speed sensor in Rev-1.
 
 ## Phase 13 work packages
 
@@ -208,7 +254,7 @@ The plan will define, at an appropriate product level:
 5. AFE frequency-response and anti-alias acceptance — **VER-005 accepted**;
 6. deterministic ADC sampling/timing acceptance — **VER-006 accepted**;
 7. waveform/data-integrity and USB/MATLAB acceptance — **VER-007 accepted**;
-8. diagnostic-feature, overload and stall acceptance;
+8. diagnostic-feature, overload and stall acceptance — **VER-008 accepted**;
 9. overrange, fault handling and protection checks;
 10. power/grounding/integration checks;
 11. build/configuration/calibration traceability evidence;
