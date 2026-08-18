@@ -337,6 +337,41 @@ Evidence shall include the Build ID/hardware configuration, inspection/check rec
 
 A correct schematic does not guarantee a correct physical prototype. Verifying the actual current path, ground/reference structure and power domains before dynamic tests prevents integration mistakes from masquerading as sensor/AFE/firmware defects and reduces the risk of damaging the measurement electronics during first power-up.
 
+## 13.11 — Build/configuration/calibration traceability evidence
+
+### VER-011 — Reproducible identity of every acceptance-relevant result
+
+**Status:** Accepted
+
+Every acceptance-relevant verification result and retained dataset shall be traceable to the exact Rev-1 system state that produced it. At minimum, the evidence relationship shall identify:
+
+`hardware revision → firmware revision → calibration ID → motor ID → configuration ID`
+
+The retained evidence shall make the following recoverable without relying on operator memory:
+
+- hardware revision/build identity applicable to the test;
+- firmware revision, preferably including the source-control commit/build identity from which the executable was produced;
+- active calibration identity and coefficients/constants required to reproduce the current conversion;
+- acquisition configuration, including the active sample rate and other settings material to interpretation;
+- diagnostic configuration, including thresholds, persistence/filtering parameters and other settings material to overload/stall results;
+- identity of the selected Rev-1 motor/actuator and material test configuration;
+- verification/test identity and result status;
+- relationship between the metadata and the corresponding raw/processed evidence.
+
+Changing a calibration coefficient, diagnostic threshold, acquisition parameter or other acceptance-relevant setting shall create or record a distinguishable configuration/calibration identity. Evidence from a previous state shall not silently be relabeled as evidence for the changed state.
+
+MATLAB/PC exports and verification records shall retain this identity either directly in the dataset or through an unambiguous linked metadata record. Exact file names, serialization format and storage layout are implementation details, provided the relationship cannot reasonably become ambiguous during later review.
+
+### Acceptance
+
+PASS requires that a reviewer can take an acceptance-relevant result and determine the hardware, firmware, calibration, motor and material configuration that produced it, and can locate the corresponding evidence without relying on undocumented operator recollection.
+
+If a result lacks enough identity to establish which accepted build/configuration produced it, that evidence cannot satisfy a mandatory acceptance requirement until traceability is restored or the test is repeated under a traceable configuration.
+
+### Rationale
+
+A technically correct measurement loses verification value if its producing system state cannot be reconstructed. Explicit build/configuration/calibration identity prevents results from different firmware, calibration or diagnostic settings from being mixed into a single apparent acceptance record.
+
 ## Phase 13 work packages
 
 The plan will define, at an appropriate product level:
@@ -351,7 +386,7 @@ The plan will define, at an appropriate product level:
 8. diagnostic-feature, overload and stall acceptance — **VER-008 accepted**;
 9. overrange, fault handling and protection checks — **VER-009 accepted**;
 10. power/grounding/integration checks — **VER-010 accepted**;
-11. build/configuration/calibration traceability evidence;
+11. build/configuration/calibration traceability evidence — **VER-011 accepted**;
 12. system-level acceptance and treatment of deviations;
 13. final verification completeness review.
 
