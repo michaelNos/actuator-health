@@ -118,11 +118,11 @@ The mandatory current-accuracy requirement shall be verified on the complete cal
 
 `I_reference → ACS724 → AFE → ADC → calibration → I_reported`
 
-For each verification condition, current error shall be evaluated as:
+For each verification condition:
 
 `e_I = I_reported - I_reference`
 
-The mandatory acceptance criterion is:
+Mandatory acceptance:
 
 `|e_I| ≤ 0.10 A`
 
@@ -130,26 +130,11 @@ throughout the accepted **0–5 A calibrated measurement range** under the defin
 
 Calibration and verification data shall be meaningfully independent. The same exact set of current points used to fit the calibration model shall not by itself be used to claim independent accuracy verification. Stage C shall therefore establish calibration coefficients using multiple reference-current points spanning the intended range and then evaluate the calibrated system at separate verification points, including intermediate current values not used for fitting.
 
-The verification set shall include, at minimum at product level:
+The verification set shall include zero-current behavior, representative low-, mid- and high-range conditions, intermediate points not used for calibration fitting, and evidence near the upper valid range without exceeding safe hardware/test conditions.
 
-- zero-current behavior;
-- representative low-, mid- and high-range current conditions;
-- one or more intermediate points not used as calibration-fit points;
-- evidence near the upper valid measurement range without intentionally exceeding safe hardware/test conditions.
+The reference shall have sufficient known accuracy, resolution and stability relative to the ±0.10 A requirement that reference uncertainty does not make pass/fail meaningless. Evidence shall retain calibration identity, reference current, reported current and residual/error. A residual table and/or error-versus-current plot shall be retained.
 
-The exact number and spacing of points are Stage C procedure details provided the resulting evidence adequately covers the valid range and includes independent points.
-
-The current reference used for calibration/verification shall have sufficient known accuracy, resolution and stability relative to the **±0.10 A** system requirement that reference uncertainty does not make the pass/fail conclusion meaningless. The exact reference instrument/fixture may be selected during implementation/verification from suitable available or procured equipment; its suitability shall be documented with the retained evidence.
-
-Acceptance evidence shall preserve the applicable calibration identity and include the measured reference current, reported current and resulting residual/error at each verification point. A residual table and/or error-versus-current plot shall be retained so range-dependent behavior and outliers are visible rather than hidden by a single aggregate statistic.
-
-If any mandatory verification point produces `|e_I| > 0.10 A`, the complete-chain accuracy requirement is **FAIL** for that build/configuration until the cause is corrected and verification repeated, or the requirement/design is formally revised through the engineering change process.
-
-The **±0.05 A stretch target** shall be evaluated from the same independent verification evidence. It may be reported as achieved only if the measured evidence supports it throughout the claimed conditions; failure to meet the stretch target does not by itself fail the mandatory ±0.10 A acceptance requirement.
-
-### Rationale
-
-Using the complete chain proves the actual system requirement rather than isolated component accuracy. Separating calibration-fit points from verification points prevents the calibration model from being evaluated only against the data that created it, while retaining residuals across the range exposes nonlinearities or range-dependent errors that a single-point check could miss.
+If any mandatory point produces `|e_I| > 0.10 A`, the requirement is **FAIL** until corrected and reverified or formally revised. The ±0.05 A stretch target may be claimed only if independently demonstrated.
 
 ## 13.4 — Noise and useful-resolution acceptance
 
@@ -159,30 +144,49 @@ Using the complete chain proves the actual system requirement rather than isolat
 
 Rev-1 verification shall distinguish **raw acquisition-chain voltage resolution/noise** from **usable reported-current resolution**. ADC nominal bit depth alone is not evidence that either requirement is achieved.
 
-The accepted raw-chain target is an effective ADC-facing voltage resolution/noise contribution of **≤2 mV equivalent** under the intended acquisition conditions. With the nominal ACS724 sensitivity of approximately 0.8 V/A, 2 mV corresponds nominally to approximately 2.5 mA; this provides design margin relative to the 10 mA reported-current requirement but does not by itself prove that requirement.
+The accepted raw-chain target is an effective ADC-facing voltage resolution/noise contribution of **≤2 mV equivalent** under intended acquisition conditions. Stage C shall characterize the complete chain under zero-current and stable-current conditions using representative 100 kS/s acquisition and quantify the observed noise rather than infer performance from ADC code width.
 
-Stage C shall characterize the complete measurement chain under at least zero-current and stable-current conditions using representative 100 kS/s acquisition. The retained evidence shall quantify the observed raw-sample distribution/noise using appropriate statistics and/or peak behavior rather than inferring useful resolution from ADC code width.
+The mandatory reported-current requirement is **≤10 mA usable resolution**. Verification shall demonstrate that the intended reported-current representation can meaningfully resolve approximately 10 mA under accepted operating conditions using only legitimate implemented filtering/averaging/feature computation.
 
-The mandatory reported-current requirement is **≤10 mA usable resolution**. Verification shall demonstrate that the intended reported-current representation can meaningfully resolve a current change of approximately 10 mA under the accepted operating conditions. This may use controlled nearby current levels and the legitimate filtering/averaging/feature computation defined by the implemented system.
+The 10 mA requirement does not require every individual raw 100 kS/s sample to remain inside a 10 mA band. Noise shall not create materially unstable reporting, repeated false threshold crossings or false diagnostics. Any filtering used shall be part of the recorded configuration and included when verifying latency if diagnostics depend upon it.
 
-The 10 mA requirement does **not** require every individual 100 kS/s raw sample to remain within a 10 mA band. Raw samples preserve the diagnostic bandwidth and may contain higher instantaneous noise; the reporting path may legitimately reduce noise provided it does not falsify the measurement or invalidate timing/bandwidth requirements applicable to that path.
+PASS requires both **≤2 mV effective raw-chain voltage resolution/noise equivalent** and **≤10 mA usable reported-current resolution**.
 
-Noise shall not cause materially unstable reported current, repeated false threshold crossings or false diagnostic events under a stable valid input. Any filtering/averaging used to satisfy usable reporting resolution shall be part of the recorded configuration and shall be included when verifying diagnostic latency requirements if those diagnostics depend on the filtered quantity.
+## 13.5 — AFE frequency-response and anti-alias acceptance
 
-Acceptance evidence shall include the applicable Build ID/calibration/configuration, acquisition conditions, raw voltage/code noise characterization, current-equivalent interpretation, and evidence demonstrating the usable reported-current increment.
+### VER-005 — Measured AFE transfer response with mandatory 10 kHz and 50 kHz criteria
 
-### Acceptance
+**Status:** Accepted
 
-PASS requires both:
+The implemented AFE shall be verified experimentally rather than accepted from the calculated fourth-order Butterworth response alone.
 
-1. measured complete raw ADC-facing chain behavior supports **≤2 mV effective voltage resolution/noise equivalent** under the defined acquisition condition; and
-2. the implemented reporting path demonstrates **≤10 mA usable reported-current resolution** without unacceptable instability or false diagnostic behavior.
+For a known sinusoidal small-signal input, the measured transfer magnitude is:
 
-Failure of either mandatory criterion is a VER-004 failure for that build/configuration.
+`|H(f)| = Vout(f) / Vin(f)`
+
+and its relative magnitude in decibels is:
+
+`A(f) = 20 log10(Vout(f) / Vin(f))`.
+
+Stage C shall excite the AFE with a suitable known signal and measure AFE input and output simultaneously, so generator amplitude variation does not masquerade as filter response. The AFE shall first be characterized independently of the motor and ACS724 where practical; later integrated verification shall confirm that the complete measurement path preserves the required diagnostic information.
+
+Mandatory AFE acceptance criteria are:
+
+`A(10 kHz) ≥ -1 dB`
+
+and
+
+`A(50 kHz) ≤ -20 dB`.
+
+The characterized response shall also demonstrate approximately unity low-frequency/passband behavior and shall show no unexpected peaking, oscillation or instability that would materially invalidate current-waveform interpretation. Measurements shall include sufficient coverage of the passband, the nominal approximately 15 kHz transition/cutoff region and the attenuation region approaching 50 kHz to establish that the realized response is physically coherent rather than passing only two isolated points accidentally.
+
+The exact sweep points, generator amplitude, oscilloscope timebase, probe settings and export procedure remain Stage C implementation details. Test amplitude shall remain within the AFE's valid linear range and avoid clipping.
+
+PASS requires both mandatory attenuation limits to be met and no observed instability or unacceptable response anomaly that contradicts the accepted measurement-chain design.
 
 ### Rationale
 
-Nominal ADC resolution and numerical display precision can both exaggerate real measurement capability. Measuring raw-chain noise and independently demonstrating the smallest useful reported-current change establishes what the system can actually resolve while preserving the distinction between high-bandwidth waveform acquisition and lower-noise reporting.
+Component tolerances, breadboard/perfboard parasitics and real op-amp behavior can shift the implemented response away from the nominal calculation. Simultaneous input/output measurement verifies the realized transfer function directly while preserving the distinction between the dedicated AFE anti-alias filter and the ACS724 carrier's separate sensor FILTER network.
 
 ## Phase 13 work packages
 
@@ -190,9 +194,9 @@ The plan will define, at an appropriate product level:
 
 1. verification levels and sequencing — **VER-001 accepted**;
 2. requirements-to-verification traceability — **VER-002 accepted**;
-3. sensor and complete measurement-chain calibration/accuracy acceptance — **VER-003 accepted**;
+3. calibration and complete-chain accuracy acceptance — **VER-003 accepted**;
 4. noise and useful-resolution acceptance — **VER-004 accepted**;
-5. AFE frequency-response and anti-alias acceptance;
+5. AFE frequency-response and anti-alias acceptance — **VER-005 accepted**;
 6. deterministic ADC sampling/timing acceptance;
 7. waveform/data-integrity and USB/MATLAB acceptance;
 8. diagnostic-feature, overload and stall acceptance;
