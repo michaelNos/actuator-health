@@ -285,6 +285,58 @@ Evidence shall retain the Build ID/configuration, relevant current/voltage obser
 
 Protection and measurement accuracy solve different problems. Explicitly testing the validity boundary prevents clipped signals from becoming false calibrated measurements, while inspection and safe functional checks establish the intended protection architecture without damaging hardware merely to demonstrate known destructive limits.
 
+## 13.10 — Power, grounding and physical integration acceptance
+
+### VER-010 — Pre-power and controlled-power verification of the integrated electrical build
+
+**Status:** Accepted
+
+Before complete motor/system acceptance testing, the physical Rev-1 assembly shall be verified against the frozen Phase 12 integration architecture.
+
+The actuator-current path shall correspond to:
+
+`bench PSU (+) → inline fuse → ACS724 IP+ → ACS724 IP− → motor → bench PSU (−)`
+
+The measurement-electronics domain shall correspond to:
+
+`UNO 5V_MEAS/GND_MEAS → ACS724 secondary side + MCP6022 AFE → UNO ADC`
+
+The motor-current path and the low-voltage measurement domain shall remain electrically and physically distinct except for the intended Hall-effect magnetic coupling inside the ACS724. The build shall not introduce an unintended conductive connection that defeats the sensor's primary/secondary isolation concept.
+
+Prior to powered testing, inspection and continuity/short-circuit checks shall verify, at minimum:
+
+- correct motor-current routing and polarity convention;
+- inline fuse/fuse holder installed in the positive actuator-supply path;
+- accepted current-rated wiring/connectors used in the motor-current path;
+- no motor current routed through solderless breadboard contacts, Dupont leads, MCU headers or `GND_MEAS`;
+- ACS724 primary-current and secondary measurement connections are not cross-connected;
+- MCP6022 and ACS724 secondary side are connected to the intended 5 V measurement domain and common `GND_MEAS`;
+- required local decoupling/reservoir components are installed at the intended devices;
+- AFE output is connected through the accepted ADC interface to the intended UNO analog input;
+- no unintended conductive path exists from the 24 V actuator rail into the 5 V/ADC domain;
+- required test points correspond to `TP_GND`, `TP_5V`, `TP_SENSOR` and `TP_AFE` and are safely accessible;
+- wiring/strain relief and mechanical support are sufficient that normal probing or cable movement does not create an obvious short/open-circuit hazard.
+
+Only after the unpowered checks pass shall controlled power-up proceed. Powered integration verification shall confirm, as applicable:
+
+- actuator supply remains within the accepted **≤24 VDC** laboratory boundary;
+- `5V_MEAS` and `GND_MEAS` are present with correct polarity;
+- sensor and AFE DC operating points are plausible and within their intended ranges before motor loading tests;
+- the ADC-facing node does not show unintended rail clipping or gross offset under the initial safe condition;
+- power-up does not produce unexpected excessive current, heating, oscillation or unstable wiring behavior.
+
+The exact continuity-test sequence, resistance thresholds for ordinary wiring checks, probe placement and power-up current-limit value are Stage C procedure details, chosen to suit the implemented build. No powered test shall be used as a substitute for an obvious pre-power wiring/short inspection.
+
+### Acceptance
+
+PASS requires that the assembled Rev-1 matches the accepted power/ground/current-path architecture, passes the required unpowered continuity/short checks, and demonstrates correct supply polarity and plausible initial DC operating conditions during controlled power-up before higher-risk motor verification proceeds.
+
+Evidence shall include the Build ID/hardware configuration, inspection/check record, relevant rail/DC measurements and any corrected assembly discrepancy discovered before system-level testing.
+
+### Rationale
+
+A correct schematic does not guarantee a correct physical prototype. Verifying the actual current path, ground/reference structure and power domains before dynamic tests prevents integration mistakes from masquerading as sensor/AFE/firmware defects and reduces the risk of damaging the measurement electronics during first power-up.
+
 ## Phase 13 work packages
 
 The plan will define, at an appropriate product level:
@@ -298,7 +350,7 @@ The plan will define, at an appropriate product level:
 7. waveform/data-integrity and USB/MATLAB acceptance — **VER-007 accepted**;
 8. diagnostic-feature, overload and stall acceptance — **VER-008 accepted**;
 9. overrange, fault handling and protection checks — **VER-009 accepted**;
-10. power/grounding/integration checks;
+10. power/grounding/integration checks — **VER-010 accepted**;
 11. build/configuration/calibration traceability evidence;
 12. system-level acceptance and treatment of deviations;
 13. final verification completeness review.
