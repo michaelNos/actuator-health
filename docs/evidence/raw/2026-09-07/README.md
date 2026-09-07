@@ -28,6 +28,20 @@ Original files captured during the ACS724 USB-export and motor-spectrum experime
 - `data_20_016-5v.csv` — motor ON, 5 V, PSU 35 mA / 0.175 W
 - `data_20_017-6v.csv` — motor ON, 6 V, PSU 36 mA / 0.216 W
 
+005 = A1 OUT, bench
+006 = B1 OUT, Arduino
+007 = A2 OUT, bench
+008 = A1 VCC, bench
+009 = B1 VCC, Arduino
+010 = A2 VCC, bench
+011 = VCC, bandwidth limit OFF
+012 = VCC, limit OFF
+013 = VCC, 20 MHz limit ON
+014 = VCC, limit OFF
+015 = OUT, limit 20MHz
+016 = OUT, limit 20MHz
+017 = OUT, limit 20MHz
+
 The exact original files were also bundled during the documentation session as `acs724_scope_raw_2026-09-07.zip`. Binary/raw file bytes are intentionally not reconstructed from screenshots or derived analysis.
 
 See `docs/evidence/acs724-raw-waveform-and-speed-dependent-spectrum-2026-09-07.md` for validity classification and results, and `analysis/acs724_raw_csv_fft.py` for the reproducible CSV analysis method.
