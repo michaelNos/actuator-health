@@ -32,6 +32,10 @@ Important terminology may be captured in compact Anki-style form:
 
 Unknown values remain unknown until verified from primary documentation, calculated, or measured.
 
+## Study notes
+
+- [`lab-measurement-and-breadboard-notes.md`](lab-measurement-and-breadboard-notes.md) — breadboard connectivity, measurement discipline, instrument cross-checking, ACS724 transfer-function fundamentals, and review questions from Stage B bench work.
+
 ## Initial study queue
 
 The current project hardware provides the initial learning queue. Notes should be added when each item becomes relevant rather than attempting to study everything at once.
