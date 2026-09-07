@@ -36,6 +36,7 @@ Unknown values remain unknown until verified from primary documentation, calcula
 
 - [`lab-measurement-and-breadboard-notes.md`](lab-measurement-and-breadboard-notes.md) — breadboard connectivity, measurement discipline, instrument cross-checking, ACS724 transfer-function fundamentals, and review questions from Stage B bench work.
 - [`acs724-dc-calibration-fundamentals.md`](acs724-dc-calibration-fundamentals.md) — resistor-load design, parallel-current sharing, resistor power, ACS724 sensitivity/offset, linear regression interpretation, voltage-reference mistakes, PSU current limiting, and review questions from the first DC calibration.
+- [`acs724-noise-bandwidth-and-fft.md`](acs724-noise-bandwidth-and-fft.md) — oscilloscope signal-path checks, AC/DC coupling, bandwidth/noise trade-offs, control measurements, RMS versus peak-to-peak, FFT center/span, windowing, and lessons from the first motor OFF/ON spectral comparison.
 
 ## Initial study queue
 
