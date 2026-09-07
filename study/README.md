@@ -35,6 +35,7 @@ Unknown values remain unknown until verified from primary documentation, calcula
 ## Study notes
 
 - [`lab-measurement-and-breadboard-notes.md`](lab-measurement-and-breadboard-notes.md) — breadboard connectivity, measurement discipline, instrument cross-checking, ACS724 transfer-function fundamentals, and review questions from Stage B bench work.
+- [`acs724-dc-calibration-fundamentals.md`](acs724-dc-calibration-fundamentals.md) — resistor-load design, parallel-current sharing, resistor power, ACS724 sensitivity/offset, linear regression interpretation, voltage-reference mistakes, PSU current limiting, and review questions from the first DC calibration.
 
 ## Initial study queue
 
