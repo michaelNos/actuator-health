@@ -1,0 +1,4 @@
+(sym_lib_table
+	(version 7)
+	(lib (name "actuator_health") (type "KiCad") (uri "${KIPRJMOD}/actuator_health.kicad_sym") (options "") (descr ""))
+)
