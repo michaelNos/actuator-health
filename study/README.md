@@ -32,11 +32,31 @@ Important terminology may be captured in compact Anki-style form:
 
 Unknown values remain unknown until verified from primary documentation, calculated, or measured.
 
+## Explain before changing the experiment
+
+Working preference confirmed on 2026-09-13: use short, focused messages and explain each step before asking the user to perform it.
+
+For each measurement or setting change:
+
+1. State the question and the relevant operating principle in plain language.
+2. Explain the expected result and what alternatives would mean.
+3. Give one concrete action, using the exact instrument, component, pin/net, and units.
+4. State what observation to report.
+5. Interpret the result before choosing the next action, and document the explanation and evidence in the relevant study note.
+
+Use the existing schematic and confirmed instrument information. Request another photograph only when it resolves a specific missing observation. Keep observed readings, calculations, predictions, and hypotheses explicitly distinguishable. Preserve corrections and mark skipped or pending tests accurately.
+
+Keep chat explanations brief; use the study notes for the fuller explanation, primary sources, and worked examples.
+
 ## Study notes
 
 - [`lab-measurement-and-breadboard-notes.md`](lab-measurement-and-breadboard-notes.md) — breadboard connectivity, measurement discipline, instrument cross-checking, ACS724 transfer-function fundamentals, and review questions from Stage B bench work.
 - [`acs724-dc-calibration-fundamentals.md`](acs724-dc-calibration-fundamentals.md) — resistor-load design, parallel-current sharing, resistor power, ACS724 sensitivity/offset, linear regression interpretation, voltage-reference mistakes, PSU current limiting, and review questions from the first DC calibration.
 - [`acs724-noise-bandwidth-and-fft.md`](acs724-noise-bandwidth-and-fft.md) — oscilloscope signal-path checks, AC/DC coupling, bandwidth/noise trade-offs, control measurements, RMS versus peak-to-peak, FFT center/span, windowing, and lessons from the first motor OFF/ON spectral comparison.
+
+- [`oscilloscope-acquisition-and-triggering.md`](oscilloscope-acquisition-and-triggering.md) — Sample versus Average, triggering, display settings, DC versus AC measurements, and the unresolved CH1 amplitude variation after rewiring.
+
+- [`mcp6022-pinout-and-fixture.md`](mcp6022-pinout-and-fixture.md) — physical pin orientation, all eight pin functions, supply connections, and how the two amplifiers implement the fixture.
 
 ## Initial study queue
 
