@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="640" viewBox="0 0 900 640" role="img" aria-labelledby="title desc">
+<title id="title">MCP6022 eight-pin PDIP, top view</title>
+<desc id="desc">Notch at the top. Left pins from top to bottom: 1 output A, 2 inverting input A, 3 non-inverting input A, 4 ground. Right pins from top to bottom: 8 positive supply, 7 output B, 6 inverting input B, 5 non-inverting input B. Smaller labels identify the current fixture connections.</desc>
+<rect width="900" height="640" fill="#ffffff"/>
+<g font-family="DejaVu Sans, sans-serif">
+<text x="450" y="54" text-anchor="middle" font-size="29" font-weight="700" fill="#0f172a">MCP6022 · 8-pin PDIP</text>
+<text x="450" y="88" text-anchor="middle" font-size="19" fill="#475569">TOP VIEW · marked face toward you</text>
+<text x="450" y="127" text-anchor="middle" font-size="17" fill="#475569">notch</text>
+<path d="M450 135 V155" stroke="#64748b" stroke-width="2"/>
+<path d="M350 165 H426 A24 24 0 0 0 474 165 H550 Q570 165 570 185 V520 Q570 540 550 540 H350 Q330 540 330 520 V185 Q330 165 350 165 Z" fill="#263342" stroke="#0f172a" stroke-width="3"/>
+<circle cx="353" cy="215" r="6" fill="#fbbf24"/>
+<text x="450" y="325" text-anchor="middle" fill="#ffffff" font-size="24" font-weight="700">MCP6022</text>
+<text x="450" y="357" text-anchor="middle" fill="#cbd5e1" font-size="16">two amplifiers</text>
+<rect x="288" y="219" width="42" height="32" rx="3" fill="#e2e8f0" stroke="#64748b" stroke-width="1.5"/>
+<text x="309" y="242" text-anchor="middle" fill="#0f172a" font-size="21" font-weight="700">1</text>
+<text x="263" y="233" text-anchor="end" fill="#0f172a" font-size="23" font-weight="700">OUT A</text>
+<text x="263" y="259" text-anchor="end" fill="#155e75" font-size="18">VDRV</text>
+<rect x="288" y="299" width="42" height="32" rx="3" fill="#e2e8f0" stroke="#64748b" stroke-width="1.5"/>
+<text x="309" y="322" text-anchor="middle" fill="#0f172a" font-size="21" font-weight="700">2</text>
+<text x="263" y="313" text-anchor="end" fill="#0f172a" font-size="23" font-weight="700">IN A −</text>
+<text x="263" y="339" text-anchor="end" fill="#155e75" font-size="18">R6 / R7 junction</text>
+<rect x="288" y="379" width="42" height="32" rx="3" fill="#e2e8f0" stroke="#64748b" stroke-width="1.5"/>
+<text x="309" y="402" text-anchor="middle" fill="#0f172a" font-size="21" font-weight="700">3</text>
+<text x="263" y="393" text-anchor="end" fill="#0f172a" font-size="23" font-weight="700">IN A +</text>
+<text x="263" y="419" text-anchor="end" fill="#155e75" font-size="18">VREF_BUF</text>
+<rect x="288" y="459" width="42" height="32" rx="3" fill="#e2e8f0" stroke="#64748b" stroke-width="1.5"/>
+<text x="309" y="482" text-anchor="middle" fill="#0f172a" font-size="21" font-weight="700">4</text>
+<text x="263" y="473" text-anchor="end" fill="#0f172a" font-size="23" font-weight="700">VSS</text>
+<text x="263" y="499" text-anchor="end" fill="#475569" font-size="18">GND</text>
+<rect x="570" y="219" width="42" height="32" rx="3" fill="#e2e8f0" stroke="#64748b" stroke-width="1.5"/>
+<text x="591" y="242" text-anchor="middle" fill="#0f172a" font-size="21" font-weight="700">8</text>
+<text x="637" y="233" text-anchor="start" fill="#0f172a" font-size="23" font-weight="700">VDD</text>
+<text x="637" y="259" text-anchor="start" fill="#b91c1c" font-size="18">+5 V</text>
+<rect x="570" y="299" width="42" height="32" rx="3" fill="#e2e8f0" stroke="#64748b" stroke-width="1.5"/>
+<text x="591" y="322" text-anchor="middle" fill="#0f172a" font-size="21" font-weight="700">7</text>
+<text x="637" y="313" text-anchor="start" fill="#0f172a" font-size="23" font-weight="700">OUT B</text>
+<text x="637" y="339" text-anchor="start" fill="#155e75" font-size="18">VREF_BUF</text>
+<rect x="570" y="379" width="42" height="32" rx="3" fill="#e2e8f0" stroke="#64748b" stroke-width="1.5"/>
+<text x="591" y="402" text-anchor="middle" fill="#0f172a" font-size="21" font-weight="700">6</text>
+<text x="637" y="393" text-anchor="start" fill="#0f172a" font-size="23" font-weight="700">IN B −</text>
+<text x="637" y="419" text-anchor="start" fill="#155e75" font-size="18">Wire to pin 7</text>
+<rect x="570" y="459" width="42" height="32" rx="3" fill="#e2e8f0" stroke="#64748b" stroke-width="1.5"/>
+<text x="591" y="482" text-anchor="middle" fill="#0f172a" font-size="21" font-weight="700">5</text>
+<text x="637" y="473" text-anchor="start" fill="#0f172a" font-size="23" font-weight="700">IN B +</text>
+<text x="637" y="499" text-anchor="start" fill="#155e75" font-size="18">VREF_RAW</text>
+<text x="450" y="582" text-anchor="middle" font-size="19" fill="#334155">Count 1–4 down the left; 5–8 up the right.</text>
+<text x="450" y="615" text-anchor="middle" font-size="15" fill="#64748b">Smaller labels show our fixture connections. Diagram is not to scale.</text>
+</g>
+</svg>
