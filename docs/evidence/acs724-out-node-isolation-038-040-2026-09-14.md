@@ -1,4 +1,4 @@
-# ACS724 VIOUT node isolation controls 038-040 — 2026-09-14
+# ACS724 VIOUT node isolation controls 038-041 — 2026-09-14
 
 **Project:** Actuator Health Monitoring System  
 **Stage:** Stage B — ACS724 dynamic/FILTER validation  
@@ -15,14 +15,14 @@ The immediate objective was to determine whether the approximately 15-17 mV RMS 
 3. the powered MCP6022 stimulus fixture;
 4. or electrical variation genuinely associated with the ACS724 VIOUT node or its local carrier/fixture environment.
 
-These are temporary diagnostic test configurations. They do not represent product design changes.
+The final control in this record then tests whether the remaining VIOUT variation is materially bandwidth-dependent by comparing the isolated 4.7 nF condition against the stock Pololu FILTER configuration.
+
+These are temporary diagnostic test configurations. They do not represent a frozen product design change.
 
 Project workflow clarification established during this sequence:
 
 - permanent or intended design/circuit changes must be reflected in the schematic before physical implementation;
-- temporary diagnostic test configurations such as probe moves, opening a path, disconnecting a block, or temporarily powering a block down do not require a schematic revision first, but their exact configuration and results must be documented.
-
-The external 4.7 nF FILTER capacitor remained installed throughout the tests below.
+- temporary diagnostic test configurations such as probe moves, opening a path, disconnecting a block, temporarily powering a block down, or temporarily removing an experimental component for a controlled diagnostic comparison do not require a schematic revision first, but their exact configuration and results must be documented.
 
 ---
 
@@ -37,8 +37,7 @@ Common acquisition characteristics:
 - `fs = 5 MSa/s`;
 - Sample acquisition mode;
 - AFG OFF unless otherwise stated;
-- ACS724 primary current path open;
-- 4.7 nF external FILTER capacitor installed.
+- ACS724 primary current path open.
 
 For these no-commanded-signal controls, the primary quantities of interest are:
 
@@ -190,30 +189,83 @@ Measured statistics:
 
 The approximately `32.96 mV RMS` value from the preceding MCP-OFF capture did not reproduce under stronger isolation.
 
-Instead, VIOUT returned to approximately:
-
-`16.79 mV RMS`,
-
-which is very close to file 039:
-
-`17.13 mV RMS`.
+Instead, VIOUT returned to approximately `16.79 mV RMS`, which is very close to file 039 at `17.13 mV RMS`.
 
 Therefore the earlier approximately 33 mV RMS observation is treated as a configuration-dependent or transient result and is not used as an accepted baseline.
 
-More importantly, even with:
-
-- zero primary current;
-- AFG OFF;
-- MCP6022 OFF;
-- ACS724 primary terminals disconnected from the temporary stimulus loop;
-
-VIOUT still showed approximately 17 mV RMS variation while the GND reference remained near 1.5 mV RMS and essentially uncorrelated.
+More importantly, even with zero primary current, AFG OFF, MCP6022 OFF, and ACS724 primary terminals disconnected from the temporary stimulus loop, VIOUT still showed approximately 17 mV RMS variation while the GND reference remained near 1.5 mV RMS and essentially uncorrelated.
 
 This makes the active MCP6022/current-generation fixture an unlikely dominant source of the persistent approximately 15-17 mV RMS VIOUT baseline.
 
 ---
 
-## 7. Combined interpretation of files 037-040
+## 7. File 041 — stock FILTER configuration under strong isolation
+
+File:
+
+`data_28_041_ALL_CH1-OUT_CH2-GND_open_AFGOFF_MCPoff_IPopen_FILTERstock.csv.csv`
+
+Configuration:
+
+- same strong-isolation state as the preceding capture;
+- primary current path open;
+- ACS724 `IP+` and `IP-` unattached from the temporary stimulus loop;
+- AFG OFF;
+- MCP6022 OFF;
+- ACS724 remained powered;
+- CH1 on ACS724 VIOUT;
+- CH2 on ACS724 GND;
+- external 4.7 nF FILTER capacitor removed;
+- Pololu carrier returned to its stock FILTER configuration.
+
+Acquisition:
+
+- 10,000 samples;
+- `dt = 0.20000 us`;
+- `fs = 5 MSa/s`.
+
+Measured statistics calculated from the exported samples:
+
+- CH1 VIOUT AC standard deviation: `30.13 mV RMS`;
+- CH1 raw data Vpp: `196 mV`;
+- CH2 GND AC standard deviation: `1.65 mV RMS`;
+- CH2 raw data Vpp: `52 mV`;
+- VIOUT/GND correlation coefficient: `0.0136`;
+- zero-mean CH1-CH2 difference RMS: approximately `30.15 mV`.
+
+The oscilloscope metadata reports CH1 frequency near `41.27 kHz`, but no physical single-tone interpretation is accepted from the automatic frequency estimate alone because this is a no-commanded-signal noise capture.
+
+### Direct comparison with the isolated 4.7 nF condition
+
+Immediately preceding strong-isolation capture with external 4.7 nF installed:
+
+`VIOUT RMS = 16.79 mV`.
+
+File 041 with the external 4.7 nF removed and the stock carrier FILTER restored:
+
+`VIOUT RMS = 30.13 mV`.
+
+Ratio:
+
+`30.13 / 16.79 = 1.79`.
+
+Therefore the stock FILTER condition produced approximately 1.79 times the VIOUT RMS variation of the isolated 4.7 nF condition, corresponding to approximately 79% higher RMS variation.
+
+At the same time the GND reference remained quiet in both cases, near 1-2 mV RMS.
+
+### Interpretation
+
+This is strong evidence that a substantial fraction of the observed VIOUT variation is bandwidth-dependent electrical noise/variation associated with the ACS724 output path.
+
+The result is qualitatively consistent with the expected role of the ACS724 FILTER capacitor: increasing FILTER capacitance reduces measurement bandwidth and therefore reduces broadband output noise reaching VIOUT.
+
+This experiment does **not** by itself prove that all measured VIOUT noise is generated internally by the ACS724 silicon. It also does not establish that 4.7 nF is the correct final product value.
+
+The filter value must still be chosen by balancing noise reduction against the frozen Rev-1 diagnostic-band requirement through 10 kHz.
+
+---
+
+## 8. Combined interpretation of files 037-041
 
 The control chain now supports the following observations:
 
@@ -222,10 +274,11 @@ The control chain now supports the following observations:
 3. **039 — VIOUT/GND:** one probe on VIOUT still measured approximately `17.13 mV RMS` while the GND reference measured approximately `0.89 mV RMS`. Removing the second probe from VIOUT did not suppress the variation.
 4. **040 MCP-OFF:** disabling the MCP6022 did not remove VIOUT variation; one capture increased to approximately 33 mV RMS, but this did not reproduce and is not accepted as a stable condition.
 5. **Stronger isolation:** with the MCP6022 OFF and ACS724 primary terminals disconnected from the stimulus loop, VIOUT remained approximately `16.79 mV RMS` while GND remained quiet.
+6. **041 stock FILTER:** under the same strong-isolation concept, removing the external 4.7 nF capacitor increased VIOUT RMS to `30.13 mV` while GND remained only `1.65 mV RMS`.
 
 The strongest current conclusion is:
 
-**The persistent approximately 15-17 mV RMS variation is genuinely associated with the ACS724 VIOUT node measurement and is not explained primarily by independent scope-channel noise, generic probe pickup, two-probe loading of VIOUT, simple GND movement, or the active MCP6022 stimulus fixture.**
+**The persistent VIOUT variation is genuinely associated with the ACS724 VIOUT/output path, is not explained primarily by independent scope-channel noise, generic probe pickup, two-probe loading, simple GND movement, or the active MCP6022 stimulus fixture, and is materially reduced by the additional 4.7 nF FILTER capacitance.**
 
 This still does **not** prove that the ACS724 silicon itself is the sole source. Remaining mechanisms include:
 
@@ -237,14 +290,21 @@ This still does **not** prove that the ACS724 silicon itself is the sole source.
 
 ---
 
-## 8. Engineering consequence
+## 9. Engineering consequence and next action
 
-The temporary stimulus fixture has now been sufficiently isolated to justify shifting attention toward the ACS724 carrier/output/filter behavior rather than continuing arbitrary disconnection tests.
+The temporary stimulus fixture has now been sufficiently isolated to justify moving from source-isolation tests to controlled FILTER characterization.
 
-No accepted 10 kHz ACS724 transfer magnitude is established by these controls.
+The 4.7 nF external capacitor has demonstrated a repeatable and material noise-reduction effect, but it remains an experimental Stage-B candidate and is not frozen.
 
-The external 4.7 nF FILTER value remains an experimental Stage-B candidate and is not frozen.
+No accepted 10 kHz ACS724 current-to-voltage transfer magnitude is established by these controls.
 
-A controlled FILTER-value experiment is a reasonable next investigation because earlier measurements showed that FILTER capacitance materially changes observed VIOUT residual noise. Any physical component-value change intended as a circuit-design experiment must be reflected in the schematic before implementation.
+The next controlled experiment should characterize the already-defined FILTER candidates under the same clean zero-current condition:
 
-Temporary diagnostic probe moves, open circuits, block isolation, and power-down configurations remain exempt from the schematic-first requirement, provided the exact configuration is documented.
+- stock carrier FILTER, approximately 1 nF total;
+- stock + 2.2 nF, approximately 3.2 nF total;
+- stock + 3.3 nF, approximately 4.3 nF total;
+- stock + 4.7 nF, approximately 5.7 nF total.
+
+For each candidate, record VIOUT RMS using the same acquisition settings and then compare the measured noise reduction against the predicted FILTER bandwidth. The final choice must also preserve acceptable response across the frozen DC-10 kHz diagnostic band.
+
+Until that characterization is complete, do not freeze the 4.7 nF value and do not accept high-frequency CH2/current ratios as ACS724 transfer data.
