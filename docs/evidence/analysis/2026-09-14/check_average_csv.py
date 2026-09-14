@@ -1,8 +1,10 @@
-"""Reproduce the 2026-09-14 CSV integrity check; no gain is accepted.
+"""Reproduce the 2026-09-14 CSV check and provisional paired response.
 
 Run from any directory with Python, NumPy, SciPy, and Matplotlib installed.
 Raw files are read unchanged from ../../raw/2026-09-14/.
 The largest CH1 step defines diagnostic intervals, not cleaned evidence.
+The user confirms acquisition was stable and stopped before both exports.
+The paired model uses every row; it does not establish a calibration.
 """
 from pathlib import Path
 import csv
@@ -79,12 +81,71 @@ for label, sl in [('full', slice(None)), ('before_jump', slice(0, cut)),
     regions[label] = dict(CH1_free=fit(t[sl], y1[sl], f)[1],
                           CH1_at_100Hz=fit(t[sl], y1[sl], 100)[1],
                           CH2_at_100Hz=fit(t[sl], y2[sl], 100)[1])
+
+# Allow the reference phase to differ across the jump, while estimating
+# one linear CH2 response. Separate offsets avoid inferring physical DC
+# from the exported voltage coordinates. Both channels retain every row.
+reference_ohm = 67.0
+frequency_Hz = 100.0
+sin_wt = np.sin(2*np.pi*frequency_Hz*t)
+cos_wt = np.cos(2*np.pi*frequency_Hz*t)
+reference = np.empty(len(t))
+quadrature = np.empty(len(t))
+section_results = {}
+for label, sl in [('before_jump', slice(0, cut)),
+                  ('after_jump', slice(cut, None))]:
+    design = np.column_stack([np.ones(len(t[sl])), sin_wt[sl], cos_wt[sl]])
+    _, a, b = np.linalg.lstsq(design, y1[sl], rcond=None)[0]
+    reference[sl] = a*sin_wt[sl] + b*cos_wt[sl]
+    quadrature[sl] = a*cos_wt[sl] - b*sin_wt[sl]
+    ch1 = regions[label]['CH1_at_100Hz']
+    ch2 = regions[label]['CH2_at_100Hz']
+    section_results[label] = dict(
+        sample_count=len(t[sl]),
+        reference_current_pp_mA=ch1['vpp_mV']/reference_ohm,
+        separate_amplitude_ratio_V_per_A=reference_ohm*ch2['vpp_mV']/ch1['vpp_mV'])
+
+before = np.arange(len(t)) < cut
+response_design = np.column_stack([before, ~before, reference, quadrature])
+response_coef = np.linalg.lstsq(response_design, y2, rcond=None)[0]
+response_residual = y2 - response_design @ response_coef
+g, h = response_coef[2:]
+voltage_ratio = float(np.hypot(g, h))
+for label, info in section_results.items():
+    info['common_response_CH2_vpp_mV'] = voltage_ratio*regions[label]['CH1_at_100Hz']['vpp_mV']
+paired_response = dict(
+    status='Provisional single-capture estimate; not an accepted calibration',
+    model='CH2 = separate_section_offset + g*reference + h*quadrature',
+    frequency_Hz=frequency_Hz,
+    reference_resistance_ohm=reference_ohm,
+    sample_count=len(t),
+    section_offsets_exported_mV=response_coef[:2].tolist(),
+    in_phase_ratio_V_per_V=float(g),
+    quadrature_ratio_V_per_V=float(h),
+    magnitude_ratio_V_per_V=voltage_ratio,
+    sensitivity_V_per_A=reference_ohm*voltage_ratio,
+    model_phase_deg=float(np.degrees(np.arctan2(h, g))),
+    residual_rms_mV=float(np.sqrt(np.mean(response_residual**2))),
+    R2=float(1-np.sum(response_residual**2)/np.sum((y2-y2.mean())**2)),
+    sections=section_results,
+    assumptions=[
+        'Corresponding sample indices represent corresponding times in the two stopped exports.',
+        'One linear response at 100 Hz applies on both sides of the discontinuity.',
+        'The reported measured R8 value of 67 ohm applies to this capture.'],
+    limitations=[
+        'The cause of the discontinuity and CSV processing stage remain unresolved.',
+        'Noise exceeds the repeating CH2 component; repeatability and calibration uncertainty are not established.',
+        'The model phase is not a calibrated inter-channel delay measurement.'])
 result = dict(files=[meta1, meta2],
+              user_confirmed_conditions=dict(frequency_Hz=100,
+                  acquisition='Average 64', display_stable_before_stop=True,
+                  acquisition_stopped_before_both_exports=True),
               jump=dict(from_index=cut, to_index=cut+1,
                         time_s=float(t[cut]), from_mV=float(y1[cut-1]),
                         to_mV=float(y1[cut]), step_mV=float(y1[cut]-y1[cut-1])),
-              regions=regions, accepted_gain=None,
-              limitation='CH1 phase discontinuity prevents a stationary whole-record gain measurement; diagnostic intervals are not accepted calibration data.')
+              regions=regions, provisional_paired_response=paired_response,
+              accepted_gain=None,
+              limitation='A stationary whole-record sine fit is unsuitable. The piecewise-reference response uses all samples but remains provisional; no calibration is accepted.')
 (HERE/'metrics.json').write_text(json.dumps(result, indent=2)+'\n')
 
 plt.rcParams.update({'font.size': 11, 'svg.fonttype': 'none', 'svg.hashsalt': 'avg100hz'})

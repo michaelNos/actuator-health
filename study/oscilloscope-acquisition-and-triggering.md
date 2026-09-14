@@ -2,7 +2,7 @@
 
 Actuator Health Monitoring System — study note, 2026-09-13.
 
-This lesson explains the HANMATEK DOS1102S settings used during the rewired ACS724 fixture experiment. Bench observations below are provisional; the CH1 amplitude variation remains unresolved.
+This lesson explains the HANMATEK DOS1102S settings used during the rewired ACS724 fixture experiment. In the latest comparison CH1 settled and acquisition was stopped before export. The cause of earlier amplitude changes and a discontinuity in the saved record remain unresolved; the response estimate below is provisional.
 
 ## Why we need acquisition
 
@@ -104,10 +104,11 @@ Latest status combines the corrected 2026-09-13 observations with the 2026-09-14
 | Controlled Sample-versus-Average comparison | Both step responses recorded: 480 mVpp in the Sample step and approximately 475 mVpp after the averaging transient |
 | Suggested CH2 tip-to-ground test | Skipped after the corrected report that CH2 was already steady |
 | Cause of the earlier CH1 amplitude changes | Unresolved |
-| Latest uploaded CSV pair | `data_27_000_CH1_avg100Hz_2pp.csv` and `data_27_001_CH2_avg100Hz_2pp.csv`; CH1 contains a discontinuity at 170.4 ms |
-| Gain accepted from the latest acquisition pair | None; a stationary whole-record gain fit is unsuitable |
+| Latest uploaded CSV pair | `data_27_000_CH1_avg100Hz_2pp.csv` and `data_27_001_CH2_avg100Hz_2pp.csv`; user confirms stable display, then STOP, then both exports; CH1 contains a discontinuity at 170.4 ms |
+| Provisional response from the latest pair | Approximately 0.78 V/A, allowing separate CH1 timing on each side of the jump and using all paired samples |
+| Accepted calibration from the latest pair | None; noise, CSV behavior, and repeatability remain limitations |
 
-The photos and CSV filenames identify session evidence; they are not newly archived by this study note. No hardware fault, sensor failure, or firmware defect has been established.
+The latest CSV pair is archived with the linked analysis report; older filenames and photos identify earlier session evidence. No hardware fault, sensor failure, or firmware defect has been established.
 
 ## Sample-step result — 2026-09-14
 
@@ -145,24 +146,24 @@ For a steady repeating signal, judge the amplitude after the averaging transient
 
 ## CSV follow-up — 2026-09-14
 
-The user supplied both channel exports after the settled Average-64 report. These files supersede the pending request for a manual CH2 Vpp readout.
+The user supplied both channel exports after the settled Average-64 report and explicitly confirmed that acquisition was **already stopped before producing both CSVs**. These files supersede the pending request for a manual CH2 Vpp readout. The subsequent request to repeat a stopped export was unnecessary and is withdrawn.
 
 **Observed in the files:** Each channel has 10,000 points at 20 µs spacing. CH1 jumps by 168 mV at 170.4 ms, between samples 8520 and 8521. Separate diagnostic fits give approximately 477.5 and 476.6 mVpp before and after the jump, but with different phases. Fitting the entire record as one stationary sine understates its amplitude.
 
-**CH2:** The first interval has a diagnostic 100 Hz sine component of approximately 5.33 mVpp, with about 21.9 mV residual RMS. The result is noisy and interval-dependent. No sensor gain is accepted from this pair.
+**CH2:** The first interval has a diagnostic 100 Hz sine component of approximately 5.33 mVpp, with about 21.9 mV residual RMS. A paired model using both intervals gives a provisional sensitivity of approximately **0.78 V/A**, as explained below. No final calibration is accepted from this pair.
 
 **Explanation:** A stable displayed amplitude and an intact stationary CSV record are different requirements. The discontinuity could be a real transient or an acquisition/export effect. It is not yet justified to identify its cause or repair the record by trimming.
 
 The [CSV check report](../docs/evidence/analysis/2026-09-14/100hz-average-csv-check.md) contains the archived originals, plot, exact sample indices, calculations, and reproducible analysis.
 
-## The next observation, with its purpose
+## Analysis of the existing stopped capture
 
-**Question:** Does a CSV exported from a confirmed stopped acquisition retain the discontinuity?
+**Question:** What response can we estimate from the files already supplied?
 
-**One action:** Keep **100 Hz** and **Average 64**. Once the display settles, ensure acquisition shows **STOP**; use Run/Stop only if it is running. Export **CH1 and CH2 from that same stopped record**, without restarting between files.
+**Method:** Fit CH1's 100 Hz sine separately before and after the jump. Then compare all CH2 samples against those references, allowing one common amplitude ratio and phase shift. Every original sample remains in the analysis. Separate offsets prevent the exported DC coordinates from determining the changing-signal ratio.
 
-**Why:** Holding acquisition fixed during export tests whether updating data contributes to the discontinuity. We do not know whether the previous exports were made while running.
+**Why:** Phase describes where a sine is in its cycle. The jump changes that timing, while CH1's fitted swing stays near 477 mVpp. One fixed-phase sine averages the mismatched sections poorly and makes the amplitude look too small. Following the reference timing in each section lets us estimate the paired response without that cancellation.
 
-**Expected result:** CH1 should be continuous and give a fitted amplitude consistent with its settled display. If the jump persists, investigate that evidence before relying on a sensor-gain estimate.
+**Result:** CH1 represents approximately **7.12 mApp** through measured R8 = 67 Ω. The common paired response corresponds to about **5.52 mVpp** at CH2, giving approximately **0.78 V/A**. This is near the nominal 0.8 V/A but remains a single-capture estimate, not an accuracy or calibration claim. The model assumes corresponding sample times in both exports and one linear response on both sides of the jump. The roughly 21.9 mV residual RMS and separate-section estimates of 0.748 and 0.943 V/A show why caution about precision is necessary.
 
-**Report:** Supply the two stopped exports. This check is pending.
+**Bench action:** None for this analysis. The existing files were already exported after stability and STOP; do not repeat that procedure merely to satisfy the earlier mistaken request.

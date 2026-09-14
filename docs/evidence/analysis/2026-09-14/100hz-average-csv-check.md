@@ -1,8 +1,8 @@
 # 100 Hz Average-64 CSV check — 2026-09-14
 
-**Finding:** CH1 contains a phase discontinuity at 170.4 ms. A single stationary sine fit across this record is unsuitable for accepting sensor gain. The cause may be a real transient or an acquisition/export effect; these files alone do not distinguish them.
+**Finding:** The existing stopped capture gives a **provisional sensitivity of approximately 0.78 V/A** when the paired analysis allows for CH1's phase discontinuity at 170.4 ms. A single stationary sine fit is unsuitable. Noise, unresolved CSV behavior, and unestablished repeatability prevent accepting this as a calibration.
 
-The user reported CH1 stable at 480 mVpp after the Sample instruction, then rising from approximately 100 to 475 mVpp after selecting Average 64 and appearing stable. This CSV pair followed that report. The 100 Hz setting was explicitly confirmed. The filenames include 2pp; a fresh generator amplitude measurement was not provided.
+The user reported CH1 stable at 480 mVpp after the Sample instruction, then rising from approximately 100 to 475 mVpp after selecting Average 64 and appearing stable. The user subsequently clarified that **the display was stable and acquisition was stopped before producing this CSV pair**, exactly as instructed. The 100 Hz setting was explicitly confirmed. The filenames include 2pp; a fresh generator amplitude measurement was not provided.
 
 ## Files and provenance
 
@@ -13,7 +13,7 @@ The archived CSV files retain the original uploaded bytes, including line ending
 | CH1 | [data_27_000_CH1_avg100Hz_2pp.csv](../../raw/2026-09-14/data_27_000_CH1_avg100Hz_2pp.csv) | `0232a79e041c727434beb9e28c0956ef6659507fa825931b9ee3c2426c97e805` |
 | CH2 | [data_27_001_CH2_avg100Hz_2pp.csv](../../raw/2026-09-14/data_27_001_CH2_avg100Hz_2pp.csv) | `17e527fb7f1c2e3cf3a7571fde9f91a140c4fc79d04d012d806c4836c09706a7` |
 
-Each file contains 10,000 consecutive samples, spaced 20 µs apart. The exported rate is 50,000 points/s; the first-to-last span is 0.19998 s. Time in this analysis starts at the first exported sample, not at an independently established trigger timestamp. The CSV headers do not identify the acquisition mode or confirm whether the scope was stopped during export.
+Each file contains 10,000 consecutive samples, spaced 20 µs apart. The exported rate is 50,000 points/s; the first-to-last span is 0.19998 s. Time in this analysis starts at the first exported sample, not at an independently established trigger timestamp. Acquisition mode and STOP status come from the user's confirmation; those fields are absent from the CSV headers.
 
 ## Readout versus saved samples
 
@@ -55,9 +55,31 @@ At a fixed 100 Hz:
 | Samples 8521–10000 | 6.705 mV | 21.775 mV |
 | Whole record | 3.541 mV | 21.949 mV |
 
-The residual is much larger than the sine component. These figures depend on the chosen interval and have not been assigned calibration uncertainty. Equal exported indices alone do not establish simultaneous channel capture; no cross-channel phase calibration is claimed.
+The residual is much larger than the sine component. These figures depend on the chosen interval and have not been assigned calibration uncertainty. The user confirms both exports followed STOP. The paired model below assumes corresponding indices describe corresponding times; the export's internal mapping has not been independently verified, and no cross-channel phase calibration is claimed.
 
-For scale, the settled CH1 readout of 475 mVpp through measured R8 = 67 Ω implies approximately 7.09 mApp. Nominal sensor sensitivity of 0.8 V/A predicts approximately **5.67 mVpp** at CH2. The diagnostic result is of that order, but **no sensor gain is accepted from this pair**.
+For scale, the settled CH1 readout of 475 mVpp through measured R8 = 67 Ω implies approximately 7.09 mApp. Nominal sensor sensitivity of 0.8 V/A predicts approximately **5.67 mVpp** at CH2. [Pololu #4048 specification](https://www.pololu.com/product/4048)
+
+## Paired response from the existing stopped capture
+
+**Purpose:** Estimate the repeating sensor response without treating the phase jump as a reduction in signal amplitude. Fit CH1's timing separately on each side of the jump, then compare CH2 against that reference using every paired sample.
+
+For each section, fit CH1 at the confirmed 100 Hz. Let its fitted changing component be `u = a·sin(ωt) + b·cos(ωt)`, with `ω = 2π·100`. Also form `v = a·cos(ωt) − b·sin(ωt)`, the same reference advanced by 90°. This second component allows CH2 to have a phase shift; it does not force perfect alignment.
+
+Fit all 10,000 CH2 samples to `CH2 = c_section + g·u + h·v`. The two sections have separate offsets, but share g and h. Because CH1 measures voltage across R8, sensitivity is `67 Ω × sqrt(g² + h²)`. No samples are discarded, moved, or changed.
+
+| Paired-model quantity | Result |
+| --- | ---: |
+| Samples used | 10,000 |
+| Fitted CH1 current swing, before / after jump | 7.127 / 7.113 mApp |
+| Common CH2-to-CH1 amplitude ratio | 0.01157 V/V |
+| Provisional sensitivity | **0.775 V/A**, reported as **approximately 0.78 V/A** |
+| Corresponding fitted CH2 swing | Approximately 5.52 mVpp |
+| CH2 residual RMS | 21.90 mV |
+| Separate-section sensitivity estimates, before / after | 0.748 / 0.943 V/A |
+
+The provisional result is near the nominal 0.8 V/A. It does **not** establish calibration accuracy: the residual is large, the shorter section contains only about three cycles, and repeatability and measurement uncertainty have not been established. The section estimates show how much a noisy single-record result can depend on the available interval. The common-response model also assumes corresponding times in the two exports and one linear response across the jump. Its fitted phase is a model parameter, not a calibrated sensor-delay measurement.
+
+The cause of the discontinuity remains unknown. Possibilities include a real transient or behavior in acquisition, stored-record ordering, or export. The user's STOP confirmation removes the basis for requesting another export merely to stop acquisition first.
 
 ## Method and reproduction
 
@@ -69,16 +91,12 @@ From the repository root:
 python docs/evidence/analysis/2026-09-14/check_average_csv.py
 ```
 
-The model is `y(t) = c + a·sin(2πft) + b·cos(2πft)`. Linear least squares determines c, a, and b at each frequency; fitted Vpp is `2·sqrt(a²+b²)`. CH1's free frequency uses a 95–105 Hz grid search followed by bounded minimization around its best grid point. Residual RMS is computed from all samples in the stated interval.
+The diagnostic sine model is `y(t) = c + a·sin(2πft) + b·cos(2πft)`. Linear least squares determines c, a, and b at each frequency; fitted Vpp is `2·sqrt(a²+b²)`. CH1's free frequency uses a 95–105 Hz grid search followed by bounded minimization around its best grid point. The paired response uses fixed 100 Hz and the section-specific reference described above. Residual RMS is computed from all samples in the stated interval.
 
 The largest absolute CH1 sample step defines the two diagnostic intervals. No rows are removed, reordered, or overwritten. The CSV header ADC factor is not applied again: the voltage column already declares mV. Raw Vpp and fitted sine Vpp are kept distinct.
 
-## Next controlled check
+## Correction to the requested next step
 
-Keep the generator at **100 Hz** and acquisition at **Average 64**. After the displayed waveforms settle, ensure acquisition status is **STOP** (use Run/Stop only if running). Export both channels from that same stopped record, without restarting acquisition between files.
-
-**Purpose:** Freeze the acquisition while exporting, to test whether updating data contributes to the discontinuity. Whether the present files were exported while running is unknown.
-
-**Expected evidence:** A continuous CH1 record whose fitted amplitude is consistent with the settled display. If the jump remains in a confirmed stopped export, investigate the acquisition/export path or a real transient without silently trimming the record.
+The previous version requested another stable, stopped export. The user confirmed this was already how the supplied pair was produced. **That repeat request is withdrawn.** This revision analyzes the existing evidence; it records no new bench measurement and accepts no final calibration.
 
 See the [acquisition lesson and bench sequence](../../../../study/oscilloscope-acquisition-and-triggering.md) for the settings and their purpose.

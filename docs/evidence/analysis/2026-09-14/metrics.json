@@ -39,6 +39,12 @@
       "smallest_level_step_mV": 4.0
     }
   ],
+  "user_confirmed_conditions": {
+    "frequency_Hz": 100,
+    "acquisition": "Average 64",
+    "display_stable_before_stop": true,
+    "acquisition_stopped_before_both_exports": true
+  },
   "jump": {
     "from_index": 8520,
     "to_index": 8521,
@@ -118,6 +124,48 @@
       }
     }
   },
+  "provisional_paired_response": {
+    "status": "Provisional single-capture estimate; not an accepted calibration",
+    "model": "CH2 = separate_section_offset + g*reference + h*quadrature",
+    "frequency_Hz": 100.0,
+    "reference_resistance_ohm": 67.0,
+    "sample_count": 10000,
+    "section_offsets_exported_mV": [
+      203.40234777731305,
+      203.30980390061129
+    ],
+    "in_phase_ratio_V_per_V": 0.011564557893049507,
+    "quadrature_ratio_V_per_V": -0.0003388339462226793,
+    "magnitude_ratio_V_per_V": 0.011569520634183877,
+    "sensitivity_V_per_A": 0.7751578824903198,
+    "model_phase_deg": -1.6782485640831064,
+    "residual_rms_mV": 21.897461335589263,
+    "R2": 0.007894732069696708,
+    "sections": {
+      "before_jump": {
+        "sample_count": 8520,
+        "reference_current_pp_mA": 7.12703698076819,
+        "separate_amplitude_ratio_V_per_A": 0.7481946183521799,
+        "common_response_CH2_vpp_mV": 5.524578894442472
+      },
+      "after_jump": {
+        "sample_count": 1480,
+        "reference_current_pp_mA": 7.1133462269309184,
+        "separate_amplitude_ratio_V_per_A": 0.9425270613974529,
+        "common_response_CH2_vpp_mV": 5.513966398688276
+      }
+    },
+    "assumptions": [
+      "Corresponding sample indices represent corresponding times in the two stopped exports.",
+      "One linear response at 100 Hz applies on both sides of the discontinuity.",
+      "The reported measured R8 value of 67 ohm applies to this capture."
+    ],
+    "limitations": [
+      "The cause of the discontinuity and CSV processing stage remain unresolved.",
+      "Noise exceeds the repeating CH2 component; repeatability and calibration uncertainty are not established.",
+      "The model phase is not a calibrated inter-channel delay measurement."
+    ]
+  },
   "accepted_gain": null,
-  "limitation": "CH1 phase discontinuity prevents a stationary whole-record gain measurement; diagnostic intervals are not accepted calibration data."
+  "limitation": "A stationary whole-record sine fit is unsuitable. The piecewise-reference response uses all samples but remains provisional; no calibration is accepted."
 }
