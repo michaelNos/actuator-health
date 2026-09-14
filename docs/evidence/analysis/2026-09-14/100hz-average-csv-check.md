@@ -81,9 +81,50 @@ The provisional result is near the nominal 0.8 V/A. It does **not** establish ca
 
 The cause of the discontinuity remains unknown. Possibilities include a real transient or behavior in acquisition, stored-record ordering, or export. The user's STOP confirmation removes the basis for requesting another export merely to stop acquisition first.
 
+## Controlled acquisition/export retest
+
+A controlled follow-up was performed without changing the circuit, generator frequency, timebase, probe locations, or wiring.
+
+### Sample mode
+
+With acquisition set to **Sample**, CH1 was visibly continuous while RUNNING. After STOP, the frozen display remained continuous and showed **488 mVpp at 100.0 Hz**. The exported CH1 record contained 10,000 samples at 20 µs spacing (50 kSa/s). Analysis of the exported samples gave:
+
+- raw exported range: **488 mVpp**;
+- fixed-100-Hz coherent sine fit: **472.74 mVpp**;
+- residual RMS: **4.07 mV**;
+- fitted phase remained consistent across the record; no phase discontinuity comparable to the earlier Average-64 export was observed.
+
+This establishes that the chain **Sample → STOP → CSV export** can produce a temporally continuous 100 Hz CH1 record on this instrument under the present setup.
+
+### Average 64 mode
+
+Only acquisition mode was then changed to **Average 64**. CH1 settled near **479 mVpp while RUNNING** and remained visibly continuous. After STOP, the frozen display still appeared continuous and showed **475 mVpp at 100.0 Hz**.
+
+The corresponding exported CH1 record again did not behave as one stationary 100 Hz sine:
+
+- CSV header Vpp: **475.0 mV**;
+- raw exported range: **496 mVpp**;
+- whole-record fixed-100-Hz coherent fit: **347.25 mVpp**;
+- whole-record residual RMS: **114.80 mV**;
+- largest adjacent-sample step: **160 mV**, between samples 8611 and 8612 (`−96 mV → +64 mV`);
+- fixed-100-Hz fit before the step: **474.96 mVpp**, residual **4.17 mV**;
+- fixed-100-Hz fit after the step: **475.36 mVpp**, residual **4.48 mV**.
+
+Thus the signal amplitude on each side of the discontinuity remains consistent with the stopped display, while the full exported record contains a timing/phase discontinuity that causes cancellation in a whole-record stationary fit.
+
+### Engineering conclusion from the retest
+
+The discontinuity is now **reproducible in an Average-64 export but was not reproduced in the Sample-mode export**. STOP itself did not visibly create the discontinuity: both Sample and Average-64 stopped screens appeared continuous before export.
+
+This evidence supports treating the issue as associated with **Average acquisition and/or the representation/export of averaged acquisition memory on the DOS1102S**, rather than as evidence of an MCP6022/current-path transient. The exact internal mechanism remains unknown; no firmware defect is claimed.
+
+For quantitative CSV work in the present fixture, **Sample acquisition is the preferred evidence path**. Any desired averaging/filtering should be performed explicitly in reproducible offline analysis. Average-64 captures may still be useful for visual inspection, but the exported Average-64 record must not be assumed to be one stationary time-continuous waveform without checking it first.
+
+The provisional approximately 0.78 V/A response derived from the earlier discontinuous Average-64 pair remains historical diagnostic evidence only. It is **not promoted to an accepted calibration or baseline**.
+
 ## Method and reproduction
 
-[check_average_csv.py](check_average_csv.py) reads the unchanged raw files and writes [metrics.json](metrics.json) and the plot. It requires Python with NumPy, SciPy, and Matplotlib.
+[check_average_csv.py](check_average_csv.py) reads the unchanged original Average-64 raw files and writes [metrics.json](metrics.json) and the plot. It requires Python with NumPy, SciPy, and Matplotlib.
 
 From the repository root:
 
@@ -97,6 +138,6 @@ The largest absolute CH1 sample step defines the two diagnostic intervals. No ro
 
 ## Correction to the requested next step
 
-The previous version requested another stable, stopped export. The user confirmed this was already how the supplied pair was produced. **That repeat request is withdrawn.** This revision analyzes the existing evidence; it records no new bench measurement and accepts no final calibration.
+The previous version requested another stable, stopped export. The user confirmed this was already how the supplied pair was produced. **That repeat request is withdrawn.** The controlled follow-up above was instead used to isolate acquisition mode as the important experimental variable. No final sensor calibration is accepted from the Average-64 exports.
 
 See the [acquisition lesson and bench sequence](../../../../study/oscilloscope-acquisition-and-triggering.md) for the settings and their purpose.
