@@ -93,29 +93,45 @@ For the fitting method, see [signal-analysis concepts](../docs/study/signal-anal
 
 ## What is established and what remains open
 
-The following records the **latest corrections from the 2026-09-13 bench conversation**, rather than treating earlier, superseded reports as current:
+Latest status combines the corrected 2026-09-13 observations with the 2026-09-14 follow-up:
 
 | Item | Latest status |
 | --- | --- |
-| Pololu OUT-to-GND multimeter reading | Reported steady at 0.498 V |
-| Scope CH2 level | Reported steady at approximately 498 mV |
-| Scope CH1 amplitude | Reported changing up and down; numerical range not yet supplied |
-| Acquisition setting verified in a photograph | Average 64 |
-| Controlled Sample-versus-Average comparison | Not yet documented with confirmed settings and numerical results |
+| Pololu OUT-to-GND multimeter reading | Last numerical report: steady at 0.498 V on 2026-09-13 |
+| Scope CH2 level | Last numerical report: steady at approximately 498 mV on 2026-09-13 |
+| Scope CH1 amplitude | On 2026-09-14, reported stable at 480 mVpp, at 100 Hz, following the instruction to select Sample |
+| Acquisition setting verified in a photograph | Average 64 in the earlier photograph; the latest response follows the Sample-mode instruction |
+| Controlled Sample-versus-Average comparison | Stable Sample-step result reported; return to Average 64 pending |
 | Suggested CH2 tip-to-ground test | Skipped after the corrected report that CH2 was already steady |
-| Cause of CH1 amplitude changes | Unresolved |
+| Cause of the earlier CH1 amplitude changes | Unresolved |
 | Gain accepted from the latest acquisition pair | None |
 
 The photos and CSV filenames identify session evidence; they are not newly archived by this study note. No hardware fault, sensor failure, or firmware defect has been established.
 
+## Sample-step result — 2026-09-14
+
+**Purpose:** Check whether CH1's displayed Vpp continues to vary when successive captures are not averaged together.
+
+**Requested action:** Select Acquire → Acqu Mode → Sample, keep the wiring, generator, scales, and trigger unchanged, and watch CH1 Vpp for ten seconds.
+
+**User observation:** CH1 Vpp was **480 mV and stable**; the user reported that nothing was moving and explicitly clarified **100 Hz**. This response follows the Sample-mode instruction. There is no new settings photograph or CSV, and the user supplied one stable value rather than a separate minimum and maximum.
+
+**Interpretation:** The earlier movement was not observed in this check. A return to Average with other conditions held fixed is needed before attributing the difference to acquisition or alignment. This result does not prove a component fault or a firmware defect.
+
+Using measured R8 = 67 Ω, the reported voltage corresponds to an indicated current swing:
+
+`Ipp = 0.480 V / 67 Ω ≈ 7.16 mA`
+
+This conversion uses the scope's Vpp reading; it is not a fitted sine result or a calibrated uncertainty estimate. A stable reported value does not imply zero measurement uncertainty.
+
 ## The next observation, with its purpose
 
-**Question:** Does CH1's displayed Vpp continue to vary when successive captures are not averaged together?
+**Question:** Does the CH1 variation return when only averaging is enabled again?
 
-**Prediction:** Sample mode removes averaging between captures. The trace can become noisier. If large variations persist, averaging alone cannot explain them; if they disappear, that supports investigating acquisition or alignment effects, but does not prove a cause.
+**Prediction:** An aligned, stable sine should retain approximately its amplitude in Average mode. Raw Vpp can decrease as noise extremes are reduced, so an exactly identical Vpp value is not required. A large change or renewed movement would justify investigating acquisition and trigger alignment further.
 
-**One action:** Select **Acquire → Acqu Mode → Sample**, leaving the wiring, generator, scales, and trigger unchanged for the comparison. If Sample is already selected, record that fact.
+**One action:** At the same **100 Hz**, select **Acquire → Acqu Mode → Average → 64**. Keep the wiring, generator amplitude/offset, scales, and trigger unchanged.
 
-**Report:** Observe the CH1 Vpp readout for ten seconds and give the lowest and highest displayed values, with units. This is a readout range, not yet a fitted sine-amplitude measurement.
+**Report:** Let the display settle, then watch CH1 Vpp for ten seconds. Report its value if stable, or its lowest and highest readings if it varies, with units.
 
-**Interpret before proceeding:** Record the observation and its limits before choosing the next change. This observation is pending; no result is implied here.
+**Interpret before proceeding:** This return-to-Average result is pending. Compare it with the reported 480 mVpp Sample-step result before choosing another change.
