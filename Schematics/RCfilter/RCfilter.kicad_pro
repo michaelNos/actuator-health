@@ -8,7 +8,7 @@
       "internal_id": "",
       "mfg": "",
       "mpn": "",
-      "sch_revision": "Draft 1"
+      "sch_revision": ""
     },
     "layer_pairs": [],
     "layer_presets": [],
@@ -256,7 +256,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "actuator-health.kicad_pro",
+    "filename": "RCfilter.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -424,17 +424,17 @@
     "subpart_id_separator": 0,
     "top_level_sheets": [
       {
-        "filename": "actuator-health.kicad_sch",
+        "filename": "RCfilter.kicad_sch",
         "name": "Root",
-        "uuid": "c0636471-f081-420d-b24b-5dc40f2522ea"
+        "uuid": "4cecd8a4-7b51-4329-9e7b-95ab24bec37f"
       }
     ],
-    "used_designators": "U1-3,#PWR1-8,C1-13,#FLG1-3,J1-5,R1-6",
+    "used_designators": "R1,C1,#PWR1",
     "variants": []
   },
   "sheets": [
     [
-      "c0636471-f081-420d-b24b-5dc40f2522ea",
+      "4cecd8a4-7b51-4329-9e7b-95ab24bec37f",
       "Root"
     ]
   ],

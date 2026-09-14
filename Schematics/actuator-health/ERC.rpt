@@ -1,9 +1,12 @@
-ERC report (2026-09-12T17:38:33, Encoding UTF8)
+ERC report (2026-09-14T13:51:58, Encoding UTF8)
 Report includes: Errors, Warnings, Exclusions
 
 ***** Sheet /
+[lib_symbol_issues]: Symbol 'Pololu_4048_ACS724_05AU' not found in symbol library 'actuator_health'
+    ; warning
+    @(7500 mils, 4750 mils): Symbol U2 [Pololu_4048_ACS724_05AU]
 
- ** ERC messages: 0  Errors 0  Warnings 0
+ ** ERC messages: 1  Errors 0  Warnings 1
 
  ** Ignored checks:
     - Global label only appears once in the schematic

@@ -742,18 +742,19 @@
 			(on_board yes)
 			(in_pos_files yes)
 			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "U"
-				(at 2.54 11.43 0)
+			(property "Reference" "U2"
+				(at 0.8733 15.24 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
+					(justify left)
 				)
 			)
-			(property "Value" ""
-				(at 0 0 0)
+			(property "Value" "Pololu_4048_ACS724_05AU"
+				(at 0 -2.032 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -785,7 +786,7 @@
 				)
 			)
 			(property "Description" ""
-				(at 0 0 0)
+				(at 0.8733 12.7 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(hide yes)
@@ -793,6 +794,7 @@
 					(font
 						(size 1.27 1.27)
 					)
+					(justify left)
 				)
 			)
 			(symbol "Pololu_4048_ACS724_05AU_0_1"
@@ -1317,6 +1319,12 @@
 		(uuid "1519a49f-d197-43e4-b8e9-d98cc47ba625")
 	)
 	(junction
+		(at 213.36 135.89)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "19abde2c-c1bf-400b-afc0-67e89b646677")
+	)
+	(junction
 		(at 151.13 48.26)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1401,12 +1409,6 @@
 		(uuid "7ba295fe-3b8c-4fa0-8536-7d9a7322a759")
 	)
 	(junction
-		(at 195.58 135.89)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "8a19d695-1978-4463-8127-64cf7feb9d2e")
-	)
-	(junction
 		(at 91.44 57.15)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1423,6 +1425,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "952294dc-2df4-43e0-9a44-bbaf2b39479f")
+	)
+	(junction
+		(at 195.58 135.89)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a47f2161-4dc5-4ec0-958e-b8c862993eb9")
 	)
 	(junction
 		(at 151.13 72.39)
@@ -1467,12 +1475,6 @@
 		(uuid "baf99f21-51ca-4dfa-b272-d8c5376c3545")
 	)
 	(junction
-		(at 109.22 77.47)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "bb19a3f3-747b-4c37-b410-9d39b34995ee")
-	)
-	(junction
 		(at 91.44 49.53)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1503,14 +1505,16 @@
 		(uuid "e3f15137-c15b-4b93-8ffb-163191f1d60d")
 	)
 	(junction
+		(at 109.22 77.47)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "e5e89e0a-02aa-4195-80f0-9e2090d3d53d")
+	)
+	(junction
 		(at 139.7 60.96)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "ea248364-6405-4dad-8bf8-5cfd220471c2")
-	)
-	(no_connect
-		(at 200.66 118.11)
-		(uuid "4da400f5-84f7-41be-bbb8-d002e7003abb")
 	)
 	(wire
 		(pts
@@ -1614,7 +1618,7 @@
 	)
 	(wire
 		(pts
-			(xy 121.92 99.06) (xy 121.92 77.47)
+			(xy 127 99.06) (xy 127 77.47)
 		)
 		(stroke
 			(width 0)
@@ -1674,7 +1678,7 @@
 	)
 	(wire
 		(pts
-			(xy 208.28 115.57) (xy 208.28 135.89)
+			(xy 226.06 115.57) (xy 226.06 135.89)
 		)
 		(stroke
 			(width 0)
@@ -1764,6 +1768,16 @@
 	)
 	(wire
 		(pts
+			(xy 200.66 118.11) (xy 213.36 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "54929ce5-0b3d-4d87-a11f-25d2b2f0c800")
+	)
+	(wire
+		(pts
 			(xy 195.58 135.89) (xy 195.58 139.7)
 		)
 		(stroke
@@ -1804,6 +1818,16 @@
 	)
 	(wire
 		(pts
+			(xy 213.36 128.27) (xy 213.36 135.89)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "677640b2-fd2c-4be4-92b7-19ef568b22c8")
+	)
+	(wire
+		(pts
 			(xy 91.44 44.45) (xy 91.44 49.53)
 		)
 		(stroke
@@ -1814,7 +1838,7 @@
 	)
 	(wire
 		(pts
-			(xy 218.44 115.57) (xy 208.28 115.57)
+			(xy 233.68 115.57) (xy 226.06 115.57)
 		)
 		(stroke
 			(width 0)
@@ -1851,6 +1875,16 @@
 			(type default)
 		)
 		(uuid "6ca99acf-4f66-4819-8039-776a1699d2a4")
+	)
+	(wire
+		(pts
+			(xy 213.36 118.11) (xy 213.36 120.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6caf50c9-7b1c-474a-b1bb-f4ed54b97582")
 	)
 	(wire
 		(pts
@@ -1934,7 +1968,7 @@
 	)
 	(wire
 		(pts
-			(xy 200.66 113.03) (xy 218.44 113.03)
+			(xy 200.66 113.03) (xy 233.68 113.03)
 		)
 		(stroke
 			(width 0)
@@ -2074,7 +2108,7 @@
 	)
 	(wire
 		(pts
-			(xy 88.9 99.06) (xy 121.92 99.06)
+			(xy 88.9 99.06) (xy 127 99.06)
 		)
 		(stroke
 			(width 0)
@@ -2141,6 +2175,16 @@
 			(type default)
 		)
 		(uuid "ac0b1c31-247e-4ab6-9be8-35f558962727")
+	)
+	(wire
+		(pts
+			(xy 213.36 135.89) (xy 195.58 135.89)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b7355918-a626-474f-9be4-fe43abdb211d")
 	)
 	(wire
 		(pts
@@ -2234,7 +2278,7 @@
 	)
 	(wire
 		(pts
-			(xy 109.22 77.47) (xy 121.92 77.47)
+			(xy 109.22 77.47) (xy 127 77.47)
 		)
 		(stroke
 			(width 0)
@@ -2334,7 +2378,7 @@
 	)
 	(wire
 		(pts
-			(xy 208.28 135.89) (xy 195.58 135.89)
+			(xy 226.06 135.89) (xy 213.36 135.89)
 		)
 		(stroke
 			(width 0)
@@ -2834,7 +2878,6 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "13cb521b-cd94-4417-bd63-a72bbb446c5c")
 		(property "Reference" "R6"
 			(at 107.95 124.46 90)
@@ -2878,8 +2921,18 @@
 				)
 			)
 		)
-		(property "Description" "RIN — input resistor"
+		(property "Description" "Resistor"
 			(at 107.95 129.54 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Measured" "98.9kΩ"
+			(at 115.062 127 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2976,6 +3029,88 @@
 			(project "actuator-health"
 				(path "/c0636471-f081-420d-b24b-5dc40f2522ea"
 					(reference "#FLG02")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 213.36 124.46 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "1fe5f7ae-8d18-4448-8e41-c3e0c148529d")
+		(property "Reference" "C12"
+			(at 217.17 123.1899 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "4.7nF"
+			(at 217.17 125.7299 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 214.3252 128.27 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 213.36 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 213.36 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "e48e9a58-19c0-4a00-8d36-5da0dc628e3c")
+		)
+		(pin "1"
+			(uuid "c475e5ad-40e4-43ac-9adf-1411b55d238b")
+		)
+		(instances
+			(project "actuator-health"
+				(path "/c0636471-f081-420d-b24b-5dc40f2522ea"
+					(reference "C12")
 					(unit 1)
 				)
 			)
@@ -3569,7 +3704,6 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "47f11691-d5ea-47dc-8acb-8b4bc1e68ee3")
 		(property "Reference" "R7"
 			(at 133.35 124.46 90)
@@ -3613,8 +3747,18 @@
 				)
 			)
 		)
-		(property "Description" "RF — feedback resistor"
+		(property "Description" "Resistor"
 			(at 133.35 129.54 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Measured" "99kΩ"
+			(at 139.954 127 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3878,7 +4022,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x02")
-		(at 223.52 113.03 0)
+		(at 238.76 113.03 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3889,7 +4033,7 @@
 		(fields_autoplaced yes)
 		(uuid "73107f7d-7492-4095-ae4a-4e041aeeaab4")
 		(property "Reference" "J4"
-			(at 226.06 113.0299 0)
+			(at 241.3 113.0299 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3900,7 +4044,7 @@
 			)
 		)
 		(property "Value" "Scope CH2"
-			(at 226.06 115.5699 0)
+			(at 241.3 115.5699 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3911,7 +4055,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 223.52 113.03 0)
+			(at 238.76 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3922,7 +4066,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 223.52 113.03 0)
+			(at 238.76 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3933,7 +4077,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 223.52 113.03 0)
+			(at 238.76 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4397,7 +4541,6 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "b2b2ff59-9158-4ccf-815b-eb3e5a126492")
 		(property "Reference" "R8"
 			(at 154.94 138.4299 0)
@@ -4410,7 +4553,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "68.8Ω"
+		(property "Value" "68Ω"
 			(at 154.94 140.9699 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4443,7 +4586,7 @@
 				)
 			)
 		)
-		(property "Description" "RREF — current reference"
+		(property "Description" "Resistor"
 			(at 154.94 143.5099 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4452,6 +4595,16 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+		(property "Measured" "67Ω"
+			(at 162.052 140.97 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(pin "2"
@@ -4479,7 +4632,6 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "c14bf28b-b13b-42c5-9509-c608db880b4f")
 		(property "Reference" "R3"
 			(at 111.76 71.1199 0)
@@ -4528,6 +4680,16 @@
 		(property "Description" "Resistor"
 			(at 109.22 72.39 0)
 			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Measured" "98.9kΩ"
+			(at 122.936 73.66 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4641,7 +4803,6 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "cdcf4b89-2608-4677-a904-0a153e45bd7d")
 		(property "Reference" "R5"
 			(at 161.29 107.95 90)
@@ -4688,6 +4849,16 @@
 		(property "Description" "Resistor"
 			(at 161.29 114.3 0)
 			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Measured" "216Ω"
+			(at 167.132 110.49 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4897,7 +5068,6 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "d2d73efc-bb63-47d0-9f20-99c4a21e5472")
 		(property "Reference" "R4"
 			(at 111.76 81.2799 0)
@@ -4946,6 +5116,16 @@
 		(property "Description" "Resistor"
 			(at 109.22 82.55 0)
 			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Measured" "98.6kΩ"
+			(at 122.936 83.82 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5057,7 +5237,6 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "d81bdfe9-274a-4bc3-ab07-8155a3b50654")
 		(property "Reference" "R2"
 			(at 111.76 62.2299 0)
@@ -5106,6 +5285,16 @@
 		(property "Description" "Resistor"
 			(at 109.22 63.5 0)
 			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Measured" "98.9kΩ"
+			(at 122.936 64.77 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5217,7 +5406,6 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "d8ab0664-d566-4c6a-b897-bffddbb3652f")
 		(property "Reference" "R1"
 			(at 111.76 53.3399 0)
@@ -5266,6 +5454,16 @@
 		(property "Description" "Resistor"
 			(at 109.22 54.61 0)
 			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Measured" "98.8kΩ"
+			(at 122.936 55.88 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects

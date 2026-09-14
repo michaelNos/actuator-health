@@ -8,18 +8,19 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(duplicate_pin_numbers_are_jumpers no)
-		(property "Reference" "U"
-			(at 2.54 11.43 0)
+		(property "Reference" "U2"
+			(at 0.8733 15.24 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Value" "Pololu_4048_ACS724_05AU"
-			(at 0 -1.778 0)
+			(at 0 -2.032 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -51,7 +52,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 0 0 0)
+			(at 0.8733 12.7 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(hide yes)
@@ -59,6 +60,7 @@
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(symbol "Pololu_4048_ACS724_05AU_0_1"
