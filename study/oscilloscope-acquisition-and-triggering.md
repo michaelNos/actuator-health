@@ -2,7 +2,7 @@
 
 Actuator Health Monitoring System — study note, 2026-09-13.
 
-This lesson explains the HANMATEK DOS1102S settings used during the rewired ACS724 fixture experiment. Bench observations below are provisional; the CH1 amplitude variation remains unresolved.
+This lesson explains the HANMATEK DOS1102S settings used during the rewired ACS724 fixture experiment. In the latest comparison CH1 settled and acquisition was stopped before export. The cause of earlier amplitude changes and a discontinuity in the saved record remain unresolved; the response estimate below is provisional.
 
 ## Why we need acquisition
 
@@ -93,29 +93,77 @@ For the fitting method, see [signal-analysis concepts](../docs/study/signal-anal
 
 ## What is established and what remains open
 
-The following records the **latest corrections from the 2026-09-13 bench conversation**, rather than treating earlier, superseded reports as current:
+Latest status combines the corrected 2026-09-13 observations with the 2026-09-14 follow-up:
 
 | Item | Latest status |
 | --- | --- |
-| Pololu OUT-to-GND multimeter reading | Reported steady at 0.498 V |
-| Scope CH2 level | Reported steady at approximately 498 mV |
-| Scope CH1 amplitude | Reported changing up and down; numerical range not yet supplied |
-| Acquisition setting verified in a photograph | Average 64 |
-| Controlled Sample-versus-Average comparison | Not yet documented with confirmed settings and numerical results |
+| Pololu OUT-to-GND multimeter reading | Last numerical report: steady at 0.498 V on 2026-09-13 |
+| Scope CH2 level | Last numerical report: steady at approximately 498 mV on 2026-09-13 |
+| Scope CH1 amplitude | At 100 Hz: Sample-step reading stable at 480 mVpp; after the Average-64 instruction, rose from about 100 to 475 mVpp and then appeared stable |
+| Acquisition setting verified in a photograph | Average 64 in the earlier photograph; the latest response follows the instruction to select Average 64 again |
+| Controlled Sample-versus-Average comparison | Both step responses recorded: 480 mVpp in the Sample step and approximately 475 mVpp after the averaging transient |
 | Suggested CH2 tip-to-ground test | Skipped after the corrected report that CH2 was already steady |
-| Cause of CH1 amplitude changes | Unresolved |
-| Gain accepted from the latest acquisition pair | None |
+| Cause of the earlier CH1 amplitude changes | Unresolved |
+| Latest uploaded CSV pair | `data_27_000_CH1_avg100Hz_2pp.csv` and `data_27_001_CH2_avg100Hz_2pp.csv`; user confirms stable display, then STOP, then both exports; CH1 contains a discontinuity at 170.4 ms |
+| Provisional response from the latest pair | Approximately 0.78 V/A, allowing separate CH1 timing on each side of the jump and using all paired samples |
+| Accepted calibration from the latest pair | None; noise, CSV behavior, and repeatability remain limitations |
 
-The photos and CSV filenames identify session evidence; they are not newly archived by this study note. No hardware fault, sensor failure, or firmware defect has been established.
+The latest CSV pair is archived with the linked analysis report; older filenames and photos identify earlier session evidence. No hardware fault, sensor failure, or firmware defect has been established.
 
-## The next observation, with its purpose
+## Sample-step result — 2026-09-14
 
-**Question:** Does CH1's displayed Vpp continue to vary when successive captures are not averaged together?
+**Purpose:** Check whether CH1's displayed Vpp continues to vary when successive captures are not averaged together.
 
-**Prediction:** Sample mode removes averaging between captures. The trace can become noisier. If large variations persist, averaging alone cannot explain them; if they disappear, that supports investigating acquisition or alignment effects, but does not prove a cause.
+**Requested action:** Select Acquire → Acqu Mode → Sample, keep the wiring, generator, scales, and trigger unchanged, and watch CH1 Vpp for ten seconds.
 
-**One action:** Select **Acquire → Acqu Mode → Sample**, leaving the wiring, generator, scales, and trigger unchanged for the comparison. If Sample is already selected, record that fact.
+**User observation:** CH1 Vpp was **480 mV and stable**; the user reported that nothing was moving and explicitly clarified **100 Hz**. This response follows the Sample-mode instruction. There is no new settings photograph or CSV, and the user supplied one stable value rather than a separate minimum and maximum.
 
-**Report:** Observe the CH1 Vpp readout for ten seconds and give the lowest and highest displayed values, with units. This is a readout range, not yet a fitted sine-amplitude measurement.
+**Interpretation at this step:** The earlier movement was not observed in this check. A return to Average with other conditions held fixed was therefore requested; its result follows below. This Sample-step result alone does not establish the cause of the earlier variation.
 
-**Interpret before proceeding:** Record the observation and its limits before choosing the next change. This observation is pending; no result is implied here.
+Using measured R8 = 67 Ω, the reported voltage corresponds to an indicated current swing:
+
+`Ipp = 0.480 V / 67 Ω ≈ 7.16 mA`
+
+This conversion uses the scope's Vpp reading; it is not a fitted sine result or a calibrated uncertainty estimate. A stable reported value does not imply zero measurement uncertainty.
+
+## Return-to-Average result — 2026-09-14
+
+**Purpose:** Check whether the CH1 variation returns when only averaging is enabled again.
+
+**Requested action:** At the same 100 Hz, select Acquire → Acqu Mode → Average → 64, leaving the wiring, generator amplitude/offset, scales, and trigger unchanged. Let the display settle before assessing CH1 Vpp.
+
+**User observation:** CH1 Vpp started at approximately **100 mV**, slowly rose to **475 mV**, and then appeared stable. The elapsed settling time and a further numerical range were not supplied. This report follows the Average-64 instruction. The CSV pair supplied afterward is examined below.
+
+**Comparison:** The settled indication is 5 mV below the Sample-step reading:
+
+`(480 − 475) / 480 × 100 ≈ 1.04%`
+
+A small Vpp reduction is compatible with reducing noise extremes. These are scope readouts from two acquisition modes, not fitted amplitudes with quantified uncertainty.
+
+**Explanation:** The gradual rise is consistent with the average building up or adapting after a mode change. The exact DOS1102S initialization and weighting behavior have not been verified, so this is a plausible explanation rather than a confirmed firmware mechanism. Waveform averaging can combine successive records with different weighting schemes; see the [Teledyne LeCroy explanation](https://blog.teledynelecroy.com/2016/06/just-faqs-waveform-averaging.html).
+
+For a steady repeating signal, judge the amplitude after the averaging transient has settled. The reported settled amplitude is close to the Sample result. Persistent variation was not reported after settling in this comparison; the cause of all earlier movement is not established.
+
+## CSV follow-up — 2026-09-14
+
+The user supplied both channel exports after the settled Average-64 report and explicitly confirmed that acquisition was **already stopped before producing both CSVs**. These files supersede the pending request for a manual CH2 Vpp readout. The subsequent request to repeat a stopped export was unnecessary and is withdrawn.
+
+**Observed in the files:** Each channel has 10,000 points at 20 µs spacing. CH1 jumps by 168 mV at 170.4 ms, between samples 8520 and 8521. Separate diagnostic fits give approximately 477.5 and 476.6 mVpp before and after the jump, but with different phases. Fitting the entire record as one stationary sine understates its amplitude.
+
+**CH2:** The first interval has a diagnostic 100 Hz sine component of approximately 5.33 mVpp, with about 21.9 mV residual RMS. A paired model using both intervals gives a provisional sensitivity of approximately **0.78 V/A**, as explained below. No final calibration is accepted from this pair.
+
+**Explanation:** A stable displayed amplitude and an intact stationary CSV record are different requirements. The discontinuity could be a real transient or an acquisition/export effect. It is not yet justified to identify its cause or repair the record by trimming.
+
+The [CSV check report](../docs/evidence/analysis/2026-09-14/100hz-average-csv-check.md) contains the archived originals, plot, exact sample indices, calculations, and reproducible analysis.
+
+## Analysis of the existing stopped capture
+
+**Question:** What response can we estimate from the files already supplied?
+
+**Method:** Fit CH1's 100 Hz sine separately before and after the jump. Then compare all CH2 samples against those references, allowing one common amplitude ratio and phase shift. Every original sample remains in the analysis. Separate offsets prevent the exported DC coordinates from determining the changing-signal ratio.
+
+**Why:** Phase describes where a sine is in its cycle. The jump changes that timing, while CH1's fitted swing stays near 477 mVpp. One fixed-phase sine averages the mismatched sections poorly and makes the amplitude look too small. Following the reference timing in each section lets us estimate the paired response without that cancellation.
+
+**Result:** CH1 represents approximately **7.12 mApp** through measured R8 = 67 Ω. The common paired response corresponds to about **5.52 mVpp** at CH2, giving approximately **0.78 V/A**. This is near the nominal 0.8 V/A but remains a single-capture estimate, not an accuracy or calibration claim. The model assumes corresponding sample times in both exports and one linear response on both sides of the jump. The roughly 21.9 mV residual RMS and separate-section estimates of 0.748 and 0.943 V/A show why caution about precision is necessary.
+
+**Bench action:** None for this analysis. The existing files were already exported after stability and STOP; do not repeat that procedure merely to satisfy the earlier mistaken request.
