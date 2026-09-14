@@ -1,0 +1,123 @@
+{
+  "files": [
+    {
+      "name": "data_27_000_CH1_avg100Hz_2pp.csv",
+      "sha256": "0232a79e041c727434beb9e28c0956ef6659507fa825931b9ee3c2426c97e805",
+      "count": 10000,
+      "interval_s": 1.9999999999999998e-05,
+      "span_s": 0.19998,
+      "header": {
+        "Channel": "CH1",
+        "Frequency": "100.0Hz",
+        "Period": "10.00ms",
+        "PK-PK": "479.5mV",
+        "Probe attenuation": "1X",
+        "Voltage per ADC value": "0.500000mV",
+        "Time interval": "20.00000us"
+      },
+      "exported_mean_mV": -7.9304,
+      "raw_vpp_mV": 488.0,
+      "smallest_level_step_mV": 8.0
+    },
+    {
+      "name": "data_27_001_CH2_avg100Hz_2pp.csv",
+      "sha256": "17e527fb7f1c2e3cf3a7571fde9f91a140c4fc79d04d012d806c4836c09706a7",
+      "count": 10000,
+      "interval_s": 1.9999999999999998e-05,
+      "span_s": 0.19998,
+      "header": {
+        "Channel": "CH2",
+        "Frequency": "?",
+        "Period": "?",
+        "PK-PK": "82.00mV",
+        "Probe attenuation": "1X",
+        "Voltage per ADC value": "0.250000mV",
+        "Time interval": "20.00000us"
+      },
+      "exported_mean_mV": 203.3836,
+      "raw_vpp_mV": 236.0,
+      "smallest_level_step_mV": 4.0
+    }
+  ],
+  "jump": {
+    "from_index": 8520,
+    "to_index": 8521,
+    "time_s": 0.1704,
+    "from_mV": -104.0,
+    "to_mV": 64.0,
+    "step_mV": 168.0
+  },
+  "regions": {
+    "full": {
+      "CH1_free": {
+        "frequency_Hz": 99.05844275313186,
+        "vpp_mV": 340.06863061955136,
+        "residual_rms_mV": 118.64014716301648,
+        "R2": 0.5063642575492435,
+        "phase_deg": -15.046829418973417
+      },
+      "CH1_at_100Hz": {
+        "frequency_Hz": 100.0,
+        "vpp_mV": 335.7777952253717,
+        "residual_rms_mV": 120.08566852476002,
+        "R2": 0.49426197900401747,
+        "phase_deg": -37.3069947671708
+      },
+      "CH2_at_100Hz": {
+        "frequency_Hz": 100.0,
+        "vpp_mV": 3.540655356179624,
+        "residual_rms_mV": 21.948745317126775,
+        "R2": 0.003242257790003089,
+        "phase_deg": -34.99830572221812
+      }
+    },
+    "before_jump": {
+      "CH1_free": {
+        "frequency_Hz": 99.99895449939936,
+        "vpp_mV": 477.51020383409326,
+        "residual_rms_mV": 4.286420253096495,
+        "R2": 0.9993549823610977,
+        "phase_deg": -35.67491288068274
+      },
+      "CH1_at_100Hz": {
+        "frequency_Hz": 100.0,
+        "vpp_mV": 477.51147771146873,
+        "residual_rms_mV": 4.286768546238447,
+        "R2": 0.9993548775350032,
+        "phase_deg": -35.706727856157244
+      },
+      "CH2_at_100Hz": {
+        "frequency_Hz": 100.0,
+        "vpp_mV": 5.332410713807729,
+        "residual_rms_mV": 21.917359922155885,
+        "R2": 0.007335700973251202,
+        "phase_deg": -35.65625103376452
+      }
+    },
+    "after_jump": {
+      "CH1_free": {
+        "frequency_Hz": 100.0141827288758,
+        "vpp_mV": 476.61710179825144,
+        "residual_rms_mV": 4.321213913560069,
+        "R2": 0.9993488902640275,
+        "phase_deg": 149.73445537919568
+      },
+      "CH1_at_100Hz": {
+        "frequency_Hz": 100.0,
+        "vpp_mV": 476.59419720437154,
+        "residual_rms_mV": 4.323051722850458,
+        "R2": 0.9993483363132138,
+        "phase_deg": 150.67702305965906
+      },
+      "CH2_at_100Hz": {
+        "frequency_Hz": 100.0,
+        "vpp_mV": 6.704521315971858,
+        "residual_rms_mV": 21.775341311174724,
+        "R2": 0.011776240246307412,
+        "phase_deg": 140.8418902094884
+      }
+    }
+  },
+  "accepted_gain": null,
+  "limitation": "CH1 phase discontinuity prevents a stationary whole-record gain measurement; diagnostic intervals are not accepted calibration data."
+}

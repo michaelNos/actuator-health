@@ -104,7 +104,8 @@ Latest status combines the corrected 2026-09-13 observations with the 2026-09-14
 | Controlled Sample-versus-Average comparison | Both step responses recorded: 480 mVpp in the Sample step and approximately 475 mVpp after the averaging transient |
 | Suggested CH2 tip-to-ground test | Skipped after the corrected report that CH2 was already steady |
 | Cause of the earlier CH1 amplitude changes | Unresolved |
-| Gain accepted from the latest acquisition pair | None |
+| Latest uploaded CSV pair | `data_27_000_CH1_avg100Hz_2pp.csv` and `data_27_001_CH2_avg100Hz_2pp.csv`; CH1 contains a discontinuity at 170.4 ms |
+| Gain accepted from the latest acquisition pair | None; a stationary whole-record gain fit is unsuitable |
 
 The photos and CSV filenames identify session evidence; they are not newly archived by this study note. No hardware fault, sensor failure, or firmware defect has been established.
 
@@ -130,7 +131,7 @@ This conversion uses the scope's Vpp reading; it is not a fitted sine result or 
 
 **Requested action:** At the same 100 Hz, select Acquire → Acqu Mode → Average → 64, leaving the wiring, generator amplitude/offset, scales, and trigger unchanged. Let the display settle before assessing CH1 Vpp.
 
-**User observation:** CH1 Vpp started at approximately **100 mV**, slowly rose to **475 mV**, and then appeared stable. The elapsed settling time and a further numerical range were not supplied. This report follows the Average-64 instruction; no new screenshot or CSV was supplied.
+**User observation:** CH1 Vpp started at approximately **100 mV**, slowly rose to **475 mV**, and then appeared stable. The elapsed settling time and a further numerical range were not supplied. This report follows the Average-64 instruction. The CSV pair supplied afterward is examined below.
 
 **Comparison:** The settled indication is 5 mV below the Sample-step reading:
 
@@ -142,22 +143,26 @@ A small Vpp reduction is compatible with reducing noise extremes. These are scop
 
 For a steady repeating signal, judge the amplitude after the averaging transient has settled. The reported settled amplitude is close to the Sample result. Persistent variation was not reported after settling in this comparison; the cause of all earlier movement is not established.
 
+## CSV follow-up — 2026-09-14
+
+The user supplied both channel exports after the settled Average-64 report. These files supersede the pending request for a manual CH2 Vpp readout.
+
+**Observed in the files:** Each channel has 10,000 points at 20 µs spacing. CH1 jumps by 168 mV at 170.4 ms, between samples 8520 and 8521. Separate diagnostic fits give approximately 477.5 and 476.6 mVpp before and after the jump, but with different phases. Fitting the entire record as one stationary sine understates its amplitude.
+
+**CH2:** The first interval has a diagnostic 100 Hz sine component of approximately 5.33 mVpp, with about 21.9 mV residual RMS. The result is noisy and interval-dependent. No sensor gain is accepted from this pair.
+
+**Explanation:** A stable displayed amplitude and an intact stationary CSV record are different requirements. The discontinuity could be a real transient or an acquisition/export effect. It is not yet justified to identify its cause or repair the record by trimming.
+
+The [CSV check report](../docs/evidence/analysis/2026-09-14/100hz-average-csv-check.md) contains the archived originals, plot, exact sample indices, calculations, and reproducible analysis.
+
 ## The next observation, with its purpose
 
-**Question:** What does CH2's Vpp readout show now that the reference amplitude has settled?
+**Question:** Does a CSV exported from a confirmed stopped acquisition retain the discontinuity?
 
-**Prediction:** Using the indicated CH1 amplitude and measured R8:
+**One action:** Keep **100 Hz** and **Average 64**. Once the display settles, ensure acquisition shows **STOP**; use Run/Stop only if it is running. Export **CH1 and CH2 from that same stopped record**, without restarting between files.
 
-`Ipp ≈ 0.475 V / 67 Ω ≈ 7.09 mA`
+**Why:** Holding acquisition fixed during export tests whether updating data contributes to the discontinuity. We do not know whether the previous exports were made while running.
 
-At the sensor's nominal 0.8 V/A sensitivity, the expected repeating sensor component is:
+**Expected result:** CH1 should be continuous and give a fitted amplitude consistent with its settled display. If the jump persists, investigate that evidence before relying on a sensor-gain estimate.
 
-`CH2 sine Vpp ≈ 0.00709 A × 0.8 V/A ≈ 5.67 mV`
-
-This is a nominal prediction based on an indicated reference amplitude. CH2's raw Vpp includes remaining noise and may be larger; it must not be treated as the sine amplitude or used directly to accept a sensor gain.
-
-**One action:** Keep 100 Hz, Average 64, and the existing connections/settings. With the display settled, observe **CH2 Vpp** for ten seconds.
-
-**Report:** Give CH2 Vpp and whether it stays stable; if it varies, give its lowest and highest readouts. The approximately 0.498 V DC level is a different quantity.
-
-**Interpret before proceeding:** This CH2 observation is pending. It will describe the displayed excursion; verifying a repeatable sensor sine amplitude still requires appropriate waveform analysis.
+**Report:** Supply the two stopped exports. This check is pending.
