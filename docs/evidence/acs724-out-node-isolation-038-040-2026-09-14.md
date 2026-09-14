@@ -22,7 +22,7 @@ These are temporary diagnostic test configurations. They do not represent a froz
 Project workflow clarification established during this sequence:
 
 - permanent or intended design/circuit changes must be reflected in the schematic before physical implementation;
-- temporary diagnostic test configurations such as probe moves, opening a path, disconnecting a block, temporarily powering a block down, or temporarily removing an experimental component for a controlled diagnostic comparison do not require a schematic revision first, but their exact configuration and results must be documented.
+- temporary diagnostic test configurations such as probe moves, opening a path, disconnecting a block, temporarily powering a block down, or temporarily returning an experimental node to a previous known state for comparison do not require a schematic revision first, but their exact configuration and results must be documented.
 
 ---
 
