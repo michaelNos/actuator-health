@@ -294,7 +294,7 @@ This still does **not** prove that the ACS724 silicon itself is the sole source.
 
 The temporary stimulus fixture has now been sufficiently isolated to justify moving from source-isolation tests to controlled FILTER characterization.
 
-The 4.7 nF external capacitor has demonstrated a repeatable and material noise-reduction effect, but it remains an experimental Stage-B candidate and is not frozen.
+The 4.7 nF external capacitor has demonstrated a material noise-reduction effect in the isolated comparison, but it remains an experimental Stage-B candidate and is not frozen.
 
 No accepted 10 kHz ACS724 current-to-voltage transfer magnitude is established by these controls.
 
