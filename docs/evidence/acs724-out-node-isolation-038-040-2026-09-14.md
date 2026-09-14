@@ -224,16 +224,21 @@ Acquisition:
 - `dt = 0.20000 us`;
 - `fs = 5 MSa/s`.
 
-Measured statistics calculated from the exported samples:
+Measured statistics calculated directly from the exported samples:
 
-- CH1 VIOUT AC standard deviation: `30.13 mV RMS`;
+- CH1 VIOUT mean scope coordinate: `226.946 mV`;
+- CH1 VIOUT AC standard deviation: `30.126 mV RMS`;
+- CH1 minimum/maximum exported coordinates: `128 mV` / `324 mV`;
 - CH1 raw data Vpp: `196 mV`;
-- CH2 GND AC standard deviation: `1.65 mV RMS`;
+- CH2 GND mean scope coordinate: `3.795 mV`;
+- CH2 GND AC standard deviation: `1.646 mV RMS`;
 - CH2 raw data Vpp: `52 mV`;
-- VIOUT/GND correlation coefficient: `0.0136`;
-- zero-mean CH1-CH2 difference RMS: approximately `30.15 mV`.
+- VIOUT/GND correlation coefficient: `0.01358`;
+- zero-mean CH1-CH2 difference RMS: `30.148 mV`.
 
 The oscilloscope metadata reports CH1 frequency near `41.27 kHz`, but no physical single-tone interpretation is accepted from the automatic frequency estimate alone because this is a no-commanded-signal noise capture.
+
+As in earlier controls, exported mean coordinates are retained for traceability but are not used as calibrated physical DC measurements because scope vertical-position/offset effects may be present.
 
 ### Direct comparison with the isolated 4.7 nF condition
 
