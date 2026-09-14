@@ -99,9 +99,9 @@ Latest status combines the corrected 2026-09-13 observations with the 2026-09-14
 | --- | --- |
 | Pololu OUT-to-GND multimeter reading | Last numerical report: steady at 0.498 V on 2026-09-13 |
 | Scope CH2 level | Last numerical report: steady at approximately 498 mV on 2026-09-13 |
-| Scope CH1 amplitude | On 2026-09-14, reported stable at 480 mVpp, at 100 Hz, following the instruction to select Sample |
-| Acquisition setting verified in a photograph | Average 64 in the earlier photograph; the latest response follows the Sample-mode instruction |
-| Controlled Sample-versus-Average comparison | Stable Sample-step result reported; return to Average 64 pending |
+| Scope CH1 amplitude | At 100 Hz: Sample-step reading stable at 480 mVpp; after the Average-64 instruction, rose from about 100 to 475 mVpp and then appeared stable |
+| Acquisition setting verified in a photograph | Average 64 in the earlier photograph; the latest response follows the instruction to select Average 64 again |
+| Controlled Sample-versus-Average comparison | Both step responses recorded: 480 mVpp in the Sample step and approximately 475 mVpp after the averaging transient |
 | Suggested CH2 tip-to-ground test | Skipped after the corrected report that CH2 was already steady |
 | Cause of the earlier CH1 amplitude changes | Unresolved |
 | Gain accepted from the latest acquisition pair | None |
@@ -116,7 +116,7 @@ The photos and CSV filenames identify session evidence; they are not newly archi
 
 **User observation:** CH1 Vpp was **480 mV and stable**; the user reported that nothing was moving and explicitly clarified **100 Hz**. This response follows the Sample-mode instruction. There is no new settings photograph or CSV, and the user supplied one stable value rather than a separate minimum and maximum.
 
-**Interpretation:** The earlier movement was not observed in this check. A return to Average with other conditions held fixed is needed before attributing the difference to acquisition or alignment. This result does not prove a component fault or a firmware defect.
+**Interpretation at this step:** The earlier movement was not observed in this check. A return to Average with other conditions held fixed was therefore requested; its result follows below. This Sample-step result alone does not establish the cause of the earlier variation.
 
 Using measured R8 = 67 Ω, the reported voltage corresponds to an indicated current swing:
 
@@ -124,14 +124,40 @@ Using measured R8 = 67 Ω, the reported voltage corresponds to an indicated curr
 
 This conversion uses the scope's Vpp reading; it is not a fitted sine result or a calibrated uncertainty estimate. A stable reported value does not imply zero measurement uncertainty.
 
+## Return-to-Average result — 2026-09-14
+
+**Purpose:** Check whether the CH1 variation returns when only averaging is enabled again.
+
+**Requested action:** At the same 100 Hz, select Acquire → Acqu Mode → Average → 64, leaving the wiring, generator amplitude/offset, scales, and trigger unchanged. Let the display settle before assessing CH1 Vpp.
+
+**User observation:** CH1 Vpp started at approximately **100 mV**, slowly rose to **475 mV**, and then appeared stable. The elapsed settling time and a further numerical range were not supplied. This report follows the Average-64 instruction; no new screenshot or CSV was supplied.
+
+**Comparison:** The settled indication is 5 mV below the Sample-step reading:
+
+`(480 − 475) / 480 × 100 ≈ 1.04%`
+
+A small Vpp reduction is compatible with reducing noise extremes. These are scope readouts from two acquisition modes, not fitted amplitudes with quantified uncertainty.
+
+**Explanation:** The gradual rise is consistent with the average building up or adapting after a mode change. The exact DOS1102S initialization and weighting behavior have not been verified, so this is a plausible explanation rather than a confirmed firmware mechanism. Waveform averaging can combine successive records with different weighting schemes; see the [Teledyne LeCroy explanation](https://blog.teledynelecroy.com/2016/06/just-faqs-waveform-averaging.html).
+
+For a steady repeating signal, judge the amplitude after the averaging transient has settled. The reported settled amplitude is close to the Sample result. Persistent variation was not reported after settling in this comparison; the cause of all earlier movement is not established.
+
 ## The next observation, with its purpose
 
-**Question:** Does the CH1 variation return when only averaging is enabled again?
+**Question:** What does CH2's Vpp readout show now that the reference amplitude has settled?
 
-**Prediction:** An aligned, stable sine should retain approximately its amplitude in Average mode. Raw Vpp can decrease as noise extremes are reduced, so an exactly identical Vpp value is not required. A large change or renewed movement would justify investigating acquisition and trigger alignment further.
+**Prediction:** Using the indicated CH1 amplitude and measured R8:
 
-**One action:** At the same **100 Hz**, select **Acquire → Acqu Mode → Average → 64**. Keep the wiring, generator amplitude/offset, scales, and trigger unchanged.
+`Ipp ≈ 0.475 V / 67 Ω ≈ 7.09 mA`
 
-**Report:** Let the display settle, then watch CH1 Vpp for ten seconds. Report its value if stable, or its lowest and highest readings if it varies, with units.
+At the sensor's nominal 0.8 V/A sensitivity, the expected repeating sensor component is:
 
-**Interpret before proceeding:** This return-to-Average result is pending. Compare it with the reported 480 mVpp Sample-step result before choosing another change.
+`CH2 sine Vpp ≈ 0.00709 A × 0.8 V/A ≈ 5.67 mV`
+
+This is a nominal prediction based on an indicated reference amplitude. CH2's raw Vpp includes remaining noise and may be larger; it must not be treated as the sine amplitude or used directly to accept a sensor gain.
+
+**One action:** Keep 100 Hz, Average 64, and the existing connections/settings. With the display settled, observe **CH2 Vpp** for ten seconds.
+
+**Report:** Give CH2 Vpp and whether it stays stable; if it varies, give its lowest and highest readouts. The approximately 0.498 V DC level is a different quantity.
+
+**Interpret before proceeding:** This CH2 observation is pending. It will describe the displayed excursion; verifying a repeatable sensor sine amplitude still requires appropriate waveform analysis.
