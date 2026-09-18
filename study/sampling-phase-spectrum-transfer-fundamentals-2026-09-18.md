@@ -1167,33 +1167,118 @@ Also, 15.5 kHz is not the ACS724's entire internal bandwidth. It is an estimate 
 
 ## 16. If CH1 and CH2 measure the same node, can phase still be different? Why?
 
-Electrically, if both probes measure exactly the same node relative to the same ground at the same time, the true phase difference should be approximately:
+Electrically, if both probes measure exactly the same physical node relative to the same ground at the same time, the true phase difference should be approximately:
 
 `0°`
 
-In our same-node control, however, the exported CH1 and CH2 data showed about `-14.5°` difference.
+So if CH1 and CH2 are on the same node, a measured phase difference is not expected to come from the circuit itself.
+
+### Why does a “sample” exist at all?
+
+A digital oscilloscope does not store a perfectly continuous waveform.
+
+Instead, it measures voltage at discrete instants and stores a sequence such as:
+
+`V[0], V[1], V[2], V[3], ...`
+
+The time between neighboring stored points is the sample interval:
+
+`Δt`
+
+For example, if:
+
+`Δt = 4 µs`
+
+then the stored waveform corresponds conceptually to measurements at:
+
+`0 µs, 4 µs, 8 µs, 12 µs, ...`
+
+That is what one **sample step** means.
+
+### What did the same-node control reveal?
+
+In our same-node experiment, both probes were physically connected to the same R8 signal node, so the electrical phase difference should have been approximately zero.
+
+But the exported waveforms behaved approximately like:
+
+`CH1[n] ≈ CH2[n+1]`
+
+rather than:
+
+`CH1[n] ≈ CH2[n]`
+
+So CH2 appeared delayed by approximately **one stored sample** relative to CH1.
 
 At 10 kHz:
 
-`Δt_sample = 4 µs`
+`Δt = 4 µs`
 
-One sample corresponds to:
+and one signal period is:
 
-`360° * 4 µs / 100 µs = 14.4°`
+`T = 100 µs`
+
+Therefore one sample corresponds to:
+
+`360° * 4/100 = 14.4°`
 
 At 1 kHz:
 
-`Δt_sample = 40 µs`
+`Δt = 40 µs`
 
-One sample again corresponds to:
+and:
 
-`360° * 40 µs / 1 ms = 14.4°`
+`T = 1 ms`
 
-Advancing CH2 by one stored sample reduced the same-node phase difference to approximately zero.
+so again:
 
-So that phase was **not a real electrical phase difference**. It was an acquisition/export channel-alignment artifact in those CSV records.
+`360° * 40/1000 = 14.4°`
 
-When CH1 is on R8 and CH2 is on ACS OUT, additional phase difference can be physically real because the ACS724 and its filtering have dynamic response.
+This matched the approximately `-14.5°` apparent phase difference observed in the same-node controls.
+
+When CH2 was advanced by one stored sample in analysis, the same-node phase difference fell to approximately zero.
+
+### Does this mean the circuit created an extra sample?
+
+No.
+
+The “extra sample” is not a physical electrical event in the ACS724 circuit.
+
+It is an observed timing/alignment difference between how the two channels appeared in the stored/exported digital data.
+
+### Why does this one-sample offset exist?
+
+The exact internal cause is **not established**.
+
+Possible mechanisms in a digital oscilloscope can include:
+
+- channels being digitized or processed sequentially rather than perfectly simultaneously;
+- channel-specific ADC or digital-pipeline delay;
+- memory alignment;
+- export/CSV alignment;
+- firmware processing.
+
+However, none of those mechanisms has been proven for this DOS1102S.
+
+The accepted experimental statement is therefore only:
+
+> When both probes measured the same physical signal, the exported CH2 waveform appeared approximately one stored sample behind CH1.
+
+Do not replace that measured fact with an invented internal explanation.
+
+### What this means for future phase measurements
+
+For same-node measurements:
+
+`true electrical phase ≈ 0°`
+
+For CH1-on-R8 and CH2-on-ACS-OUT measurements, additional phase can be physically real because the ACS724 and its filtering have dynamics.
+
+Therefore:
+
+- a same-node phase difference is evidence of measurement-chain timing skew;
+- a current-reference-to-sensor-output phase difference can contain both measurement-chain skew and real sensor/filter dynamics.
+
+The same-node control lets us estimate and correct the known channel-alignment artifact before interpreting the physical phase response.
 
 ---
 
