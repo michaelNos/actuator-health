@@ -463,39 +463,140 @@ The residual can contain noise, harmonics, interference, drift, quantization, an
 
 ## 3. What is apparent transfer? Is it power?
 
-No. The dynamic transfer used here is not power.
+**Apparent transfer** means:
 
-At one frequency:
+> The input-to-output relationship that our measurement setup appears to show, before we have proven that every part of that relationship belongs only to the ACS724 itself.
 
-`H(f) = VOUT_AC(f) / IPRIMARY_AC(f)`
+In this experiment, the **input** is the actual AC current through the ACS724 primary conductor. CH1 measures the voltage across R8, so:
 
-Its units are:
+`I_primary(f) = V_CH1(f) / 67 Ω`
+
+The **output** is the coherent AC component measured at ACS724 OUT with CH2:
+
+`V_OUT(f)`
+
+Therefore:
+
+`H_apparent(f) = V_OUT(f) / I_primary(f)`
+
+Its unit is:
 
 `V/A`
 
-That is a frequency-dependent sensor sensitivity or transfer gain.
+This answers the practical question:
 
-We sometimes say **apparent transfer** because the measured ratio can include:
-
-- the real ACS724 response;
-- FILTER-pin dynamics;
-- noise;
-- measurement uncertainty;
-- acquisition/channel effects.
-
-Until those effects are isolated, the measured number is an estimate of the complete observed chain, not automatically the exact intrinsic sensor sensitivity.
+> For every ampere of current variation at this frequency, how many volts of output variation do we observe?
 
 Example:
 
-`V_CH2,pp = 5.8 mV`
-
 `Ipp = 6.8 mA`
+
+`V_OUT,pp = 5.8 mV`
 
 then:
 
-`|H| = 5.8e-3 / 6.8e-3 ≈ 0.85 V/A`
+`H_apparent = 5.8 mV / 6.8 mA ≈ 0.85 V/A`
 
-No watt unit appears.
+Meaning:
+
+> At that frequency, the complete measured system appears to convert current changes into voltage changes at about 0.85 volts per ampere.
+
+### Why it is called a transfer
+
+A transfer function describes how an input is transferred to an output.
+
+For our measurement:
+
+`input = primary current`
+
+`output = ACS724 OUT voltage`
+
+So the transfer describes both:
+
+- how much the amplitude changes from input to output;
+- how much phase shift appears between input and output.
+
+It is therefore more than a simple scalar gain when phase matters.
+
+### Why we call it apparent
+
+The measured value is not automatically the exact intrinsic sensitivity of the ACS724 itself.
+
+The observed transfer can still contain contributions from:
+
+- the ACS724 Hall sensing element;
+- internal amplifier and compensation dynamics;
+- the FILTER-pin network;
+- probe/scope frequency response;
+- CH1↔CH2 timing skew;
+- noise;
+- finite record length;
+- coherent-fit uncertainty.
+
+Conceptually:
+
+`H_measured = H_physical_sensor+filter × H_measurement_system`
+
+This is why the word **apparent** is useful during validation: it means “this is what the experiment currently makes us observe.”
+
+As controls identify and remove measurement artifacts, the estimate can move closer to the physical sensor/filter transfer.
+
+### Example from the current project
+
+At 10 kHz, the raw measured phase was about:
+
+`-74°`
+
+The same-node control showed that approximately:
+
+`-14.5°`
+
+came from a one-sample CH1↔CH2 acquisition/export offset.
+
+Therefore the original `-74°` phase was an **apparent phase transfer** of the complete measured chain, not purely the ACS724.
+
+After correcting the known timing artifact, the estimate moved closer to the physical response:
+
+`≈ -60°`
+
+This does **not** prove that every remaining degree of phase lag belongs only to the bare ACS724; the physical sensor, FILTER network, and any remaining measurement-chain dynamics still contribute.
+
+### Apparent transfer is not power
+
+No power quantity is being calculated here.
+
+Power would have units such as watts:
+
+`W = V × A`
+
+Our transfer has units:
+
+`V/A`
+
+So this is a frequency-dependent sensitivity/gain, not electrical power.
+
+### Magnitude and phase form
+
+For frequency-domain work, transfer is often written as a complex phasor:
+
+`H(f) = |H(f)| ∠ φ(f)`
+
+For example:
+
+`H(1 kHz) ≈ 0.85 ∠ -18° V/A`
+
+means:
+
+- the measured magnitude is about `0.85 V/A`;
+- the output sinusoid lags the current-reference sinusoid by about `18°`.
+
+So the most useful summary is:
+
+`transfer = input-output relationship`
+
+`apparent transfer = the input-output relationship currently observed by the complete experiment`
+
+That distinction is important until the measurement chain has been fully characterized.
 
 ---
 
