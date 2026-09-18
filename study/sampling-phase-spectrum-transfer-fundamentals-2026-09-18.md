@@ -15,109 +15,282 @@ The current measurement convention is:
 
 ---
 
-## 1. How can I determine Δt, sampling rate, Nyquist frequency, record duration, and captured cycles myself?
+## 1. How can I determine Δt, sampling rate, Nyquist frequency, record duration, and captured cycles myself — before running the measurement?
 
-### The quantities
+The first job is **not to read Δt from a CSV after the experiment**. The goal is to plan the acquisition from the signal frequency, then use the oscilloscope itself to verify that the selected acquisition actually provides the required sample rate.
 
-If consecutive samples are separated by `Δt` seconds, the sample rate is:
+### 1.1 What Δt means
+
+`Δt` is the time between two consecutive stored samples:
+
+`sample n ---- Δt ---- sample n+1 ---- Δt ---- sample n+2`
+
+Sample rate and sample interval are reciprocals:
 
 `fs = 1 / Δt`
 
-If the record contains `N` samples, its approximate duration is:
+therefore:
 
-`Trecord = N * Δt = N / fs`
+`Δt = 1 / fs`
 
-If the signal frequency is `fsig`, its period is:
+Examples:
 
-`Tsig = 1 / fsig`
+- `fs = 25 kSa/s` → `Δt = 1/25000 = 40 µs`
+- `fs = 250 kSa/s` → `Δt = 1/250000 = 4 µs`
 
-Samples per signal cycle:
+So to determine `Δt` yourself, determine the **actual sample rate currently used by the scope**, then take its reciprocal.
 
-`samples_per_cycle = fs / fsig`
+### 1.2 Method A — read the current sample rate from the oscilloscope
 
-Number of captured cycles:
+If the scope shows the current acquisition sample rate, use that value directly.
 
-`cycles = Trecord * fsig`
+For example, if the scope reports:
 
-Nyquist frequency:
+`250 kSa/s`
 
-`fNyquist = fs / 2`
+then:
 
-### Example from our 1 kHz long record
+`Δt = 1/(250000) = 4 µs`
 
-The exported CSV had:
+If it reports:
 
-- `Δt = 40 µs`
-- `N = 10000`
+`25 kSa/s`
 
-Therefore:
+then:
 
-`fs = 1/(40e-6) = 25 kSa/s`
+`Δt = 40 µs`
 
-`Trecord = 10000 * 40 µs = 0.400 s`
+Do not confuse the instrument's advertised **maximum** sample rate with the sample rate of the current acquisition. The scope may reduce the current sample rate when a longer time window is selected.
 
-At 1 kHz:
+### 1.3 Method B — use record length and the actual stored acquisition duration
 
-`samples_per_cycle = 25000/1000 = 25`
+If you know:
 
-`cycles = 0.400 * 1000 = 400`
+- number of stored samples `N`;
+- total duration represented by those stored samples `Trecord`;
 
-Nyquist:
+then approximately:
 
-`fNyquist = 25000/2 = 12.5 kHz`
+`Δt ≈ Trecord / N`
 
-### Example from our 10 kHz improved record
+and:
 
-The exported CSV had:
+`fs ≈ N / Trecord`
 
-- `Δt = 4 µs`
-- `N = 10000`
+More exactly, if the first and last stored samples are both included:
 
-Therefore:
+`Δt = (t_last - t_first)/(N - 1)`
 
-`fs = 250 kSa/s`
+For acquisition planning with 10000 points, the difference between `N` and `N-1` is very small.
+
+Example:
+
+`N = 10000`
 
 `Trecord = 40 ms`
 
+then:
+
+`Δt ≈ 0.040/10000 = 4 µs`
+
+and:
+
+`fs ≈ 250 kSa/s`
+
+### 1.4 Method C — inspect adjacent stored points on the stopped scope display
+
+If the scope allows you to show individual sample dots and zoom deeply into a stopped record:
+
+1. stop acquisition;
+2. display/zoom until individual stored points are visible;
+3. use time cursors between two adjacent points;
+4. the horizontal time difference is approximately `Δt`.
+
+This is the most direct physical interpretation of sample interval.
+
+### 1.5 Why time/div alone is not enough
+
+Suppose the display says:
+
+`20 ms/div`
+
+and there are 10 horizontal divisions.
+
+That tells you the **visible screen width** is:
+
+`10 × 20 ms = 200 ms`
+
+But that does **not automatically prove** that the entire stored 10000-point record is exactly 200 ms long.
+
+The stored acquisition may extend beyond the visible grid, and the instrument can decimate or display only part of stored memory.
+
+Therefore do not calculate:
+
+`Δt = (10 × time/div)/record_length`
+
+unless you have verified that the displayed span and the full stored record are the same thing.
+
+The safe workflow is:
+
+`signal requirement → desired sample rate → scope setting → verify actual fs/record duration on the scope`
+
+### 1.6 How to choose Δt before pressing RUN
+
+Start from the signal frequency.
+
+If the target signal frequency is `fsig`, then its period is:
+
+`Tsig = 1/fsig`
+
+Choose how many samples you want per cycle. For the present phase/waveform work, approximately **20–25 or more samples per cycle** is a useful engineering target, not a universal law.
+
+Then:
+
+`Δt_wanted = Tsig / samples_per_cycle`
+
+and equivalently:
+
+`fs_target = samples_per_cycle × fsig`
+
+#### Example: design the 10 kHz acquisition before measuring
+
+Target:
+
+`fsig = 10 kHz`
+
+Signal period:
+
+`Tsig = 1/10000 = 100 µs`
+
+Choose:
+
+`25 samples/cycle`
+
+Required sample interval:
+
+`Δt_wanted = 100 µs / 25 = 4 µs`
+
+Required sample rate:
+
+`fs_target = 1/4 µs = 250 kSa/s`
+
+So before touching RUN, the target is already known:
+
+`10 kHz → 100 µs/cycle → 4 µs/sample → 250 kSa/s → 25 samples/cycle`
+
+Now set the oscilloscope acquisition/timebase so that the **actual current sample rate** is approximately 250 kSa/s or faster.
+
+### 1.7 Then determine record duration and captured cycles
+
+If the scope stores `N = 10000` points at:
+
+`fs = 250 kSa/s`
+
+then:
+
+`Trecord = N/fs = 10000/250000 = 40 ms`
+
 At 10 kHz:
 
-`samples_per_cycle = 250000/10000 = 25`
+`cycles = Trecord × fsig = 0.040 × 10000 = 400 cycles`
 
-`cycles = 0.040 * 10000 = 400`
+So the complete designed acquisition is:
+
+`10 kHz signal`
+
+`→ 100 µs period`
+
+`→ 4 µs desired sample spacing`
+
+`→ 250 kSa/s sample rate`
+
+`→ 25 samples/cycle`
+
+`→ 10000 samples`
+
+`→ 40 ms record`
+
+`→ 400 captured cycles`
+
+#### Same calculation for 1 kHz
+
+At:
+
+`fsig = 1 kHz`
+
+period:
+
+`Tsig = 1 ms`
+
+For the same 25 samples/cycle:
+
+`Δt_wanted = 1 ms/25 = 40 µs`
+
+`fs_target = 25 kSa/s`
+
+With 10000 samples:
+
+`Trecord = 10000/25000 = 0.4 s`
+
+Captured cycles:
+
+`0.4 × 1000 = 400`
+
+This is why preserving 25 samples/cycle requires a sample interval ten times shorter when the signal frequency becomes ten times higher:
+
+- 1 kHz → `Δt = 40 µs`
+- 10 kHz → `Δt = 4 µs`
+
+### 1.8 After the acquisition, verify what actually happened
+
+After the capture, verify that the scope actually used the intended settings:
+
+1. actual sample rate;
+2. record length;
+3. actual record duration;
+4. resulting samples/cycle;
+5. resulting captured-cycle count.
+
+CSV timestamps can be used later as an independent verification, but they are **not required to understand or plan Δt**.
+
+### 1.9 From Δt to Nyquist
+
+Once `Δt` is known:
+
+`fs = 1/Δt`
+
+and:
+
+`fNyquist = fs/2`
+
+Example with `Δt = 4 µs`:
+
+`fs = 250 kSa/s`
 
 `fNyquist = 125 kHz`
 
-### How to plan it before measuring
+For a 10 kHz signal, this gives:
 
-Do not begin with the scope timebase. Begin with the signal.
+`samples_per_cycle = 250/10 = 25`
 
-1. Choose the highest frequency you want to measure: `fsig`.
-2. Choose a practical number of samples per cycle. For waveform/phase work in this project, about **20–25 or more samples/cycle** is a useful target, not a universal law.
-3. Calculate the desired sample rate:
+This is comfortably above the theoretical two-samples-per-cycle Nyquist boundary and is much more suitable for waveform and phase measurements.
 
-   `fs_target = samples_per_cycle * fsig`
+### 1.10 Bench calculation checklist
 
-4. Choose how many cycles you want to observe: `C`.
-5. Calculate desired record duration:
+Before running a periodic test, write down:
 
-   `Trecord = C / fsig`
+1. `fsig = ?`
+2. `Tsig = 1/fsig = ?`
+3. desired samples/cycle = ?
+4. `Δt_wanted = Tsig/samples_per_cycle = ?`
+5. `fs_target = 1/Δt_wanted = ?`
+6. record length `N = ?`
+7. `Trecord = N/fs = ?`
+8. captured cycles `= Trecord × fsig = ?`
+9. Nyquist `= fs/2 = ?`
+10. verify the actual `fs` on the oscilloscope before accepting the measurement.
 
-6. Required record length:
-
-   `Nrequired = fs_target * Trecord = samples_per_cycle * C`
-
-This exposes the trade-off. With finite memory, you cannot simultaneously demand an arbitrarily long record and arbitrarily high sample rate.
-
-For the DOS1102S, the manufacturer specifies a maximum record length around 10 kpoints. The actual sampling rate depends on acquisition/timebase settings. In our CSV evidence, `20 ms/div` produced `Δt = 40 µs` and `2 ms/div` produced `Δt = 4 µs`. Do **not** assume that `10 horizontal divisions × time/div` equals the entire exported record; verify the instrument's sample-rate/record information or the exported timestamps.
-
-A good independent bench habit is to keep a small scope acquisition table:
-
-| Timebase | N | measured Δt | fs | record duration |
-| --- | ---: | ---: | ---: | ---: |
-| 20 ms/div | 10000 | 40 µs | 25 kSa/s | 400 ms |
-| 2 ms/div | 10000 | 4 µs | 250 kSa/s | 40 ms |
-
-Then you can choose settings intentionally before the next run and verify them after capture.
+That is the manual acquisition-design process to use even if ChatGPT does not exist.
 
 ---
 
