@@ -292,6 +292,122 @@ Before running a periodic test, write down:
 
 That is the manual acquisition-design process to use even if ChatGPT does not exist.
 
+
+### 1.11 How do I decide how many samples per cycle I want?
+
+There is no single correct number. The choice depends on **what you want to learn from the waveform**.
+
+Nyquist gives only the theoretical minimum:
+
+`fs > 2 * fsig`
+
+which means a little more than two samples per cycle for an ideally band-limited sinusoid. That may be enough to avoid the most basic aliasing condition, but it is **not a good engineering target** for measuring amplitude, phase, waveform shape, or harmonics.
+
+A practical way to think about it is:
+
+| Measurement goal | Practical starting point |
+| --- | ---: |
+| Detect that a periodic signal exists | about 5–10 samples/cycle |
+| Reasonable amplitude estimate | about 10–20 samples/cycle |
+| Amplitude and phase | about **20–25+ samples/cycle** |
+| Waveform shape / distortion | about 25–50+ samples/cycle |
+| Higher harmonics / fast edges | often much higher |
+
+These are engineering guidelines, not mathematical laws.
+
+For the present ACS724 transfer-function work we care about:
+
+- coherent amplitude;
+- relative phase;
+- distortion/harmonics;
+- repeatable fitting;
+- enough captured cycles for noise rejection.
+
+Therefore **25 samples/cycle** is a useful working target.
+
+#### Example at 10 kHz
+
+Signal period:
+
+`Tsig = 1/10000 = 100 µs`
+
+Choose:
+
+`25 samples/cycle`
+
+Then:
+
+`Δt = 100 µs / 25 = 4 µs`
+
+and:
+
+`fs = 1/4 µs = 250 kSa/s`
+
+With a 10000-point record:
+
+`Trecord = 10000/250000 = 40 ms`
+
+Captured cycles:
+
+`40 ms * 10 kHz = 400 cycles`
+
+So this one choice gives both:
+
+- 25 samples/cycle for waveform and phase resolution;
+- 400 captured cycles for coherent averaging/fitting.
+
+#### The trade-off with fixed record memory
+
+If record length is fixed, increasing samples per cycle increases sample rate and therefore shortens total observation time.
+
+At 10 kHz with 10000 stored points:
+
+**5 samples/cycle**
+
+`fs = 50 kSa/s`
+
+`Trecord = 200 ms`
+
+`cycles = 2000`
+
+This gives many cycles, but poor representation of each cycle.
+
+**25 samples/cycle**
+
+`fs = 250 kSa/s`
+
+`Trecord = 40 ms`
+
+`cycles = 400`
+
+This is a good compromise for our amplitude/phase work.
+
+**100 samples/cycle**
+
+`fs = 1 MSa/s`
+
+`Trecord = 10 ms`
+
+`cycles = 100`
+
+This gives excellent detail within each cycle, but a much shorter observation window.
+
+Therefore the acquisition-design trade-off is:
+
+`more samples/cycle ↔ shorter record`
+
+when record memory is fixed.
+
+The practical decision sequence is:
+
+`measurement goal → choose samples/cycle → calculate fs → calculate Δt → calculate Trecord → check captured-cycle count`
+
+For the current ACS724 work:
+
+`amplitude + phase + coherent extraction → about 25 samples/cycle`
+
+That is why 25 samples/cycle was selected for the 1 kHz and 10 kHz dynamic measurements.
+
 ---
 
 ## 2. Is residual noise equal to ACS724 OUT minus IP−? Should CH1 and CH2 be equal?
