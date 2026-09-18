@@ -656,40 +656,250 @@ Also, this is not an **impulse**. An impulse is a short transient event. We are 
 
 ---
 
-## 6. How can I analyze spectrum and harmonics manually?
+## 6. How can I calculate spectrum and harmonics manually on paper?
 
-Use the scope's FFT function or MATLAB/another numerical tool.
+If you want to calculate the spectrum yourself from measured samples, without using the oscilloscope FFT function, you are doing a small **DFT/Fourier calculation by hand**.
 
-### On the oscilloscope
+For this project you usually do not need to calculate the entire spectrum. If the AFG is set to `1 kHz`, you can calculate selected components directly:
 
-1. Select FFT/math mode.
-2. Choose the source channel.
-3. Use a suitable frequency span so the fundamental and several harmonics are visible.
-4. Identify the fundamental `f0`.
-5. Look at integer multiples:
+`1 kHz, 2 kHz, 3 kHz, 4 kHz, ...`
 
-   `2f0, 3f0, 4f0, ...`
+one harmonic at a time.
 
-For a 1 kHz stimulus:
+### 6.1 Start with measured samples
 
-- fundamental = 1 kHz
-- second harmonic = 2 kHz
-- third = 3 kHz
-- fourth = 4 kHz
+Suppose you have `N` equally spaced samples:
 
-Use frequency/amplitude cursors to read the peaks.
+`x0, x1, x2, ..., x(N-1)`
 
-### Important FFT ideas
+with sample interval:
 
-Frequency-bin spacing is approximately:
+`Δt`
 
-`Δf = fs/N = 1/Trecord`
+Sample `n` occurred at:
 
-A longer record gives finer frequency resolution.
+`tn = n * Δt`
 
-If the record does not contain an integer number of cycles, energy can spread into nearby bins. This is spectral leakage. A window such as Hanning/Hann reduces leakage but changes spectral shape and amplitude scaling.
+First calculate the DC/mean value:
 
-For quantitative work, keep the FFT settings and window documented. For a first manual inspection, first identify which peaks are stable and whether they occur at the expected harmonics.
+`VDC = (1/N) * Σ x_n`
+
+Then remove it:
+
+`y_n = x_n - VDC`
+
+Now `y_n` contains only the varying part of the waveform.
+
+### 6.2 Ask whether the waveform contains a chosen frequency
+
+Choose a frequency `f`.
+
+For every sample calculate:
+
+`θ_n = 2π f t_n`
+
+Then calculate the sine projection:
+
+`S_f = (2/N) * Σ [y_n * sin(θ_n)]`
+
+and the cosine projection:
+
+`C_f = (2/N) * Σ [y_n * cos(θ_n)]`
+
+These two sums answer:
+
+> How much of the measured waveform points in the sine direction and how much points in the cosine direction at frequency f?
+
+From them calculate the peak amplitude:
+
+`A_pk = sqrt(S_f^2 + C_f^2)`
+
+and peak-to-peak amplitude:
+
+`A_pp = 2 * A_pk`
+
+Using the phase convention adopted in this project:
+
+`φ = atan2(C_f, S_f)`
+
+This is the hand-calculation equivalent of extracting one Fourier component.
+
+### 6.3 Small paper example
+
+Take eight equally spaced samples of one ideal sine period:
+
+| n | angle | measured x_n |
+| ---: | ---: | ---: |
+| 0 | 0° | 0 |
+| 1 | 45° | 0.707 |
+| 2 | 90° | 1 |
+| 3 | 135° | 0.707 |
+| 4 | 180° | 0 |
+| 5 | 225° | -0.707 |
+| 6 | 270° | -1 |
+| 7 | 315° | -0.707 |
+
+The mean is:
+
+`VDC = 0`
+
+For the fundamental, multiply every measured sample by the sine at the same angle:
+
+`x_n * sin(θ_n)`
+
+The products are approximately:
+
+`0, 0.5, 1, 0.5, 0, 0.5, 1, 0.5`
+
+Sum:
+
+`Σ x_n sin(θ_n) = 4`
+
+Therefore:
+
+`S_1 = (2/8) * 4 = 1`
+
+Now do the cosine projection:
+
+`C_1 = (2/8) * Σ [x_n cos(θ_n)]`
+
+For this ideal sine the positive and negative cosine contributions cancel:
+
+`C_1 = 0`
+
+Therefore:
+
+`A_pk = sqrt(1^2 + 0^2) = 1`
+
+and:
+
+`A_pp = 2 V`
+
+Phase:
+
+`φ = atan2(0,1) = 0°`
+
+So the manual calculation reconstructs the original sine:
+
+`1 Vpk, 2 Vpp, 0°`
+
+### 6.4 Calculate a harmonic using the same samples
+
+To calculate the third harmonic, use the **same measured samples**, but test frequency:
+
+`f = 3 f0`
+
+Then:
+
+`S_3 = (2/N) * Σ [y_n sin(2π * 3f0 * t_n)]`
+
+`C_3 = (2/N) * Σ [y_n cos(2π * 3f0 * t_n)]`
+
+and:
+
+`A_3,pk = sqrt(S_3^2 + C_3^2)`
+
+For the ideal sine above, those terms cancel, so:
+
+`A_3 ≈ 0`
+
+because the waveform contains no third harmonic.
+
+If a measured distorted waveform gave:
+
+`A_1 = 1.00 V`
+
+`A_2 = 0.02 V`
+
+`A_3 = 0.10 V`
+
+`A_4 = 0.01 V`
+
+then the waveform would contain a strong fundamental and a noticeable third harmonic.
+
+### 6.5 How this becomes a spectrum
+
+Repeat the same calculation at many frequencies.
+
+For harmonics:
+
+`f1 = f0`
+
+`f2 = 2f0`
+
+`f3 = 3f0`
+
+and so on.
+
+Then plot:
+
+- horizontal axis = frequency;
+- vertical axis = calculated amplitude.
+
+That plotted set of amplitudes is the spectrum.
+
+### 6.6 Frequency bins
+
+For a full DFT, the natural bin spacing is:
+
+`Δf = fs/N`
+
+Because:
+
+`Trecord = N/fs`
+
+we can also write:
+
+`Δf = 1/Trecord`
+
+Example:
+
+`Trecord = 40 ms`
+
+then:
+
+`Δf = 1/0.040 = 25 Hz`
+
+So the DFT bins occur at:
+
+`0, 25, 50, 75, ... Hz`
+
+A 10 kHz component corresponds to:
+
+`k = 10000/25 = 400`
+
+So the 10 kHz spectral component asks:
+
+> How strongly do the measured samples correlate with a 10 kHz sine and a 10 kHz cosine?
+
+### 6.7 The physical idea behind the calculation
+
+For each frequency of interest:
+
+1. generate the corresponding sine values;
+2. multiply the measured waveform by those sine values and sum;
+3. generate the corresponding cosine values;
+4. multiply the measured waveform by those cosine values and sum;
+5. combine the two results into magnitude and phase.
+
+If the products mostly cancel:
+
+`little component at that frequency`
+
+If they reinforce:
+
+`strong component at that frequency`
+
+The FFT performs essentially this Fourier decomposition very efficiently for many frequencies at once.
+
+For learning on paper, do **not** start with 10000 samples. Use perhaps 8 or 16 samples of a simple waveform and calculate:
+
+- DC;
+- fundamental;
+- second harmonic;
+- third harmonic.
+
+Once those calculations are clear, the FFT is no longer a black box.
 
 ---
 
