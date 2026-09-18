@@ -58,6 +58,8 @@ Keep chat explanations brief; use the study notes for the fuller explanation, pr
 
 - [`mcp6022-pinout-and-fixture.md`](mcp6022-pinout-and-fixture.md) — physical pin orientation, all eight pin functions, supply connections, and how the two amplifiers implement the fixture.
 
+- [`sampling-phase-spectrum-transfer-fundamentals-2026-09-18.md`](sampling-phase-spectrum-transfer-fundamentals-2026-09-18.md) — practical calculation of sample interval/rate, Nyquist and record planning, residuals, manual phase measurement, sine/cosine fitting, FFT/harmonics, dB, complex transfer phasors, FILTER corner behavior, scope channel skew, normalized frequency response, and ACS724 dynamic timing terms.
+
 ## Initial study queue
 
 The current project hardware provides the initial learning queue. Notes should be added when each item becomes relevant rather than attempting to study everything at once.
