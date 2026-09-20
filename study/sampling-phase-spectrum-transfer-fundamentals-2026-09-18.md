@@ -40,6 +40,58 @@ Examples:
 
 So to determine `Δt` yourself, determine the **actual sample rate currently used by the scope**, then take its reciprocal.
 
+### 1.1A Project-specific DOS1102S operating rule — 10K depth is fixed
+
+For the current Actuator Health Monitoring System bench workflow, **record depth is fixed at 10K points**. The operator should not be instructed to “set Δt”. The oscilloscope screen control available before acquisition is the horizontal main timebase:
+
+`M: ... ms/div`
+
+From repeated CSV captures with this exact DOS1102S setup, the stored 10K record spans approximately:
+
+`Trecord ≈ 20 × M`
+
+where `M` is the displayed main timebase in seconds per division.
+
+Therefore, with `N = 10000` fixed:
+
+`Δt ≈ Trecord/N = (20 × M)/10000`
+
+For the convenient units used on the screen:
+
+`Δt [µs] ≈ 2 × M [ms/div]`
+
+and equivalently:
+
+`fs [kSa/s] ≈ 500 / M [ms/div]`
+
+Examples established on this bench:
+
+| DOS1102S screen setting | Fixed depth | Approx. stored Δt | Approx. sample rate |
+| --- | ---: | ---: | ---: |
+| `M: 20 ms/div` | 10K | `40 µs` | `25 kSa/s` |
+| `M: 5 ms/div` | 10K | `10 µs` | `100 kSa/s` |
+| `M: 2 ms/div` | 10K | `4 µs` | `250 kSa/s` |
+
+This is an **empirical project-specific rule for the current DOS1102S configuration**, not a universal oscilloscope law. It comes from the actual exported records.
+
+#### Future bench-instruction rule
+
+For this project:
+
+- keep **Depth = 10K** unless an explicit engineering reason is approved to change it;
+- when planning a capture, give the operator the **screen setting** to use, for example `M: 2 ms/div`;
+- do **not** ask the operator to “set Δt = 4 µs” because Δt is not the direct front-panel setting;
+- Δt may still be calculated in the explanation, but the actionable instruction must be the DOS1102S `M: ... ms/div` setting;
+- after acquisition, verify the actual CSV timestamps/sample interval as a check.
+
+For the current 10 kHz / ~25-samples-per-cycle requirement, the bench instruction is therefore:
+
+`Set M: 2 ms/div, Depth: 10K.`
+
+not:
+
+`Set Δt = 4 µs.`
+
 ### 1.2 Method A — read the current sample rate from the oscilloscope
 
 If the scope shows the current acquisition sample rate, use that value directly.
@@ -108,31 +160,29 @@ If the scope allows you to show individual sample dots and zoom deeply into a st
 
 This is the most direct physical interpretation of sample interval.
 
-### 1.5 Why time/div alone is not enough
+### 1.5 Why the visible grid alone is not enough — and what we now know for this scope
 
-Suppose the display says:
+A generic oscilloscope rule such as:
 
-`20 ms/div`
+`Δt = (10 horizontal divisions × time/div)/record_length`
 
-and there are 10 horizontal divisions.
+must **not** be assumed without verification. The visible grid width and the complete stored-memory span are not necessarily the same.
 
-That tells you the **visible screen width** is:
+For this DOS1102S bench configuration, however, repeated exported 10K records have established an empirical relationship:
 
-`10 × 20 ms = 200 ms`
+`Trecord ≈ 20 × M`
 
-But that does **not automatically prove** that the entire stored 10000-point record is exactly 200 ms long.
+not `10 × M`.
 
-The stored acquisition may extend beyond the visible grid, and the instrument can decimate or display only part of stored memory.
+Therefore, while `M` alone is not universally enough on an arbitrary oscilloscope, it **is operationally usable here because the 10K depth is fixed and the 20 × M record-span relationship has been verified from our own CSVs**.
 
-Therefore do not calculate:
+The project workflow is now:
 
-`Δt = (10 × time/div)/record_length`
+`signal requirement → choose required sampling quality → convert to DOS1102S M setting → acquire at fixed 10K → verify CSV Δt afterward`
 
-unless you have verified that the displayed span and the full stored record are the same thing.
+The operator-facing instruction should stop at the actual screen control:
 
-The safe workflow is:
-
-`signal requirement → desired sample rate → scope setting → verify actual fs/record duration on the scope`
+`M: ... ms/div`
 
 ### 1.6 How to choose Δt before pressing RUN
 
