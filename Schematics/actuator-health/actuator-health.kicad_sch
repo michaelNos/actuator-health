@@ -1292,6 +1292,26 @@
 			(embedded_fonts no)
 		)
 	)
+	(text_box "MCP6022 PDIP-8 PIN ORIENTATION — TOP VIEW\n\n          NOTCH / DOT\n             ↓\n        ┌─────────┐\n OUT A  │1       8│ VDD (+5 V)\n −IN A  │2       7│ OUT B\n +IN A  │3       6│ −IN B\n VSS    │4       5│ +IN B\n        └─────────┘\n\nIMPORTANT:\n• Pin numbering runs COUNTER-CLOCKWISE when viewed from the TOP.\n• Left side, top → bottom: 1, 2, 3, 4\n• Right side, top → bottom: 8, 7, 6, 5\n• Top-right physical leg = pin 8 = VDD\n• Bottom-right physical leg = pin 5 = +IN B\n• Pin 4 = VSS / GND\n• Pin 8 = VDD / +5 V\n\nDo not number the right side top → bottom as 5, 6, 7, 8."
+		(exclude_from_sim no)
+		(at 17.78 82.55 0)
+		(size 54.61 49.5299)
+		(margins 0.9525 0.9525 0.9525 0.9525)
+		(stroke
+			(width 0)
+			(type solid)
+		)
+		(fill
+			(type none)
+		)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left top)
+		)
+		(uuid "beb99017-c061-40af-a911-e8a1a905b72e")
+	)
 	(text_box "Pololu #4048 carrier includes the stock 1 nF FILTER capacitor. No external FILTER capacitor installed. Symbol pin numbers 1-6 are project-defined module identifiers, not IC pin numbers."
 		(exclude_from_sim no)
 		(at 195.58 90.7432 0)
@@ -1311,6 +1331,26 @@
 			(justify left top)
 		)
 		(uuid "d3365c02-e3d1-4b56-a3dc-8321da07f00e")
+	)
+	(text_box "SUPPLY DECOUPLING / BULK CAPACITANCE\n\nThe 100 nF capacitor close to MCP6022 pins 8 (VDD) and 4 (VSS)\nprovides local high-frequency decoupling and suppresses fast supply\ntransients.\n\nAdditional bulk capacitance provides a local energy reservoir for slower\nsupply variations and load changes. It helps prevent the +5 V rail from\ndrooping or moving because of breadboard wiring resistance/inductance,\nlong leads, or transient current demand.\n\nThe two functions are complementary:\n• 100 nF local bypass → fast / high-frequency disturbances\n• bulk capacitance     → slower / larger supply variations\n\nFor the temporary fixture, multiple 100 nF capacitors may be paralleled\nto obtain the required bulk capacitance when a larger capacitor is not\navailable.\n10 × 100 nF in parallel ≈ 1 µF nominal bulk capacitance."
+		(exclude_from_sim no)
+		(at 165.1 33.02 0)
+		(size 76.2 41.91)
+		(margins 0.9525 0.9525 0.9525 0.9525)
+		(stroke
+			(width 0)
+			(type solid)
+		)
+		(fill
+			(type none)
+		)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left top)
+		)
+		(uuid "daafc86b-5b5e-4a02-a475-d8aec466a2af")
 	)
 	(junction
 		(at 158.75 48.26)
