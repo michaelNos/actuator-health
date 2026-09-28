@@ -31,13 +31,13 @@ RREF_OHM = 67.0
 
 def parse_time_interval(text: str) -> float:
     text = text.strip()
-    units = {
-        "s": 1.0,
-        "ms": 1e-3,
-        "us": 1e-6,
-        "ns": 1e-9,
-    }
-    for suffix, scale in units.items():
+    units = [
+        ("ms", 1e-3),
+        ("us", 1e-6),
+        ("ns", 1e-9),
+        ("s", 1.0),
+    ]
+    for suffix, scale in units:
         if text.lower().endswith(suffix):
             return float(text[: -len(suffix)]) * scale
     raise ValueError(f"Unsupported time interval: {text!r}")
