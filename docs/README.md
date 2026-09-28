@@ -69,3 +69,13 @@ Where practical, work remains traceable as:
 Only explicitly approved decisions are baselined. Unknown values remain `TBD` until calculated, measured, or otherwise justified.
 
 One engineering phase normally uses one branch and one pull request. During design, product decisions are committed as approved; verification details may be consolidated when they are procedural rather than independent design choices.
+
+
+## Stage B evidence index
+
+Current Stage-B ACS724 dynamic-characterization closure:
+
+- [ACS724 post-fix dynamic characterization and AFE handoff — 2026-09-28](evidence/acs724-postfix-dynamic-characterization-and-afe-handoff-2026-09-28.md)
+- [2026-09-28 dynamic-analysis dataset manifest](evidence/analysis/2026-09-28/README.md)
+
+The 2026-09-28 report closes the present raw-sensor dynamic campaign without freezing a final AC calibration or final FILTER value. The next implementation activity is independent AFE bring-up.
