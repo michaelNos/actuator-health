@@ -108,3 +108,53 @@ With power disconnected when repositioning the IC, place the package across the 
 For voltage measurements, name both points explicitly, for example **“MCP6022 pin 7 relative to circuit GND.”** Record the instrument and whether the quantity is DC, RMS, or peak-to-peak.
 
 Continue with [oscilloscope acquisition and triggering](oscilloscope-acquisition-and-triggering.md) to understand how those voltages become waveform records.
+
+
+---
+
+## 2026-09-28 bench correction — right-side numbering must be read bottom-to-top
+
+A later 5 kHz troubleshooting session exposed a practical package-orientation error. The right side had temporarily been *named* as though its pins were 5, 6, 7, 8 from top to bottom. That is incorrect.
+
+With the notch at the top in top view:
+
+```text
+          notch
+            ↓
+      ┌─────────┐
+  1   │         │   8  ← top-right = VDD
+  2   │         │   7
+  3   │         │   6
+  4   │         │   5  ← bottom-right = +IN B
+      └─────────┘
+```
+
+The supply appeared to work during that mistake because the wire described verbally as going to “pin 5” was actually connected to the **top-right physical leg**, which is real **pin 8 = VDD**. The physical connection was correct even though the spoken number was wrong.
+
+Consequently, temporary troubleshooting conclusions that depended on the incorrectly named right-side pins were discarded. After the package was interpreted correctly, the fixture returned to normal operation, including approximately 2.1 Vpp at the channel-A driver output during the 5 kHz test.
+
+### Bench communication rule
+
+Until package orientation is unambiguous, identify a point by **physical location + actual pin number + function**, for example:
+
+- “top-right physical leg = pin 8 = VDD”;
+- “bottom-right physical leg = pin 5 = +IN B”.
+
+This prevents a correct physical wire from being diagnosed incorrectly because of a wrong pin name.
+
+### Bulk capacitance versus the 100 nF bypass
+
+The local 100 nF capacitor directly between pins 8 and 4 is a high-frequency bypass and should remain close to the IC.
+
+Additional capacitance may be placed in parallel across the supply rails to provide more local stored charge for slower/larger rail disturbances. Parallel capacitances add:
+
+`C_total = C1 + C2 + ...`
+
+For example, ten 100 nF capacitors in parallel give approximately 1 µF nominal.
+
+The functions are complementary:
+
+- local 100 nF: fast/high-frequency supply decoupling;
+- added bulk capacitance: slower/larger supply variation.
+
+Bulk capacitance does not make the local bypass unnecessary.
