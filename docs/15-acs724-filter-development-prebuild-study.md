@@ -1,8 +1,23 @@
 # Phase 3 Extension — ACS724 FILTER Development: Theory, Prediction, and Pre-Build Record
 
-**Status:** UNDERSTAND + PREDICT complete; BUILD not started  
+**Status:** Historical pre-build study; BUILD/MEASURE work subsequently executed. See the 2026-09-28 post-fix characterization report for current evidence.  
 **Project:** Actuator Health Monitoring System  
 **Date:** 2026-09-08
+
+## Post-build evidence handoff — 2026-09-28
+
+This file preserves the theory and predictions made before the FILTER experiments. It must not be rewritten to make those predictions look retrospectively correct.
+
+The later corrected-ground measurement campaign is documented in:
+
+- [ACS724 post-fix dynamic characterization and AFE handoff](evidence/acs724-postfix-dynamic-characterization-and-afe-handoff-2026-09-28.md)
+
+Current engineering disposition from that campaign:
+
+- the external 4.7 nF capacitor remains a **provisional** Stage-B candidate;
+- larger diagnostic capacitors reduced broadband variation but would move the simple FILTER corner into or below the formal DC–10 kHz diagnostic band;
+- no final FILTER value or precision ACS724 AC transfer has been frozen;
+- independent AFE bring-up is the next development step.
 
 ## Purpose
 
