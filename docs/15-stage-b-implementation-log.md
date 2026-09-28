@@ -177,24 +177,182 @@ This is a prediction only. The actual value has not yet been measured with motor
 
 ---
 
-## Immediate next action
+## Historical next action after B-009
 
-Establish the high-current path with PSU output OFF:
+At this point the planned next action was to route motor current through the ACS724 and perform a DC comparison. That action was subsequently completed and superseded by the later Stage-B work recorded below.
 
-`PSU+ → ACS724 IP+ → ACS724 IP− → motor → PSU−`
+---
 
-Keep the ACS724 signal side powered separately from the Arduino 5 V/GND arrangement.
+## B-010 — ACS724 DC calibration completed
 
-Before startup-waveform work, first validate the DC transfer by recording:
+A controlled resistor-load calibration established the bench transfer:
 
-- motor-off zero-current output `V0`
-- steady-running output `V_RUN`
-- simultaneous PSU current indication
+`VOUT = 0.46910 + 0.74472·I`
 
-Then calculate the first sensor-derived current using the nominal sensitivity:
+with `VOUT` in volts and `I` in amperes.
 
-`I = (V_RUN - V0) / 0.8`
+Inverse:
 
-and compare it with the PSU indication.
+`I = (VOUT - 0.46910)/0.74472`
 
-Only after this DC check succeeds should the oscilloscope be used to capture the true ACS724 output waveform during motor startup.
+Coefficient of determination:
+
+`R² ≈ 0.999997`
+
+over the measured low-current interval up to approximately 0.208 A.
+
+This is the practical calibration of this bench sensor under the recorded conditions. It does not imply full 0–5 A production calibration or temperature invariance.
+
+A later motor check gave approximately 34.8 mA sensor-derived current against an approximately 35 mA PSU indication. The PSU display is not treated as a precision reference.
+
+---
+
+## B-011 — Temporary MCP6022 positive-current stimulus fixture
+
+A temporary MCP6022 fixture was built because the AFG did not provide a usable DC-offset function for the required positive-only ACS724 stimulus.
+
+The fixture is **not** the frozen Rev-1 AFE. It exists only for Stage-B dynamic sensor characterization.
+
+Key configuration:
+
+- MCP6022 pin 8 = +5 V;
+- pin 4 = GND;
+- 100 nF local bypass between pins 8 and 4;
+- channel B buffers the reference;
+- channel A implements an approximately unity-ratio biased inverting driver;
+- driver output → 220 Ω → ACS724 IP+ → IP− → R8 = 67 Ω → GND;
+- CH1 measures R8;
+- CH2 measures ACS724 OUT.
+
+During 2026-09-28 troubleshooting, a physical package-numbering mistake was identified: the right-hand side of a PDIP-8 is 8, 7, 6, 5 from top to bottom in top view. Earlier temporary diagnoses that depended on incorrectly named right-side pins are invalid. After correcting orientation, the 5 kHz stimulus returned to approximately 2.1 Vpp at MCP6022 pin 1 and approximately 0.5 Vpp raw across R8.
+
+---
+
+## B-012 — ACS724 FILTER candidate and corrected ground connection
+
+The carrier stock FILTER capacitance is approximately 1 nF. The current experimental addition is 4.7 nF from FILTER to GND, giving approximately 5.7 nF total.
+
+Using the approximate internal FILTER resistance 1.8 kΩ:
+
+`fc ≈ 1/(2π·1.8 kΩ·5.7 nF) ≈ 15.5 kHz`
+
+A physical FILTER-ground connection problem was found and corrected during the characterization campaign.
+
+After the correction, larger diagnostic capacitances clearly reduced broadband CH2 variation. However:
+
+- +10 nF gives an approximate simple corner near 8 kHz;
+- +22 nF gives approximately 3.8 kHz;
+- +100 nF gives approximately 0.88 kHz.
+
+Because the formal diagnostic band is DC–10 kHz, the larger values are not accepted merely for producing a quieter trace.
+
+**Disposition:** +4.7 nF remains the provisional Stage-B FILTER candidate. Final selection is deferred to complete analog-chain verification.
+
+---
+
+## B-013 — Corrected dynamic characterization through 10 kHz
+
+The corrected post-fix campaign used coherent sine fitting rather than raw scope Vpp.
+
+For target frequency `f`:
+
+`v(t) = VDC + A sin(2πft) + B cos(2πft)`
+
+`Vpp = 2 sqrt(A²+B²)`
+
+`Ipp = VCH1,pp / 67 Ω`
+
+`H(f) = VCH2(f) / Iprimary(f)`
+
+Main repeated-set complex averages:
+
+- 1 kHz: approximately **0.886 ∠ -6.5° V/A**;
+- 5 kHz: approximately **0.871 ∠ -23.3° V/A**;
+- 7.5 kHz: approximately **0.735 ∠ -36.5° V/A**;
+- 10 kHz: approximately **0.803 ∠ -50.3° V/A**.
+
+These values are descriptive repeated-set results, not accepted final AC calibration constants.
+
+Primary-current excitation was highly stable. Typical CH2 coherent signal was only approximately 4–7 mVpp while CH2 residual RMS was approximately 13–15 mV.
+
+A 7.5 kHz ten-run block showed a large magnitude change between its first and second halves. An interleaved 5 → 7.5 → 10 → 5 → 7.5 → 10 kHz sequence did not show a common monotonic time/warm-up trend. The limiting uncertainty is therefore concentrated in the small CH2 coherent estimate rather than in primary-current repeatability.
+
+Detailed evidence: [post-fix dynamic characterization report](evidence/acs724-postfix-dynamic-characterization-and-afe-handoff-2026-09-28.md).
+
+---
+
+## B-014 — Scope phase-skew and feedthrough controls
+
+### Same-node timing control
+
+Both probes were connected to the same R8 node.
+
+Observed raw CH2−CH1 phase:
+
+- 10 kHz / 4 µs sample interval: approximately -13.92°;
+- 1 kHz / 40 µs sample interval: approximately -14.79°.
+
+One stored sample corresponds to 14.4° in both of those specific cases. Advancing CH2 by one sample reduced the same-node phase to approximately +0.48° at 10 kHz and -0.39° at 1 kHz.
+
+Accepted statement:
+
+**The DOS1102S exported CH2 waveform appears approximately one stored sample behind CH1 in the tested modes. The internal cause is unknown.**
+
+### Open-primary feedthrough
+
+With the primary path open but AFG/MCP6022 operating:
+
+- 1 kHz CH2 coherent component ≈ 0.0635 mVpp;
+- 5 kHz ≈ 0.0132 mVpp;
+- 10 kHz ≈ 0.0734 mVpp.
+
+These are far smaller than the current-on several-millivolt coherent response and are deeply buried in their own residual variation.
+
+Conclusion:
+
+**Direct AFG/MCP6022 feedthrough is not a plausible dominant explanation for the current-on coherent CH2 signal.**
+
+---
+
+## B-015 — Raw-sensor dynamic campaign closure
+
+The campaign established:
+
+- a working positive-current fixture;
+- stable primary-current reference;
+- corrected FILTER grounding;
+- practical acquisition settings through 10 kHz;
+- coherent-fit analysis;
+- measured one-sample CH2 CSV timing skew;
+- negligible direct stimulus-generator feedthrough;
+- a clear raw-output SNR/repeatability limitation.
+
+The campaign did **not** establish:
+
+- final ACS724 AC sensitivity;
+- unique intrinsic sensor phase/pole model;
+- final FILTER capacitance;
+- final end-to-end measurement-chain bandwidth.
+
+Collecting more identical raw-sensor captures is not expected to resolve the remaining uncertainty efficiently.
+
+---
+
+## Immediate next action — AFE bring-up
+
+Proceed to **independent Analog Front End bring-up and validation**.
+
+Do not connect the ACS724 to the AFE as the first test.
+
+Start from the frozen AFE design and:
+
+1. identify each stage and component role;
+2. verify power and DC operating points;
+3. predict low-frequency gain and designed filter response;
+4. apply a known clean input stimulus;
+5. measure AFE input and output simultaneously;
+6. verify gain, phase/roll-off, stability, and clipping margin;
+7. only after the AFE behaves as designed connect `ACS724 OUT → AFE`;
+8. then proceed toward deterministic RA4M1 ADC acquisition.
+
+Reason: the raw ACS724 experiment has isolated the next bottleneck as signal conditioning / measurement-chain SNR rather than stimulus instability. The AFE is the designed subsystem responsible for conditioning the sensor signal before ADC integration.
