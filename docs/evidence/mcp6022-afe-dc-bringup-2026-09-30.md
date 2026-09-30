@@ -531,3 +531,21 @@ Measured magnitude ratio from displayed Vpp values:
 Both waveforms are visibly sinusoidal and unclipped. This is the first valid low-frequency AC transfer point through the complete Rev-1 AFE path. The screenshot does not provide a quantified phase measurement, so no numerical phase value is accepted from this capture.
 
 Engineering result: **1 kHz AFE magnitude gate PASS**.
+
+
+### 5 kHz AFE check — not accepted
+
+With CH1 at the actual R1 input and CH2 at MCP6022 pin 7 / TP_AFE, the AFG frequency was changed to 5 kHz with all other conditions unchanged.
+
+Observed from the scope image:
+
+- CH1: 504 mVpp, 5.000 kHz, mean about 414.2 mV.
+- CH2: 380 mVpp, 5.000 kHz, mean about 434.2 mV.
+
+Measured magnitude ratio:
+
+`380 / 504 ≈ 0.754`, equivalent to about `-2.45 dB`.
+
+For the present implementation, using 10 kOhm in the low-Q section while retaining the intended capacitor values and high-Q stage, the predicted complete AFE magnitude at 5 kHz remains approximately unity (about 0.999, roughly -0.01 dB). Therefore the observed -2.45 dB is not accepted as valid designed behavior.
+
+Next diagnostic: keep CH1 at the R1 input and move CH2 from pin 7 to MCP6022 pin 1 / OUTA to measure the low-Q stage alone. This will localize whether the excessive attenuation appears already in stage A or is introduced in the high-Q stage.
