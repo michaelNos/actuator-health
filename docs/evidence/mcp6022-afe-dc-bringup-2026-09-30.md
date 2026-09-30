@@ -402,3 +402,16 @@ With a ~4.8–4.9 V supply, that intended divider should produce only about 0.44
 A node near 4.5 V instead indicates that the effective divider ratio is strongly weighted toward +5 V. Possible causes include swapped resistor values/positions, a wrong resistor value, or a missing/high-resistance ground-side path.
 
 Next diagnostic: power off and verify the two divider resistors individually, preferably with one leg of each isolated from the common node, before reconnecting the AFG/coupling network.
+
+
+### Correction — 4.54 V divider-node reading taken in different power state
+
+The user clarified that the approximately **4.54 V** reading was taken while the bench PSU was OFF. The Arduino/UNO power path may still have been energizing part of the measurement domain.
+
+After restoring the normal PSU connection, the measured 5 V rail was approximately **4.85 V**.
+
+Therefore the earlier 4.54 V reading must **not** be used to diagnose the 10 kΩ / 1 kΩ divider as swapped or faulty. That interpretation is withdrawn.
+
+The valid divider-alone operating-point measurement remains approximately **0.44 V** at the bias node with the intended supply state active.
+
+All subsequent bias/coupling measurements must keep the power-source configuration unchanged and explicitly record that state.
