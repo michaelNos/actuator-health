@@ -1506,3 +1506,133 @@ The first section is deliberately strongly damped. It begins attenuating before 
 The second, high-Q section will have the opposite tendency near its natural frequency. When the two stages are cascaded, their responses multiply and produce the intended flat fourth-order Butterworth response.
 
 So the first stage should not be judged against the complete-filter response by itself.
+
+
+---
+
+## High-Q Sallen-Key stage: same natural frequency, different damping
+
+The second MCP6022 section uses the same unity-gain Sallen-Key topology as the first section, but with different component ratios.
+
+Accepted values:
+
+\[
+R_3=R_4=4.07\,k\Omega
+\]
+
+\[
+C_4=6.8\,nF
+\]
+
+\[
+C_5=1.0\,nF
+\]
+
+For equal resistors, the natural frequency is:
+
+\[
+f_0=
+\frac{1}
+{2\pi R\sqrt{C_1C_2}}
+\]
+
+and the quality factor is:
+
+\[
+Q=
+\frac12\sqrt{\frac{C_1}{C_2}}
+\]
+
+Using \(R=4.07\,k\Omega\), \(C_1=6.8\,nF\), and \(C_2=1.0\,nF\):
+
+\[
+f_0\approx14.996\,kHz
+\]
+
+and:
+
+\[
+Q\approx1.304
+\]
+
+So the low-Q and high-Q sections have almost the same natural frequency, but very different damping.
+
+The low-Q section uses:
+
+\[
+Q\approx0.548
+\]
+
+and therefore attenuates smoothly as frequency approaches \(f_0\).
+
+The high-Q section uses:
+
+\[
+Q\approx1.304
+\]
+
+and therefore has resonant peaking around the natural-frequency region.
+
+At exactly \(f_0\), a unity-DC-gain second-order low-pass has:
+
+\[
+|H(f_0)|=Q
+\]
+
+so the high-Q section has approximately:
+
+\[
+|H(f_0)|\approx1.304
+\]
+
+or about:
+
+\[
++2.30\,dB
+\]
+
+The maximum peak is slightly below \(f_0\), around 12.6 kHz for this section, and is about:
+
+\[
+|H|_{max}\approx1.412
+\]
+
+or roughly:
+
+\[
++3.0\,dB
+\]
+
+This peaking is intentional. It compensates the stronger attenuation of the low-Q first stage so the two cascaded sections together form the flat fourth-order Butterworth response.
+
+The high-Q topology is:
+
+\`\`\`text
+OUTA ─ R3 4.07k ─ N1B ─ R4 4.07k ─ N2B ─ U1B pin 5 (+)
+                     │          │
+                   C4 6.8nF   C5 1.0nF
+                     │          │
+                     │       GND_MEAS
+                     │
+                     └──────── OUTB pin 7
+
+OUTB pin 7 ───────── U1B pin 6 (−)
+\`\`\`
+
+As with the low-Q stage:
+
+- the capacitor from N2B to GND_MEAS provides the direct high-frequency shunt path;
+- the capacitor from N1B to OUTB creates the output-dependent Sallen-Key interaction that sets Q;
+- the op-amp itself is a unity-gain follower.
+
+The key design idea is:
+
+\`\`\`text
+same approximate f0
+        +
+different Q values
+        ↓
+two complementary second-order responses
+        ↓
+fourth-order Butterworth response
+\`\`\`
