@@ -369,3 +369,20 @@ For an ideal series coupling capacitor, the divider should establish the DC oper
 No AFE transfer conclusion is drawn from this state.
 
 Next diagnostic: isolate the bias/coupling source from the AFE by disconnecting R1 from the bias node, leaving only the divider + capacitor bank + AFG, and remeasure the bias node DC voltage. This distinguishes a source-network problem from loading/nonlinearity in the AFE path.
+
+
+### Physical bias-node topology clarification
+
+The user clarified the actual breadboard topology. One five-hole breadboard strip forms the complete bias node and contains:
+
+- the lower end of the 10 kΩ resistor, whose other end goes to +5 V;
+- the upper end of the 1 kΩ resistor, whose other end goes to GND;
+- the R1 input connection;
+- one side of the 10 × 100 nF capacitor bank;
+- scope CH2 probe tip.
+
+The opposite side of the capacitor bank connects to AFG OUT.
+
+Therefore R1 is only one branch from the common bias node. Disconnecting R1 alone does **not** remove the 10 kΩ / 1 kΩ divider from the bias node and should not, by itself, collapse the divider node to 0 V.
+
+The earlier interpretation that the bias node might have been physically created through the R1 connection is withdrawn. A reported 0 V reading after disconnecting R1 must instead be treated as a node-identification/measurement-placement discrepancy until repeated at the actual common five-hole strip.
