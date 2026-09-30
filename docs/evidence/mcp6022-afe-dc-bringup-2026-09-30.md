@@ -440,3 +440,15 @@ This result establishes:
 - the AC path through the capacitor bank has **not yet been validated**.
 
 Next diagnostic: without changing wiring, raise the AFG frequency to 1 kHz while keeping 0.5 Vpp. A correctly connected AC-coupling bank should pass a much larger, clearly sinusoidal signal at the bias node because the capacitor reactance is ten times lower at 1 kHz than at 100 Hz. If CH2 remains essentially flat/noisy, the bank connection itself is suspect.
+
+
+### 1 kHz coupling-network check
+
+With R1 disconnected, AFG at 1 kHz and 0.5 Vpp, CH1 remained on the AFG side of the temporary capacitor bank and CH2 on the bias-node side.
+
+Observed from the scope image:
+
+- CH1: about 524 mVpp, 176.2 mV RMS, mean about -6.6 mV, frequency 1.000 kHz.
+- CH2: about 48 mVpp, DC level about 0.412 V, no stable frequency reading.
+
+Interpretation: the AFG source and DC bias are present, but a clear 1 kHz sine is not reaching the bias node. For an intended 1 uF coupling bank and the 10 kOhm / 1 kOhm divider, 1 kHz should pass with little attenuation. The next diagnostic is therefore the capacitor-bank breadboard interconnection itself. No AFE transfer result is accepted from this state.
