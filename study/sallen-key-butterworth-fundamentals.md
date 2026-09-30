@@ -1825,3 +1825,107 @@ GND_MEAS
 If the 10 µF part is polarized, its positive terminal must connect to 5V_MEAS and its negative terminal to GND_MEAS.
 
 The reservoir capacitor is not part of the Sallen-Key transfer function. It conditions the op-amp power rail and should not be confused with the filter capacitors connected to N1A/N2A or N1B/N2B.
+
+
+---
+
+## ADC-facing RC interface: why 1 kΩ + 100 pF is not another anti-alias filter
+
+After the fourth-order Butterworth AFE, the accepted Rev-1 interface to the RA4M1 ADC is:
+
+\`\`\`text
+TP_AFE → 1 kΩ → ADC_IN / UNO A0
+                  │
+                100 pF
+                  │
+              GND_MEAS
+\`\`\`
+
+This small RC network has a very different purpose from the 15 kHz Butterworth filter.
+
+Its pole frequency is:
+
+\[
+f_c=
+\frac{1}
+{2\pi RC}
+\]
+
+Using:
+
+\[
+R=1\,k\Omega
+\]
+
+and:
+
+\[
+C=100\,pF
+\]
+
+gives:
+
+\[
+f_c\approx1.59\,MHz
+\]
+
+That is far above both the 10 kHz diagnostic band and the 15 kHz AFE cutoff.
+
+Therefore this RC pair does not provide meaningful anti-alias filtering in the intended measurement band.
+
+At 10 kHz, the ratio:
+
+\[
+\frac{10\,kHz}{1.59\,MHz}
+\]
+
+is very small, so the intended passband effect is negligible.
+
+### Why add the 1 kΩ resistor?
+
+The RA4M1 ADC input is not an ideal infinite-impedance node during sampling.
+
+Internally, a switched sample-and-hold capacitor must be charged to the input voltage during the acquisition interval. When the ADC sampling switch closes, it can momentarily draw charge from the signal source.
+
+The 1 kΩ resistor:
+
+- isolates the MCP6022 output from the ADC's switched sampling transients;
+- limits transient current;
+- reduces the tendency of the sampling action to kick directly back into the op-amp output;
+- provides a controlled source impedance for the local 100 pF capacitor.
+
+### Why add 100 pF at the ADC side?
+
+The 100 pF capacitor sits physically close to the ADC input and acts as a small local charge reservoir.
+
+When the ADC sample-and-hold switch closes, some of the immediate charge demand can come from this local capacitor instead of entirely through the op-amp and wiring.
+
+A useful mental model is:
+
+\`\`\`text
+MCP6022 OUTB
+     │
+    1 kΩ
+     │
+ ADC input ── 100 pF local charge reservoir
+\`\`\`
+
+The capacitor is small enough that, together with 1 kΩ, its pole is around 1.59 MHz rather than near the 10–15 kHz signal band.
+
+### Why not make this capacitor much larger?
+
+A much larger capacitor would move the RC pole downward and would begin altering the actual measurement bandwidth and phase response.
+
+That would duplicate or disturb the deliberately designed fourth-order Butterworth anti-alias filter.
+
+The accepted design therefore separates the jobs:
+
+\`\`\`text
+15 kHz fourth-order Butterworth AFE
+    → controls measurement bandwidth and anti-alias response
+
+1 kΩ + 100 pF ADC interface
+    → isolates sampling transients and provides local charge support
+\`\`\`
+
+The two networks solve different problems.
