@@ -386,3 +386,19 @@ The opposite side of the capacitor bank connects to AFG OUT.
 Therefore R1 is only one branch from the common bias node. Disconnecting R1 alone does **not** remove the 10 kΩ / 1 kΩ divider from the bias node and should not, by itself, collapse the divider node to 0 V.
 
 The earlier interpretation that the bias node might have been physically created through the R1 connection is withdrawn. A reported 0 V reading after disconnecting R1 must instead be treated as a node-identification/measurement-placement discrepancy until repeated at the actual common five-hole strip.
+
+
+### Divider-node diagnostic with R1 disconnected
+
+With R1 disconnected while the divider/coupling-side node remained otherwise identified as the common five-hole bias strip, the user measured approximately **4.54 V DC** from that node to GND.
+
+This is incompatible with the intended divider values/connection:
+
+- 10 kΩ from +5 V to the node;
+- 1 kΩ from the node to GND.
+
+With a ~4.8–4.9 V supply, that intended divider should produce only about 0.44 V.
+
+A node near 4.5 V instead indicates that the effective divider ratio is strongly weighted toward +5 V. Possible causes include swapped resistor values/positions, a wrong resistor value, or a missing/high-resistance ground-side path.
+
+Next diagnostic: power off and verify the two divider resistors individually, preferably with one leg of each isolated from the common node, before reconnecting the AFG/coupling network.
