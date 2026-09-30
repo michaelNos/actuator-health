@@ -338,3 +338,19 @@ This confirms that the DOS1102S AFG itself is still producing the expected appro
 Therefore the previously observed very small AC component at the R1/bias node is **not caused by the AFG failing to generate the sine**. The attenuation/problem lies in the coupling-bank / bias-node implementation or its loading, and must be localized before interpreting the AFE output.
 
 The simultaneous CH2 reading at pin 7 is not treated as AFE transfer evidence at this stage because the actual R1-input AC waveform has not yet been re-established.
+
+
+### Measurement across the coupling bank
+
+CH1 remained on the AFG side of the capacitor bank and CH2 was moved to the bias-node / R1-input side.
+
+Photographed values:
+
+- CH1: \`Vpp = 520.0 mV\`, mean = \`-9.579 mV\`, \`Vrms = 176.1 mV\`, frequency = \`99.80 Hz\`;
+- CH2: \`Vpp = 148.0 mV\`, displayed mean = approximately \`1.100 V\`, displayed RMS = approximately \`1.100 V\`, automatic frequency = \`247.5 Hz\`.
+
+CH2 is not a clean 100 Hz sine, so its automatic frequency readout is not interpreted as the actual excitation frequency.
+
+The approximately 1.10 V CH2 DC level is inconsistent with the previously verified divider-alone bias of 0.44 V. A correctly functioning series coupling capacitor should not intentionally shift the divider's DC operating point from 0.44 V to 1.10 V.
+
+Therefore this capture is **not accepted as coupling-network transfer evidence**. The next diagnostic is to measure the actual DC voltage at the bias-node / R1 input with a multimeter while the AFG/coupling bank is connected and running, to distinguish a real DC-node shift from a scope-node/measurement-placement issue.
