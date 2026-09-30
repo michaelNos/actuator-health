@@ -1,0 +1,954 @@
+These five ideas are tightly connected, so the easiest way to understand them is as one chain.
+
+### Two cascaded unity-gain Sallen-Key stages
+
+A **Sallen-Key stage** is an active filter built from:
+
+- an op-amp,
+- two resistors,
+- two capacitors.
+
+One stage is a **second-order low-pass filter**. “Second-order” means its transfer function has two poles and, far above cutoff, its attenuation tends toward about:
+
+[
+-40 	ext{dB/decade}
+]
+
+In our design we use **two** such stages one after another:
+
+```text id="c7debk"
+ACS724
+   ↓
+2nd-order Sallen-Key
+   ↓
+2nd-order Sallen-Key
+   ↓
+ADC
+```
+
+“Cascaded” simply means:
+
+> output of stage 1 feeds input of stage 2.
+
+Two second-order stages together give:
+
+[
+2 + 2 = 4
+]
+
+so the complete filter is **fourth-order**.
+
+That gives a much steeper roll-off:
+
+[
+-80 	ext{dB/decade}
+]
+
+far above the cutoff.
+
+The term **unity-gain** means neither stage is intentionally amplifying the DC/passband signal. Ideally:
+
+[
+V_{out} approx V_{in}
+]
+
+for low frequencies.
+
+That is important because the ACS724 already produces roughly the voltage span we want for the ADC. We do not need extra gain.
+
+---
+
+### 15 kHz fourth-order Butterworth response
+
+This describes the behavior of the **complete two-stage filter**.
+
+“15 kHz” is the nominal cutoff frequency.
+
+For the complete filter, at around:
+
+[
+f_c = 15,	ext{kHz}
+]
+
+the amplitude is approximately:
+
+[
+-3,	ext{dB}
+]
+
+which means the voltage amplitude is about:
+
+[
+0.707
+]
+
+of the low-frequency amplitude.
+
+For example, if the input sine is:
+
+[
+100,	ext{mV}_{pp}
+]
+
+then around 15 kHz we expect roughly:
+
+[
+70.7,	ext{mV}_{pp}
+]
+
+at the complete filter output.
+
+But our actual reason for choosing 15 kHz is not that 15 kHz itself is interesting. Our required information band is:
+
+[
+DC ightarrow 10,	ext{kHz}
+]
+
+and the ADC sampling rate will be:
+
+[
+100,	ext{kS/s}
+]
+
+so Nyquist is:
+
+[
+50,	ext{kHz}
+]
+
+We therefore want:
+
+```text id="d69y0a"
+0 ───────── 10 kHz     15 kHz                50 kHz
+| useful data |          |                     |
+| nearly flat |       cutoff             strongly attenuated
+```
+
+Our nominal design gives approximately:
+
+[
+-0.124,	ext{dB at 10 kHz}
+]
+
+so the diagnostic band is almost unaffected, while around 50 kHz it gives about:
+
+[
+-41.9,	ext{dB}
+]
+
+which strongly suppresses frequencies that could alias into the sampled data.
+
+“**Butterworth**” describes the shape of the response.
+
+A Butterworth filter is designed to have a **maximally flat passband**. There is no intentional ripple before cutoff.
+
+Conceptually:
+
+```text id="0ur0zh"
+Gain
+1.0 ────────────────╮
+                    │
+                    ╰─────
+                           ╲
+                            ╲
+                             ╲
+frequency →
+```
+
+rather than a response that deliberately rises and falls in the passband.
+
+That is desirable for us because we want the measured motor-current spectrum to remain as undistorted as reasonably possible inside 0–10 kHz.
+
+---
+
+### Low-Q
+
+Now we need the idea of **Q**, because this is what makes the two stages different.
+
+For a second-order filter, Q describes how strongly the stage responds around its natural frequency.
+
+A **low-Q** stage is heavily damped.
+
+Its response bends downward smoothly and relatively early. It does not peak.
+
+Our first stage has approximately:
+
+[
+Q_1 approx 0.548
+]
+
+Its nominal components are:
+
+[
+R_1=R_2=9.76,kOmega
+]
+
+[
+C_1=1.2,nF
+]
+
+[
+C_2=1.0,nF
+]
+
+Around 10 kHz, this stage alone is already attenuating quite noticeably:
+
+[
+|H|approx0.744
+]
+
+or:
+
+[
+-2.57,	ext{dB}
+]
+
+That is **not a failure**.
+
+This becomes important when we measure it on the bench. If we test only the first stage and see:
+
+```text id="eiot25"
+100 mVpp input
+      ↓
+~74 mVpp at 10 kHz
+```
+
+that is approximately what the design predicts.
+
+---
+
+### High-Q
+
+The second stage is different.
+
+It has:
+
+[
+Q_2 approx 1.304
+]
+
+That is a **high-Q** stage.
+
+A higher-Q second-order low-pass can have some gain near its pole frequency even though its DC gain is still 1.
+
+So its response looks conceptually more like:
+
+```text id="nog3mu"
+Gain
+             ╭──
+1.0 ────────╯  ╲
+               ╲
+                ╲
+frequency →
+```
+
+The stage is still a low-pass filter, but close to cutoff it has some **peaking**.
+
+Our high-Q stage uses:
+
+[
+R_1=R_2=4.07,kOmega
+]
+
+[
+C_1=6.8,nF
+]
+
+[
+C_2=1.0,nF
+]
+
+At 10 kHz, for example, this stage considered by itself has a magnitude around:
+
+[
+1.325
+]
+
+or approximately:
+
+[
++2.44,	ext{dB}
+]
+
+That sounds strange at first:
+
+> Why would we make one stage attenuate and another stage amplify?
+
+Because we do **not care about either stage independently** as the final result.
+
+They are mathematically designed as a pair.
+
+At 10 kHz:
+
+[
+H_{total}=H_{lowQ}	imes H_{highQ}
+]
+
+approximately:
+
+[
+0.744 	imes 1.325 approx 0.986
+]
+
+So together:
+
+[
+|H_{total}|approx0.986
+]
+
+which is only:
+
+[
+-0.124,	ext{dB}
+]
+
+That is the Butterworth magic here.
+
+The low-Q and high-Q sections complement each other so that the **combined fourth-order response is very flat** before the cutoff.
+
+---
+
+### Why do we need one low-Q and one high-Q stage?
+
+Because a fourth-order Butterworth filter mathematically contains **four poles**.
+
+Instead of implementing one complicated fourth-order circuit directly, we split those four poles into two second-order pairs.
+
+The two pairs need different Q values:
+
+[
+Q_1approx0.541
+]
+
+and
+
+[
+Q_2approx1.307
+]
+
+If we built two identical second-order stages, we would **not get a fourth-order Butterworth response**.
+
+This is why the repository explicitly says the two stages are not just “two generic RC filters”.
+
+---
+
+### Unity-gain follower
+
+Now focus only on the MCP6022 op-amp itself.
+
+A normal op-amp has:
+
+```text id="q43w37"
+         + input
+            \
+             >──── output
+            /
+         - input
+```
+
+For the unity-gain configuration, we connect the output directly back to the negative input:
+
+```text id="w5x0al"
+            ┌─────────────┐
+            │             │
+Vin ─────── +             │
+             \            │
+              >──── Vout ─┘
+             /
+            -
+```
+
+So:
+
+[
+V_- = V_{out}
+]
+
+The op-amp tries to make:
+
+[
+V_+ approx V_-
+]
+
+Therefore:
+
+[
+V_{out}approx V_+
+]
+
+Hence:
+
+[
+rac{V_{out}}{V_{in}}approx1
+]
+
+That is why it is called a **unity-gain follower** or **voltage follower**.
+
+But it does something very useful even though its voltage gain is 1.
+
+It provides **buffering**.
+
+The input draws almost no current, while the output can drive the next circuit much more strongly.
+
+Conceptually:
+
+```text id="swczoj"
+weak/high-impedance signal
+          ↓
+      op-amp buffer
+          ↓
+strong/low-impedance output
+```
+
+That means stage 2 and later the ADC do not significantly load the sensitive RC network of stage 1.
+
+---
+
+The important distinction is this:
+
+```text id="3z2jnz"
+unity-gain follower
+```
+
+describes **how the op-amp itself is connected**.
+
+```text id="hsgwot"
+Sallen-Key filter
+```
+
+describes **the complete op-amp + R + C network**.
+
+And:
+
+```text id="gb2uc6"
+low-Q stage + high-Q stage
+```
+
+describes the two different second-order sections.
+
+Together they produce:
+
+[
+oxed{	ext{4th-order, 15 kHz Butterworth low-pass filter}}
+]
+
+That is the complete AFE filter we are building.
+
+We picked **Sallen-Key + Butterworth** because several project requirements meet in exactly that combination. The important thing is that these are two different choices:
+
+- **Sallen-Key** = *how we physically implement each second-order filter section.*
+- **Butterworth** = *what frequency-response shape we want the complete filter to have.*
+
+### Why do we need a low-pass filter at all?
+
+Our useful current information is defined as:
+
+[
+DC ightarrow 10,	ext{kHz}
+]
+
+and later the ADC samples at:
+
+[
+f_s=100,	ext{kS/s}
+]
+
+so the Nyquist frequency is:
+
+[
+f_N=rac{f_s}{2}=50,	ext{kHz}
+]
+
+Anything above 50 kHz can fold back into the measured spectrum as **aliasing**.
+
+For example, with 100 kS/s sampling, a real analog component at 90 kHz can appear in sampled data as something around:
+
+[
+100-90=10,	ext{kHz}
+]
+
+That is dangerous because after sampling we cannot distinguish that fake 10 kHz component from genuine motor information at 10 kHz.
+
+So before the ADC we need analog filtering:
+
+```text id="saitqd"
+real current signal
+        ↓
+     ACS724
+        ↓
+ keep DC–10 kHz
+ suppress high frequencies
+        ↓
+       ADC
+```
+
+This is the main reason for the AFE filter.
+
+---
+
+## Why Butterworth?
+
+We have two competing requirements.
+
+We want **almost no attenuation at 10 kHz**:
+
+[
+A(10,kHz)leq1,dB
+]
+
+but we want **strong attenuation by 50 kHz**:
+
+[
+A(50,kHz)geq20,dB
+]
+
+So the response needs to stay flat for quite a while and then fall rapidly.
+
+Butterworth is especially useful for measurement because its defining characteristic is a **maximally flat magnitude response**.
+
+Meaning there is no intentional ripple such as:
+
+```text id="4sgvcy"
+bad for our purpose:
+
+gain
+      _   _   _
+1 ───/ \_/ \_/ \__
+```
+
+Instead it looks approximately:
+
+```text id="2tqum3"
+Butterworth:
+
+gain
+1 ─────────────────╮
+                   ╰──
+                      ╲
+                       ╲
+                        ╲
+frequency →
+```
+
+This is attractive for the actuator project because when MATLAB later sees, for example:
+
+- 500 Hz component,
+- 2 kHz component,
+- 5 kHz component,
+- 8 kHz component,
+
+we don't want the analog filter itself deliberately boosting and reducing alternating portions of that spectrum.
+
+A **Chebyshev** filter could give a sharper transition, but does so partly by accepting passband ripple.
+
+A **Bessel** filter gives better time-domain/phase behavior, but rolls off more slowly.
+
+Butterworth is therefore a good compromise here:
+
+[
+oxed{	ext{flat useful band + strong enough attenuation above it}}
+]
+
+It is not “the universally best filter”. It is appropriate for the particular measurement requirements we established.
+
+---
+
+# Why 15 kHz?
+
+Our useful band finishes at:
+
+[
+10,	ext{kHz}
+]
+
+If we put the filter cutoff at 10 kHz, the highest useful frequency would already be strongly attenuated.
+
+So we put the overall Butterworth cutoff somewhat above it:
+
+[
+f_capprox15,	ext{kHz}
+]
+
+That allows 10 kHz through almost unchanged.
+
+For our fourth-order design:
+
+[
+|H(10,kHz)|approx-0.124,dB
+]
+
+which corresponds to approximately:
+
+[
+10^{-0.124/20}approx0.986
+]
+
+So a 100 mV signal at 10 kHz becomes approximately:
+
+[
+98.6,mV
+]
+
+Very little is lost.
+
+But at 50 kHz:
+
+[
+|H(50,kHz)|approx-41.9,dB
+]
+
+or only about:
+
+[
+0.8%
+]
+
+of the voltage amplitude.
+
+So:
+
+```text id="dp0z3o"
+10 kHz:  ████████████████████   ~98.6%
+50 kHz:  ▏                      ~0.8%
+```
+
+That's exactly the kind of separation we want.
+
+---
+
+# Why fourth-order?
+
+Every filter “order” gives us more slope after the cutoff.
+
+Roughly:
+
+[
+1^	ext{st}	ext{ order} ightarrow -20,dB/decade
+]
+
+[
+2^	ext{nd}	ext{ order} ightarrow -40,dB/decade
+]
+
+[
+4^	ext{th}	ext{ order} ightarrow -80,dB/decade
+]
+
+A first-order RC filter would force an unpleasant compromise: either preserve 10 kHz well or suppress 50 kHz strongly, but not both particularly well.
+
+A second-order filter could get much closer, but the fourth-order solution gives us considerably more attenuation margin.
+
+And there was another practical reason:
+
+We already selected a **MCP6022**.
+
+The “2” is significant: it contains **two op-amps**.
+
+Each op-amp can implement one second-order Sallen-Key section:
+
+```text id="slxb9j"
+MCP6022
+
+Op-amp A → 2nd-order filter
+Op-amp B → 2nd-order filter
+                  ↓
+            4th order total
+```
+
+So the available component fits the architecture naturally.
+
+---
+
+# Why Sallen-Key?
+
+There are several ways to build an active second-order filter.
+
+Sallen-Key is particularly convenient for our case because we want approximately:
+
+[
+	ext{gain}=1
+]
+
+and we don't want to level-shift the ACS724 output.
+
+The ACS724 already gives approximately:
+
+[
+0.5ightarrow4.5,V
+]
+
+which fits nicely inside our approximately 0–5 V ADC domain.
+
+So there's little point doing:
+
+```text id="ayu11f"
+sensor → amplify → attenuate → ADC
+```
+
+We want:
+
+```text id="ocdamp"
+sensor → filter/buffer → ADC
+```
+
+Sallen-Key lets the MCP6022 act essentially as a **voltage follower** while the surrounding R and C components create the desired frequency response.
+
+It is also:
+
+- non-inverting;
+- relatively simple;
+- low component count;
+- easy to cascade;
+- well suited to a dual op-amp;
+- able to realize different Q values without requiring intentional signal gain.
+
+That last point is important.
+
+---
+
+# Now: what exactly is “natural frequency”?
+
+This is one of the concepts worth understanding properly.
+
+For a generic second-order low-pass filter, we often write:
+
+[
+H(s)=
+rac{omega_0^2}
+{s^2+rac{omega_0}{Q}s+omega_0^2}
+]
+
+Two important parameters appear:
+
+[
+omega_0
+]
+
+and:
+
+[
+Q
+]
+
+The first is the **natural angular frequency**.
+
+Usually we express it in ordinary frequency:
+
+[
+f_0=rac{omega_0}{2pi}
+]
+
+For our Sallen-Key stages, (f_0) is approximately:
+
+[
+15,kHz
+]
+
+---
+
+## Physical intuition first
+
+Think about a mechanical spring and mass.
+
+If you pull the mass and let it go, the system has a frequency at which it naturally wants to oscillate:
+
+```text id="kyu703"
+wall ─ spring ─ mass
+
+       ←→ ←→ ←→
+```
+
+That frequency depends on things like:
+
+- spring stiffness;
+- mass.
+
+Electrical second-order systems have mathematically equivalent behavior.
+
+Instead of mass and spring, we have energy-storage elements—in our case capacitors plus an active circuit.
+
+So a second-order circuit has a characteristic frequency built into its component values.
+
+That is its **natural frequency**.
+
+It doesn't mean our low-pass circuit must literally sit there continuously oscillating at 15 kHz.
+
+It means:
+
+> Around this characteristic frequency, the two-pole dynamics of the circuit become dominant.
+
+---
+
+# Natural frequency is NOT always the same as cutoff frequency
+
+This distinction is important.
+
+For a first-order filter, we usually talk about one obvious corner frequency.
+
+For a second-order system, behavior around (f_0) depends strongly on **Q**.
+
+Two filters can have exactly:
+
+[
+f_0=15,kHz
+]
+
+but behave completely differently around 15 kHz.
+
+For example:
+
+```text id="1juwsh"
+same f0:
+
+low Q:
+──────────╲
+           ╲
+            ╲
+
+high Q:
+────────────╮
+            ╰╮
+             ╲
+```
+
+Why?
+
+Because (f_0) tells us **where the pole pair sits in frequency**.
+
+Q tells us **how strongly damped that pole pair is**.
+
+---
+
+# Our low-Q stage
+
+For the first stage:
+
+[
+f_0approx14.89,kHz
+]
+
+and:
+
+[
+Qapprox0.548
+]
+
+The relatively low Q means strong damping.
+
+So as we approach its natural frequency, its magnitude has already fallen considerably.
+
+That's why our low-Q stage by itself around 15 kHz is much lower than −3 dB.
+
+---
+
+# Our high-Q stage
+
+The second section has:
+
+[
+f_0approx15.00,kHz
+]
+
+but:
+
+[
+Qapprox1.304
+]
+
+Same approximate **natural frequency**.
+
+Very different **Q**.
+
+Because it is less damped, its response rises near (f_0).
+
+So:
+
+```text id="ismxki"
+Low-Q stage:
+                     \
+                      \
+                       \
+
+High-Q stage:
+                    /\
+                   /  \
+──────────────────     \
+
+combined:
+───────────────────╮
+                   ╰──
+```
+
+The interesting part is that the two are deliberately designed to compensate each other.
+
+Their combined response gives the flat fourth-order Butterworth shape.
+
+---
+
+# Where does the natural frequency come from in our components?
+
+For the particular unity-gain Sallen-Key topology we're using, with equal resistors:
+
+[
+R_1=R_2=R
+]
+
+the natural frequency is:
+
+[
+oxed{
+f_0=
+rac{1}
+{2pi Rsqrt{C_1C_2}}
+}
+]
+
+Look at our low-Q section:
+
+[
+R=9.76,kOmega
+]
+
+[
+C_1=1.2,nF
+]
+
+[
+C_2=1.0,nF
+]
+
+Then:
+
+[
+f_0=
+rac{1}
+{2pi(9760)sqrt{1.2	imes10^{-9}cdot1.0	imes10^{-9}}}
+]
+
+which gives approximately:
+
+[
+oxed{14.9,kHz}
+]
+
+So **we don't tell the op-amp “work at 15 kHz.”**
+
+The resistor and capacitor values physically establish that characteristic frequency.
+
+That's why we're being so careful about the component values.
+
+---
+
+And this gives us the next important conceptual connection:
+
+[
+oxed{R,Cightarrow f_0}
+]
+
+while the **ratio** of those component values also determines:
+
+[
+oxed{Q}
+]
+
+So next, before we continue drawing the schematic, I think it is worth showing **exactly how our 1.2 nF versus 1.0 nF produces the low-Q value, and how 6.8 nF versus 1.0 nF produces the high-Q value**. That's the key to understanding why the two Sallen-Key stages look almost identical but behave so differently.
