@@ -320,3 +320,21 @@ Therefore the valid powered divider result remains:
 - agreement with the 10 kΩ / 1 kΩ divider prediction is good.
 
 The unpowered 0.41 V observation is not used for bias validation.
+
+
+### AFG-side measurement after installing the 10 × 100 nF coupling bank
+
+With the temporary coupling/bias fixture connected, CH1 was moved to the **AFG side of the capacitor bank** while CH2 remained at MCP6022 pin 7 / TP_AFE.
+
+Photographed CH1 measurements:
+
+- \`Vpp = 520.0 mV\`;
+- \`Vrms = 176.4 mV\`;
+- mean = \`-9.526 mV\`;
+- frequency = \`100.0 Hz\`.
+
+This confirms that the DOS1102S AFG itself is still producing the expected approximately 0.5 Vpp, 100 Hz, zero-centered sine at the source side of the coupling network.
+
+Therefore the previously observed very small AC component at the R1/bias node is **not caused by the AFG failing to generate the sine**. The attenuation/problem lies in the coupling-bank / bias-node implementation or its loading, and must be localized before interpreting the AFE output.
+
+The simultaneous CH2 reading at pin 7 is not treated as AFE transfer evidence at this stage because the actual R1-input AC waveform has not yet been re-established.
