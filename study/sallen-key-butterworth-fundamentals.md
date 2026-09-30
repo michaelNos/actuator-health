@@ -1781,3 +1781,47 @@ high-Q OUTB → TP_AFE
 These labels do not create additional electronics. They identify electrically common nodes and make the schematic, bench procedure, measurements, and documentation use the same vocabulary.
 
 During independent Stage-B AFE bring-up, a clean test source may be injected at TP_SENSOR while the ACS724 output is physically disconnected. That is a temporary test configuration; it does not change the accepted product-level signal path shown in the schematic.
+
+
+---
+
+## MCP6022 supply conditioning: 100 nF bypass versus 10 µF reservoir
+
+The AFE supply uses two capacitors with different jobs:
+
+\`\`\`text
+5V_MEAS
+  │
+  ├── 100 nF local bypass
+  │
+  └── 10 µF reservoir
+  │
+GND_MEAS
+\`\`\`
+
+The 100 nF capacitor should be physically very close to MCP6022 pins 8 and 4. Its small capacitance and low parasitic inductance make it effective for fast, high-frequency supply-current transients.
+
+The 10 µF capacitor is a local energy reservoir. It is intended to support slower and larger supply variations caused by wiring impedance, breadboard connections, load changes, or other low-frequency disturbances on the measurement rail.
+
+The two are therefore complementary rather than redundant.
+
+A useful mental model is:
+
+\`\`\`text
+100 nF → fast disturbances
+10 µF  → slower / larger disturbances
+\`\`\`
+
+Both capacitors connect directly between the same two supply nets:
+
+\`\`\`text
+5V_MEAS
+   │
+ capacitor
+   │
+GND_MEAS
+\`\`\`
+
+If the 10 µF part is polarized, its positive terminal must connect to 5V_MEAS and its negative terminal to GND_MEAS.
+
+The reservoir capacitor is not part of the Sallen-Key transfer function. It conditions the op-amp power rail and should not be confused with the filter capacitors connected to N1A/N2A or N1B/N2B.
