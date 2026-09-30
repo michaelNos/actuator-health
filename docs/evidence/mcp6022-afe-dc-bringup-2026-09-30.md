@@ -452,3 +452,12 @@ Observed from the scope image:
 - CH2: about 48 mVpp, DC level about 0.412 V, no stable frequency reading.
 
 Interpretation: the AFG source and DC bias are present, but a clear 1 kHz sine is not reaching the bias node. For an intended 1 uF coupling bank and the 10 kOhm / 1 kOhm divider, 1 kHz should pass with little attenuation. The next diagnostic is therefore the capacitor-bank breadboard interconnection itself. No AFE transfer result is accepted from this state.
+
+
+### Root cause found: AFG was not connected to the capacitor-bank input bus
+
+Continuity testing showed that AFG OUT was not electrically connected to the intended AFG-side bus of the 10 x 100 nF capacitor bank. This explains the earlier observation that the AFG itself was producing the correct sine while almost no coherent AC appeared at the bias node.
+
+After correcting that missing connection, the bias-node waveform became clearly periodic at approximately 1 kHz. In the first post-fix scope image, CH2 at the bias node showed approximately 998.6 Hz and a DC level near 472.5 mV, confirming that the AC-coupling path is now active while the positive DC bias remains present.
+
+The simultaneous CH1 reading in that image was approximately 4.93 V DC, indicating CH1 was no longer probing the AFG-side signal node. Therefore no amplitude-transfer ratio is calculated from this image. The next measurement must put CH1 back on the AFG-side capacitor-bank bus and keep CH2 on the bias node.
