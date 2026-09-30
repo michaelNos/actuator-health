@@ -10,9 +10,9 @@ A **Sallen-Key stage** is an active filter built from:
 
 One stage is a **second-order low-pass filter**. “Second-order” means its transfer function has two poles and, far above cutoff, its attenuation tends toward about:
 
-[
--40 	ext{dB/decade}
-]
+\[
+-40\ \text{dB/decade}
+\]
 
 In our design we use **two** such stages one after another:
 
@@ -32,25 +32,25 @@ ADC
 
 Two second-order stages together give:
 
-[
+\[
 2 + 2 = 4
-]
+\]
 
 so the complete filter is **fourth-order**.
 
 That gives a much steeper roll-off:
 
-[
--80 	ext{dB/decade}
-]
+\[
+-80\ \text{dB/decade}
+\]
 
 far above the cutoff.
 
 The term **unity-gain** means neither stage is intentionally amplifying the DC/passband signal. Ideally:
 
-[
-V_{out} approx V_{in}
-]
+\[
+V_{out} \approx V_{in}
+\]
 
 for low frequencies.
 
@@ -66,55 +66,55 @@ This describes the behavior of the **complete two-stage filter**.
 
 For the complete filter, at around:
 
-[
-f_c = 15,	ext{kHz}
-]
+\[
+f_c = 15\,\text{kHz}
+\]
 
 the amplitude is approximately:
 
-[
--3,	ext{dB}
-]
+\[
+-3\,\text{dB}
+\]
 
 which means the voltage amplitude is about:
 
-[
+\[
 0.707
-]
+\]
 
 of the low-frequency amplitude.
 
 For example, if the input sine is:
 
-[
-100,	ext{mV}_{pp}
-]
+\[
+100\,\text{mV}_{pp}
+\]
 
 then around 15 kHz we expect roughly:
 
-[
-70.7,	ext{mV}_{pp}
-]
+\[
+70.7\,\text{mV}_{pp}
+\]
 
 at the complete filter output.
 
 But our actual reason for choosing 15 kHz is not that 15 kHz itself is interesting. Our required information band is:
 
-[
-DC ightarrow 10,	ext{kHz}
-]
+\[
+DC \rightarrow 10\,\text{kHz}
+\]
 
 and the ADC sampling rate will be:
 
-[
-100,	ext{kS/s}
-]
+\[
+100\,\text{kS/s}
+\]
 
 so Nyquist is:
 
-[
-50,	ext{kHz}
-]
+\[
+50\,\text{kHz}
+\]
 
 We therefore want:
 
@@ -126,15 +126,15 @@ We therefore want:
 
 Our nominal design gives approximately:
 
-[
--0.124,	ext{dB at 10 kHz}
-]
+\[
+-0.124\,\text{dB at 10 kHz}
+\]
 
 so the diagnostic band is almost unaffected, while around 50 kHz it gives about:
 
-[
--41.9,	ext{dB}
-]
+\[
+-41.9\,\text{dB}
+\]
 
 which strongly suppresses frequencies that could alias into the sampled data.
 
@@ -173,35 +173,35 @@ Its response bends downward smoothly and relatively early. It does not peak.
 
 Our first stage has approximately:
 
-[
-Q_1 approx 0.548
-]
+\[
+Q_1 \approx 0.548
+\]
 
 Its nominal components are:
 
-[
-R_1=R_2=9.76,kOmega
-]
+\[
+R_1=R_2=9.76\,k\Omega
+\]
 
-[
-C_1=1.2,nF
-]
+\[
+C_1=1.2\,nF
+\]
 
-[
-C_2=1.0,nF
-]
+\[
+C_2=1.0\,nF
+\]
 
 Around 10 kHz, this stage alone is already attenuating quite noticeably:
 
-[
-|H|approx0.744
-]
+\[
+|H|\approx0.744
+\]
 
 or:
 
-[
--2.57,	ext{dB}
-]
+\[
+-2.57\,\text{dB}
+\]
 
 That is **not a failure**.
 
@@ -223,9 +223,9 @@ The second stage is different.
 
 It has:
 
-[
-Q_2 approx 1.304
-]
+\[
+Q_2 \approx 1.304
+\]
 
 That is a **high-Q** stage.
 
@@ -246,29 +246,29 @@ The stage is still a low-pass filter, but close to cutoff it has some **peaking*
 
 Our high-Q stage uses:
 
-[
-R_1=R_2=4.07,kOmega
-]
+\[
+R_1=R_2=4.07\,k\Omega
+\]
 
-[
-C_1=6.8,nF
-]
+\[
+C_1=6.8\,nF
+\]
 
-[
-C_2=1.0,nF
-]
+\[
+C_2=1.0\,nF
+\]
 
 At 10 kHz, for example, this stage considered by itself has a magnitude around:
 
-[
+\[
 1.325
-]
+\]
 
 or approximately:
 
-[
-+2.44,	ext{dB}
-]
+\[
++2.44\,\text{dB}
+\]
 
 That sounds strange at first:
 
@@ -280,27 +280,27 @@ They are mathematically designed as a pair.
 
 At 10 kHz:
 
-[
-H_{total}=H_{lowQ}	imes H_{highQ}
-]
+\[
+H_{total}=H_{lowQ}\times H_{highQ}
+\]
 
 approximately:
 
-[
-0.744 	imes 1.325 approx 0.986
-]
+\[
+0.744 \times 1.325 \approx 0.986
+\]
 
 So together:
 
-[
-|H_{total}|approx0.986
-]
+\[
+|H_{total}|\approx0.986
+\]
 
 which is only:
 
-[
--0.124,	ext{dB}
-]
+\[
+-0.124\,\text{dB}
+\]
 
 That is the Butterworth magic here.
 
@@ -316,15 +316,15 @@ Instead of implementing one complicated fourth-order circuit directly, we split 
 
 The two pairs need different Q values:
 
-[
-Q_1approx0.541
-]
+\[
+Q_1\approx0.541
+\]
 
 and
 
-[
-Q_2approx1.307
-]
+\[
+Q_2\approx1.307
+\]
 
 If we built two identical second-order stages, we would **not get a fourth-order Butterworth response**.
 
@@ -360,27 +360,27 @@ Vin ─────── +             │
 
 So:
 
-[
+\[
 V_- = V_{out}
-]
+\]
 
 The op-amp tries to make:
 
-[
-V_+ approx V_-
-]
+\[
+V_+ \approx V_-
+\]
 
 Therefore:
 
-[
-V_{out}approx V_+
-]
+\[
+V_{out}\approx V_+
+\]
 
 Hence:
 
-[
-rac{V_{out}}{V_{in}}approx1
-]
+\[
+\frac{V_{out}}{V_{in}}\approx1
+\]
 
 That is why it is called a **unity-gain follower** or **voltage follower**.
 
@@ -428,9 +428,9 @@ describes the two different second-order sections.
 
 Together they produce:
 
-[
-oxed{	ext{4th-order, 15 kHz Butterworth low-pass filter}}
-]
+\[
+\boxed{\text{4th-order, 15 kHz Butterworth low-pass filter}}
+\]
 
 That is the complete AFE filter we are building.
 
@@ -443,29 +443,29 @@ We picked **Sallen-Key + Butterworth** because several project requirements meet
 
 Our useful current information is defined as:
 
-[
-DC ightarrow 10,	ext{kHz}
-]
+\[
+DC \rightarrow 10\,\text{kHz}
+\]
 
 and later the ADC samples at:
 
-[
-f_s=100,	ext{kS/s}
-]
+\[
+f_s=100\,\text{kS/s}
+\]
 
 so the Nyquist frequency is:
 
-[
-f_N=rac{f_s}{2}=50,	ext{kHz}
-]
+\[
+f_N=\frac{f_s}{2}=50\,\text{kHz}
+\]
 
 Anything above 50 kHz can fold back into the measured spectrum as **aliasing**.
 
 For example, with 100 kS/s sampling, a real analog component at 90 kHz can appear in sampled data as something around:
 
-[
-100-90=10,	ext{kHz}
-]
+\[
+100-90=10\,\text{kHz}
+\]
 
 That is dangerous because after sampling we cannot distinguish that fake 10 kHz component from genuine motor information at 10 kHz.
 
@@ -492,15 +492,15 @@ We have two competing requirements.
 
 We want **almost no attenuation at 10 kHz**:
 
-[
-A(10,kHz)leq1,dB
-]
+\[
+A(10\,kHz)\leq1\,dB
+\]
 
 but we want **strong attenuation by 50 kHz**:
 
-[
-A(50,kHz)geq20,dB
-]
+\[
+A(50\,kHz)\geq20\,dB
+\]
 
 So the response needs to stay flat for quite a while and then fall rapidly.
 
@@ -545,9 +545,9 @@ A **Bessel** filter gives better time-domain/phase behavior, but rolls off more 
 
 Butterworth is therefore a good compromise here:
 
-[
-oxed{	ext{flat useful band + strong enough attenuation above it}}
-]
+\[
+\boxed{\text{flat useful band + strong enough attenuation above it}}
+\]
 
 It is not “the universally best filter”. It is appropriate for the particular measurement requirements we established.
 
@@ -557,51 +557,51 @@ It is not “the universally best filter”. It is appropriate for the particula
 
 Our useful band finishes at:
 
-[
-10,	ext{kHz}
-]
+\[
+10\,\text{kHz}
+\]
 
 If we put the filter cutoff at 10 kHz, the highest useful frequency would already be strongly attenuated.
 
 So we put the overall Butterworth cutoff somewhat above it:
 
-[
-f_capprox15,	ext{kHz}
-]
+\[
+f_c\approx15\,\text{kHz}
+\]
 
 That allows 10 kHz through almost unchanged.
 
 For our fourth-order design:
 
-[
-|H(10,kHz)|approx-0.124,dB
-]
+\[
+|H(10\,kHz)|\approx-0.124\,dB
+\]
 
 which corresponds to approximately:
 
-[
-10^{-0.124/20}approx0.986
-]
+\[
+10^{-0.124/20}\approx0.986
+\]
 
 So a 100 mV signal at 10 kHz becomes approximately:
 
-[
-98.6,mV
-]
+\[
+98.6\,mV
+\]
 
 Very little is lost.
 
 But at 50 kHz:
 
-[
-|H(50,kHz)|approx-41.9,dB
-]
+\[
+|H(50\,kHz)|\approx-41.9\,dB
+\]
 
 or only about:
 
-[
-0.8%
-]
+\[
+0.8\%
+\]
 
 of the voltage amplitude.
 
@@ -622,17 +622,17 @@ Every filter “order” gives us more slope after the cutoff.
 
 Roughly:
 
-[
-1^	ext{st}	ext{ order} ightarrow -20,dB/decade
-]
+\[
+1^\text{st}\text{ order} \rightarrow -20\,dB/decade
+\]
 
-[
-2^	ext{nd}	ext{ order} ightarrow -40,dB/decade
-]
+\[
+2^\text{nd}\text{ order} \rightarrow -40\,dB/decade
+\]
 
-[
-4^	ext{th}	ext{ order} ightarrow -80,dB/decade
-]
+\[
+4^\text{th}\text{ order} \rightarrow -80\,dB/decade
+\]
 
 A first-order RC filter would force an unpleasant compromise: either preserve 10 kHz well or suppress 50 kHz strongly, but not both particularly well.
 
@@ -665,17 +665,17 @@ There are several ways to build an active second-order filter.
 
 Sallen-Key is particularly convenient for our case because we want approximately:
 
-[
-	ext{gain}=1
-]
+\[
+\text{gain}=1
+\]
 
 and we don't want to level-shift the ACS724 output.
 
 The ACS724 already gives approximately:
 
-[
-0.5ightarrow4.5,V
-]
+\[
+0.5\rightarrow4.5\,V
+\]
 
 which fits nicely inside our approximately 0–5 V ADC domain.
 
@@ -712,37 +712,37 @@ This is one of the concepts worth understanding properly.
 
 For a generic second-order low-pass filter, we often write:
 
-[
+\[
 H(s)=
-rac{omega_0^2}
-{s^2+rac{omega_0}{Q}s+omega_0^2}
-]
+\frac{\omega_0^2}
+{s^2+\frac{\omega_0}{Q}s+\omega_0^2}
+\]
 
 Two important parameters appear:
 
-[
-omega_0
-]
+\[
+\omega_0
+\]
 
 and:
 
-[
+\[
 Q
-]
+\]
 
 The first is the **natural angular frequency**.
 
 Usually we express it in ordinary frequency:
 
-[
-f_0=rac{omega_0}{2pi}
-]
+\[
+f_0=\frac{\omega_0}{2\pi}
+\]
 
-For our Sallen-Key stages, (f_0) is approximately:
+For our Sallen-Key stages, \(f_0\) is approximately:
 
-[
-15,kHz
-]
+\[
+15\,kHz
+\]
 
 ---
 
@@ -785,13 +785,13 @@ This distinction is important.
 
 For a first-order filter, we usually talk about one obvious corner frequency.
 
-For a second-order system, behavior around (f_0) depends strongly on **Q**.
+For a second-order system, behavior around \(f_0\) depends strongly on **Q**.
 
 Two filters can have exactly:
 
-[
-f_0=15,kHz
-]
+\[
+f_0=15\,kHz
+\]
 
 but behave completely differently around 15 kHz.
 
@@ -813,7 +813,7 @@ high Q:
 
 Why?
 
-Because (f_0) tells us **where the pole pair sits in frequency**.
+Because \(f_0\) tells us **where the pole pair sits in frequency**.
 
 Q tells us **how strongly damped that pole pair is**.
 
@@ -823,15 +823,15 @@ Q tells us **how strongly damped that pole pair is**.
 
 For the first stage:
 
-[
-f_0approx14.89,kHz
-]
+\[
+f_0\approx14.89\,kHz
+\]
 
 and:
 
-[
-Qapprox0.548
-]
+\[
+Q\approx0.548
+\]
 
 The relatively low Q means strong damping.
 
@@ -845,21 +845,21 @@ That's why our low-Q stage by itself around 15 kHz is much lower than −3 dB.
 
 The second section has:
 
-[
-f_0approx15.00,kHz
-]
+\[
+f_0\approx15.00\,kHz
+\]
 
 but:
 
-[
-Qapprox1.304
-]
+\[
+Q\approx1.304
+\]
 
 Same approximate **natural frequency**.
 
 Very different **Q**.
 
-Because it is less damped, its response rises near (f_0).
+Because it is less damped, its response rises near \(f_0\).
 
 So:
 
@@ -889,47 +889,47 @@ Their combined response gives the flat fourth-order Butterworth shape.
 
 For the particular unity-gain Sallen-Key topology we're using, with equal resistors:
 
-[
+\[
 R_1=R_2=R
-]
+\]
 
 the natural frequency is:
 
-[
-oxed{
+\[
+\boxed{
 f_0=
-rac{1}
-{2pi Rsqrt{C_1C_2}}
+\frac{1}
+{2\pi R\sqrt{C_1C_2}}
 }
-]
+\]
 
 Look at our low-Q section:
 
-[
-R=9.76,kOmega
-]
+\[
+R=9.76\,k\Omega
+\]
 
-[
-C_1=1.2,nF
-]
+\[
+C_1=1.2\,nF
+\]
 
-[
-C_2=1.0,nF
-]
+\[
+C_2=1.0\,nF
+\]
 
 Then:
 
-[
+\[
 f_0=
-rac{1}
-{2pi(9760)sqrt{1.2	imes10^{-9}cdot1.0	imes10^{-9}}}
-]
+\frac{1}
+{2\pi(9760)\sqrt{1.2\times10^{-9}\cdot1.0\times10^{-9}}}
+\]
 
 which gives approximately:
 
-[
-oxed{14.9,kHz}
-]
+\[
+\boxed{14.9\,kHz}
+\]
 
 So **we don't tell the op-amp “work at 15 kHz.”**
 
@@ -941,14 +941,14 @@ That's why we're being so careful about the component values.
 
 And this gives us the next important conceptual connection:
 
-[
-oxed{R,Cightarrow f_0}
-]
+\[
+\boxed{R,C\rightarrow f_0}
+\]
 
 while the **ratio** of those component values also determines:
 
-[
-oxed{Q}
-]
+\[
+\boxed{Q}
+\]
 
 So next, before we continue drawing the schematic, I think it is worth showing **exactly how our 1.2 nF versus 1.0 nF produces the low-Q value, and how 6.8 nF versus 1.0 nF produces the high-Q value**. That's the key to understanding why the two Sallen-Key stages look almost identical but behave so differently.
