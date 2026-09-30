@@ -471,3 +471,8 @@ Scope image observations with R1 disconnected:
 - CH2 at the bias node: mean 480.2 mV, raw Vpp 84 mV, no stable frequency indication.
 
 The source and DC bias are present, but the bias node still does not show a clear 1 kHz sine. The next diagnostic is to verify the actual value code printed on the ceramic capacitors.
+
+
+### Capacitor value confirmed
+
+The installed ceramic capacitors are marked `104`, which denotes 100 nF each. With ten such capacitors wired in parallel, the intended nominal total is therefore 1.0 uF. The capacitor value itself is therefore consistent with the intended temporary coupling network. Since the AFG source is valid but the bias node still does not show a clear 1 kHz sine, the remaining diagnostic focus is the external interconnection between the capacitor-bank output bus, the bias node, and common ground.
