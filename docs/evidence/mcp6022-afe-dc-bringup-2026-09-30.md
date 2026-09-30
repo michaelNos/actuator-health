@@ -120,3 +120,24 @@ Those require controlled AC measurements and later ADC integration.
 **DC bring-up gate: PASS.**
 
 The AFE is ready for the first controlled AC stimulus test, subject to the rule that only one active source drives \`TP_SENSOR\` at a time.
+
+
+## DOS1102S AFG constraint discovered before AC injection
+
+Before connecting the AFG to \`TP_SENSOR\`, the generator output was checked directly with scope CH1.
+
+User-observed settings/results:
+
+- sine, 100 Hz;
+- minimum practical AFG setting used: 0.5 Vpp;
+- measured CH1: approximately **520 mVpp**;
+- measured mean: approximately **-8 mV**;
+- measured sine RMS: approximately **176 mV**.
+
+Interpretation:
+
+The built-in DOS1102S AFG is operating essentially zero-centered in this configuration. The user's instrument does not expose a DC-offset setting. Therefore the previously proposed direct \`0.5 Vpp + 0.5 V offset\` injection is **not available on this instrument and is withdrawn**.
+
+A zero-centered 520 mVpp sine would extend below \`GND_MEAS\`, so it must **not** be connected directly to \`TP_SENSOR\` for Rev-1 AFE validation.
+
+The next AC-validation step requires an explicit external bias/injection network or another verified positive-biased source. Per project method, that physical test network must be represented and understood before bench connection.
