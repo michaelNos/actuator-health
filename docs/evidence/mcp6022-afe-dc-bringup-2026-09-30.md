@@ -513,3 +513,21 @@ Observed from the scope image:
 The biased source remains clean and essentially unchanged when loaded by the AFE input through R1. Therefore the temporary source is now validated under the actual R1-connected condition.
 
 The previous approximately 4.608 V CH2 reading is superseded by this verified bias-node measurement and is not used as the operating-point value.
+
+
+### First valid AFE AC transfer point — 1 kHz
+
+After validating the temporary biased source, CH1 was moved to the actual R1 input / bias node and CH2 remained at MCP6022 pin 7 / TP_AFE. The AFG was 1 kHz, 0.5 Vpp.
+
+Observed from the scope image:
+
+- CH1 / R1 input: 480 mVpp, 1.000 kHz, mean about 415.3 mV.
+- CH2 / TP_AFE: 480 mVpp, 1.000 kHz, mean about 431.8 mV.
+
+Measured magnitude ratio from displayed Vpp values:
+
+`|H(1 kHz)| = 480 / 480 = 1.000`, corresponding to approximately 0 dB.
+
+Both waveforms are visibly sinusoidal and unclipped. This is the first valid low-frequency AC transfer point through the complete Rev-1 AFE path. The screenshot does not provide a quantified phase measurement, so no numerical phase value is accepted from this capture.
+
+Engineering result: **1 kHz AFE magnitude gate PASS**.
