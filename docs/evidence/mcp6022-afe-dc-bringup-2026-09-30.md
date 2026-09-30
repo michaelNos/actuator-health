@@ -476,3 +476,21 @@ The source and DC bias are present, but the bias node still does not show a clea
 ### Capacitor value confirmed
 
 The installed ceramic capacitors are marked `104`, which denotes 100 nF each. With ten such capacitors wired in parallel, the intended nominal total is therefore 1.0 uF. The capacitor value itself is therefore consistent with the intended temporary coupling network. Since the AFG source is valid but the bias node still does not show a clear 1 kHz sine, the remaining diagnostic focus is the external interconnection between the capacitor-bank output bus, the bias node, and common ground.
+
+
+### Isolated capacitor-bank validation — PASS
+
+The temporary coupling bank was isolated from the bias divider and AFE. A 1 kOhm resistor was connected from the bank output to GND_MEAS. The AFG drove the bank input at 1 kHz / 0.5 Vpp.
+
+Scope image observations:
+
+- CH1 / AFG side: 496 mVpp, 1.000 kHz, mean about -7.605 mV, RMS 169.6 mV.
+- CH2 / bank output into 1 kOhm: 488 mVpp, 1.000 kHz, mean about 0.305 mV, RMS 166.2 mV.
+
+Amplitude ratio:
+
+`488 / 496 ≈ 0.984`
+
+Thus the isolated coupling bank transfers about 98.4% of the 1 kHz amplitude into a 1 kOhm load. This is consistent with the intended nominal total capacitance of approximately 1 uF and confirms that the 10 x 100 nF capacitor bank itself is functioning correctly.
+
+Engineering conclusion: **capacitor-bank isolation gate PASS.** The earlier loss of the 1 kHz signal occurred elsewhere in the bias-network / node implementation or measurement placement, not inside the capacitor bank itself.
