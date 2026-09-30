@@ -1735,3 +1735,49 @@ OUTA ─ R3 4.07k ─ N1B ─ R4 4.07k ─ N2B ─ U1B pin 5 (+)
 
 OUTB pin 7 ───────── U1B pin 6 (−)
 \`\`\`
+
+
+---
+
+## Cascading the completed low-Q and high-Q sections
+
+After the high-Q capacitors are added, both MCP6022 channels implement complete second-order unity-gain Sallen-Key sections.
+
+The signal path is:
+
+\`\`\`text
+TP_SENSOR
+    ↓
+low-Q section U1A
+    ↓
+OUTA
+    ↓
+high-Q section U1B
+    ↓
+OUTB / TP_AFE
+\`\`\`
+
+The low-Q output is the high-Q input. In an ideal linear cascade, the complete transfer function is the product of the two individual transfer functions:
+
+\[
+H_{total}(s)=H_{lowQ}(s)\,H_{highQ}(s)
+\]
+
+This multiplication is why the two sections can have very different individual responses but still form the desired fourth-order Butterworth response together.
+
+The first section is strongly damped and attenuates near 15 kHz. The second section has higher Q and intentionally peaks in the same frequency region. Their combined magnitude response is approximately flat through the useful band and then rolls off rapidly above the cutoff.
+
+For schematic clarity, the interstage node should be named explicitly as \`OUTA\` (or an equivalent unambiguous name) and the final AFE output should be named \`TP_AFE\`.
+
+The required system-level signal nodes are therefore:
+
+\`\`\`text
+ACS724 VIOUT → TP_SENSOR
+TP_SENSOR → low-Q stage
+low-Q OUTA → high-Q stage
+high-Q OUTB → TP_AFE
+\`\`\`
+
+These labels do not create additional electronics. They identify electrically common nodes and make the schematic, bench procedure, measurements, and documentation use the same vocabulary.
+
+During independent Stage-B AFE bring-up, a clean test source may be injected at TP_SENSOR while the ACS724 output is physically disconnected. That is a temporary test configuration; it does not change the accepted product-level signal path shown in the schematic.
