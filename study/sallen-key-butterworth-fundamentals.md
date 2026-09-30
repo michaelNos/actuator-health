@@ -2110,3 +2110,42 @@ FILTER → stock 1 nF + external 4.7 nF → GND_MEAS
 \`\`\`
 
 The supply bypass should be located physically close to the ACS724 VCC/GND pins on the carrier/interconnect.
+
+
+---
+
+## Physical bring-up sequence: build the low-Q section first
+
+After the MCP6022 supply has been verified directly at pins 8 and 4, the first signal section to build is channel A, the low-Q Sallen-Key stage.
+
+The accepted channel-A network is:
+
+\`\`\`text
+TP_SENSOR → R1 9.76 kΩ → N1A → R2 9.76 kΩ → N2A → pin 3 (+IN A)
+
+N2A → C2 1.0 nF → GND_MEAS
+N1A → C3 1.2 nF → pin 1 (OUT A)
+
+pin 1 (OUT A) → pin 2 (-IN A)
+\`\`\`
+
+The direct pin-1-to-pin-2 connection makes channel A a unity-gain follower inside the Sallen-Key topology.
+
+### Why build only one section first?
+
+The final AFE contains two cascaded second-order sections. Building both at once would make a wrong connection harder to localize.
+
+Building only the low-Q section first allows the following controlled checks:
+
+1. verify the channel-A feedback connection;
+2. verify the expected DC unity-gain behavior;
+3. verify low-frequency pass-through;
+4. verify the first section's frequency response before channel B is added.
+
+This follows the project method:
+
+\`\`\`text
+predict → connect/configure → measure → compare → understand → document
+\`\`\`
+
+Only after channel A behaves correctly is channel B added.
