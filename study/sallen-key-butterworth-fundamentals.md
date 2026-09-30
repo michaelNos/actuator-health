@@ -2007,3 +2007,71 @@ ONE active voltage source at TP_SENSOR at a time.
 \`\`\`
 
 This is a test-configuration rule, not a change to the accepted product architecture.
+
+
+---
+
+## Electrical net labels versus physical test points
+
+A schematic net label such as \`TP_SENSOR\` or \`TP_AFE\` identifies an electrical node.
+
+A physical test point is a deliberate place in the built hardware where a probe, clip, or measurement lead can be attached without disturbing the circuit.
+
+These are related but not identical concepts.
+
+For example:
+
+\`\`\`text
+TP_SENSOR label
+    = electrical identity of the sensor/AFE input node
+
+TP_SENSOR test-point symbol
+    = physical access point connected to that node
+\`\`\`
+
+The Rev-1 build requires four accessible analog test points:
+
+\`\`\`text
+TP_5V     → 5V_MEAS
+TP_GND    → GND_MEAS
+TP_SENSOR → sensor output / AFE input node
+TP_AFE    → high-Q AFE output node
+\`\`\`
+
+Their purpose is repeatable measurement and troubleshooting.
+
+### TP_5V
+
+This provides direct access to the actual measurement supply rail.
+
+It allows us to verify the real supply voltage rather than assume it is exactly 5.000 V.
+
+### TP_GND
+
+This is the designated oscilloscope/multimeter reference point for the measurement electronics.
+
+It helps keep probe grounding deliberate and avoids casually attaching instrument ground clips to unrelated or high-current nodes.
+
+### TP_SENSOR
+
+This exposes the ACS724 secondary-side output and AFE input boundary.
+
+It can be used to:
+
+- observe the raw sensor voltage during integrated operation;
+- inject a controlled AFG stimulus during independent AFE bring-up, provided the ACS724 output is not simultaneously driving the node.
+
+### TP_AFE
+
+This exposes the output of the complete fourth-order analog filter before the ADC isolation network.
+
+It lets us compare:
+
+\`\`\`text
+TP_SENSOR → input waveform
+TP_AFE    → filtered waveform
+\`\`\`
+
+during frequency-response and noise characterization.
+
+The test points do not alter the intended transfer function; they are controlled physical access locations on already-existing electrical nodes.
