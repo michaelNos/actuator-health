@@ -461,3 +461,13 @@ Continuity testing showed that AFG OUT was not electrically connected to the int
 After correcting that missing connection, the bias-node waveform became clearly periodic at approximately 1 kHz. In the first post-fix scope image, CH2 at the bias node showed approximately 998.6 Hz and a DC level near 472.5 mV, confirming that the AC-coupling path is now active while the positive DC bias remains present.
 
 The simultaneous CH1 reading in that image was approximately 4.93 V DC, indicating CH1 was no longer probing the AFG-side signal node. Therefore no amplitude-transfer ratio is calculated from this image. The next measurement must put CH1 back on the AFG-side capacitor-bank bus and keep CH2 on the bias node.
+
+
+### 1 kHz source/bias check after reconnecting the capacitor-bank input
+
+Scope image observations with R1 disconnected:
+
+- CH1 at the AFG-side bus: 544 mVpp, 177.5 mV RMS, mean -7.842 mV, 1.000 kHz.
+- CH2 at the bias node: mean 480.2 mV, raw Vpp 84 mV, no stable frequency indication.
+
+The source and DC bias are present, but the bias node still does not show a clear 1 kHz sine. The next diagnostic is to verify the actual value code printed on the ceramic capacitors.
