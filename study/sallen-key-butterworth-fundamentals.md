@@ -952,3 +952,193 @@ while the **ratio** of those component values also determines:
 \]
 
 So next, before we continue drawing the schematic, I think it is worth showing **exactly how our 1.2 nF versus 1.0 nF produces the low-Q value, and how 6.8 nF versus 1.0 nF produces the high-Q value**. That's the key to understanding why the two Sallen-Key stages look almost identical but behave so differently.
+
+
+---
+
+## Low-Q stage bring-up: first capacitor from N2A to GND_MEAS
+
+Good. Removing the temporary capacitor bank is actually cleaner. Your schematic now matches the direction we want much better.
+
+I checked the screenshot carefully:
+
+- \`R1 = 9.76k\` is correct.
+- \`R2 = 9.76k\` is correct.
+- \`TP_SENSOR → R1 → N1A → R2 → N2A → U1A pin 3\` is correct.
+- U1A **pin 1 → pin 2** feedback is correct.
+- \`5V_MEAS/GND_MEAS\` and C1 decoupling are correct.
+- ACS724 C12 = 4.7 nF and its updated note are consistent.
+- The title block is now correctly changed to **Stage B – MCP6022 AFE bring-up**.
+
+Now we add the first capacitor.
+
+## Step 6A — add the capacitor from N2A to ground
+
+Place:
+
+\`\`\`text id="uydude"
+C13 = 1.0 nF
+\`\`\`
+
+from:
+
+\`\`\`text id="e3707j"
+N2A
+ │
+C13 1.0 nF
+ │
+GND_MEAS
+\`\`\`
+
+So this part becomes:
+
+\`\`\`text id="0aug3d"
+TP_SENSOR ─ R1 ─ N1A ─ R2 ─ N2A ── pin 3 (+)
+                                   │
+                                 C13
+                                 1.0nF
+                                   │
+                               GND_MEAS
+\`\`\`
+
+Do **not add the 1.2 nF capacitor yet**.
+
+### Why does this capacitor go to ground?
+
+A capacitor's impedance is:
+
+\[
+Z_C=\frac{1}{j\omega C}
+\]
+
+At very low frequency:
+
+\[
+\omega\rightarrow0
+\]
+
+therefore:
+
+\[
+|Z_C|\rightarrow\infty
+\]
+
+So C13 behaves almost like an open circuit.
+
+At DC:
+
+\`\`\`text id="3ed3j6"
+N2A ── C13 ── GND
+        ↑
+   effectively open
+\`\`\`
+
+Almost no current flows through it.
+
+Therefore the DC sensor voltage passes through R1/R2 with almost no drop:
+
+\[
+V_{N2A}\approx V_{TP\_SENSOR}
+\]
+
+which is exactly what we want.
+
+---
+
+As frequency increases:
+
+\[
+|Z_C|=\frac{1}{2\pi fC}
+\]
+
+gets smaller.
+
+For \`C = 1 nF\`:
+
+At 1 kHz:
+
+\[
+|Z_C|\approx159\,k\Omega
+\]
+
+At 10 kHz:
+
+\[
+|Z_C|\approx15.9\,k\Omega
+\]
+
+At 50 kHz:
+
+\[
+|Z_C|\approx3.18\,k\Omega
+\]
+
+Compare that with our resistors:
+
+\[
+R_1=R_2=9.76\,k\Omega
+\]
+
+Now you can see what starts happening.
+
+At low frequency, C13 looks enormous compared with 9.76 kΩ, so almost nothing is diverted to ground.
+
+At high frequency its impedance becomes comparable to — and eventually much lower than — the resistors.
+
+So high-frequency current increasingly finds a path:
+
+\`\`\`text id="2jo2w2"
+signal
+  ↓
+R1 → R2 → N2A
+             │
+            C13
+             │
+         GND_MEAS
+\`\`\`
+
+That starts pulling the high-frequency voltage at \`N2A\` downward.
+
+This is the fundamental low-pass behavior.
+
+### But isn't that just an RC filter?
+
+At this moment, **yes — partly**.
+
+With only this capacitor installed, we do not yet have the complete Sallen-Key second-order behavior.
+
+The important second capacitor will connect:
+
+\`\`\`text id="3o4k0g"
+N1A → capacitor → OUTA
+\`\`\`
+
+That creates the frequency-dependent feedback interaction which gives us the second pole and the required Q.
+
+So think of today's first capacitor as:
+
+> the obvious low-pass path.
+
+The next capacitor is the less intuitive one that turns the network into the full Sallen-Key stage.
+
+### One important naming detail
+
+In the design equations/documentation this capacitor is called the low-Q section's:
+
+\[
+C_2=1.0\,nF
+\]
+
+But in KiCad it will be **C13**, because \`C1–C12\` have already been used historically.
+
+So:
+
+\`\`\`text id="bothra"
+mathematical C2 = KiCad C13 = 1.0 nF
+\`\`\`
+
+That distinction will save us confusion later.
+
+Add only **C13 = 1.0 nF from N2A to GND_MEAS**, then send me the screenshot.
+
+Next we add the much more interesting **1.2 nF capacitor from N1A to U1A output**, and I'll derive why that connection determines Q instead of merely adding another ordinary RC pole.
