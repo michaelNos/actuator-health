@@ -2075,3 +2075,38 @@ TP_AFE    → filtered waveform
 during frequency-response and noise characterization.
 
 The test points do not alter the intended transfer function; they are controlled physical access locations on already-existing electrical nodes.
+
+
+---
+
+## ACS724 local supply bypass
+
+The ACS724 secondary-side supply also requires its own local 100 nF bypass capacitor between VCC and GND_MEAS.
+
+This capacitor has the same general decoupling purpose as the 100 nF capacitor beside the MCP6022, but it must be physically local to the ACS724 carrier because supply disturbances and wiring inductance are local phenomena.
+
+The connection is:
+
+\`\`\`text
+5V_MEAS / ACS724 VCC
+        │
+      100 nF
+        │
+     GND_MEAS
+\`\`\`
+
+The capacitor does not belong to the FILTER pin and does not set the ACS724 signal bandwidth.
+
+It bypasses the sensor's **power supply**.
+
+This distinction is important because the ACS724 currently has two very different capacitive functions:
+
+\`\`\`text
+VCC → 100 nF → GND_MEAS
+    supply decoupling
+
+FILTER → stock 1 nF + external 4.7 nF → GND_MEAS
+    signal-bandwidth / noise shaping
+\`\`\`
+
+The supply bypass should be located physically close to the ACS724 VCC/GND pins on the carrier/interconnect.
