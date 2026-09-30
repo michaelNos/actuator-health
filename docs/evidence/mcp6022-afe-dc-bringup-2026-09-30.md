@@ -415,3 +415,28 @@ Therefore the earlier 4.54 V reading must **not** be used to diagnose the 10 kΩ
 The valid divider-alone operating-point measurement remains approximately **0.44 V** at the bias node with the intended supply state active.
 
 All subsequent bias/coupling measurements must keep the power-source configuration unchanged and explicitly record that state.
+
+
+### Bias/coupling network test with R1 disconnected
+
+With R1 disconnected from the temporary source fixture, CH1 measured the AFG side of the capacitor bank and CH2 measured the common bias node.
+
+Photographed measurements:
+
+- CH1: \`Vpp = 528.0 mV\`, mean = \`-8.887 mV\`, \`Vrms = 175.9 mV\`, frequency = \`100.0 Hz\`;
+- CH2: \`Vpp = 76.0 mV\`, mean = approximately \`468.6 mV\`, RMS = approximately \`468.6 mV\`;
+- CH2 automatic frequency: no valid reading.
+
+Interpretation:
+
+The DC bias is present at the bias node, consistent with the independently measured divider operating point near 0.44 V. However, CH2 does not show a clear coherent 100 Hz sine; the visible variation is dominated by noise/spikes and the automatic frequency detector cannot lock.
+
+Therefore the 76 mV raw Vpp must not be interpreted as the actual transmitted 100 Hz sine amplitude.
+
+This result establishes:
+
+- AFG source side is valid at ~0.53 Vpp / 100 Hz;
+- DC bias node is valid;
+- the AC path through the capacitor bank has **not yet been validated**.
+
+Next diagnostic: without changing wiring, raise the AFG frequency to 1 kHz while keeping 0.5 Vpp. A correctly connected AC-coupling bank should pass a much larger, clearly sinusoidal signal at the bias node because the capacitor reactance is ten times lower at 1 kHz than at 100 Hz. If CH2 remains essentially flat/noisy, the bank connection itself is suspect.
