@@ -198,3 +198,58 @@ Then calculate the first sensor-derived current using the nominal sensitivity:
 and compare it with the PSU indication.
 
 Only after this DC check succeeds should the oscilloscope be used to capture the true ACS724 output waveform during motor startup.
+
+
+---
+
+## B-010 — Rev-1 MCP6022 AFE DC bring-up
+
+The temporary characterization fixture was removed and the Rev-1 MCP6022 AFE was rebuilt for independent bring-up.
+
+The supply section includes:
+
+- MCP6022 pin 8 → measurement 5 V domain;
+- MCP6022 pin 4 → measurement ground;
+- 100 nF local bypass;
+- 10 µF local reservoir.
+
+The user selected **10 kΩ** physical resistors for the low-Q section instead of the original 9.76 kΩ nominal value. This is an explicit Stage-B implementation deviation and must be included in later AC prediction/comparison and schematic/configuration traceability.
+
+### Continuity / wiring check
+
+Continuity checks were performed across the intended direct electrical connections. Supply-rail continuity behavior must be interpreted with the installed capacitors in mind; a transient continuity indication while capacitors charge is not equivalent to a hard short.
+
+### Supply measurement
+
+Measured directly across MCP6022 pins 8 and 4:
+
+\`VDD - VSS = 4.92 V\`
+
+Result: **PASS** for the present AFE power bring-up gate.
+
+### DC path measurements
+
+Measured:
+
+- \`TP_SENSOR = 0.49 V\`
+- pin 3 / \`+IN A = 0.48 V\`
+- pin 1 / \`OUTA = 0.49 V\`
+- pin 5 / \`+IN B = 0.49 V\`
+- pin 7 / \`TP_AFE = 0.49 V\`
+- \`ADC_IN = 0.49 V\`
+
+Interpretation:
+
+The complete AFE passes the present DC operating level through both unity-gain op-amp sections and the ADC interface without gross offset, saturation, supply collapse, or obvious wiring failure.
+
+This establishes the **DC operating-path gate only**. It does not validate the designed AC Butterworth response, Q, phase, noise, clipping margin, or ADC acquisition behavior.
+
+Detailed evidence is recorded in:
+
+\`docs/evidence/mcp6022-afe-dc-bringup-2026-09-30.md\`
+
+## Immediate next action — superseding the earlier raw-ACS724 action
+
+Perform the first independent AFE AC test with a known low-frequency sine stimulus applied at \`TP_SENSOR\`, while the ACS724 output is not simultaneously driving that node.
+
+Measure \`TP_SENSOR\` and \`TP_AFE\` simultaneously and compare measured low-frequency gain with the near-unity prediction before moving toward the filter corner.
