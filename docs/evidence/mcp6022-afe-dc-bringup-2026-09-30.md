@@ -147,8 +147,8 @@ The next AC-validation step requires an explicit external bias/injection network
 
 A brief direct connection of the DOS1102S AFG output to `TP_SENSOR` produced a new observation:
 
-- AFG measured alone: approximately **520 mVpp**, mean approximately **-8 mV**.
-- After connecting AFG OUT directly to `TP_SENSOR`: measured mean became approximately **+171 mV**.
+- With AFG already connected to R1, CH1 measured approximately **520 mVpp**, mean approximately **-8 mV**, and approximately **176 mV RMS**.
+- In the later TP_SENSOR configuration, the measured mean was approximately **+171 mV**.
 - The user subsequently confirmed that **ACS724 VOUT and AFG OUT were both connected to TP_SENSOR at the same time**.
 
 Interpretation:
