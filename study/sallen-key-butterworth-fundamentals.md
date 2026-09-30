@@ -1636,3 +1636,102 @@ two complementary second-order responses
         ↓
 fourth-order Butterworth response
 \`\`\`
+
+
+---
+
+## High-Q stage construction: resistor order and capacitor connections
+
+The high-Q section must follow the accepted net order:
+
+\`\`\`text
+OUTA → R3 4.07k → N1B → R4 4.07k → N2B → U1B pin 5 (+)
+\`\`\`
+
+Because R3 and R4 have the same value, reversing their physical positions does not change the ideal electrical transfer function. However, keeping the reference designators aligned with the accepted net-level definition matters for traceability, troubleshooting, and later comparison between schematic, documentation, measurements, and BOM.
+
+The unity-gain feedback is:
+
+\`\`\`text
+U1B pin 7 OUTB → U1B pin 6 (−)
+\`\`\`
+
+The high-Q capacitors are then connected as:
+
+\`\`\`text
+N1B → 6.8 nF → OUTB
+N2B → 1.0 nF → GND_MEAS
+\`\`\`
+
+This is the same Sallen-Key topology as the low-Q stage, but with a much larger ratio between the feedback-side capacitor and the ground-side capacitor.
+
+For equal resistors:
+
+\[
+Q=\frac12\sqrt{\frac{C_1}{C_2}}
+\]
+
+Using:
+
+\[
+C_1=6.8\,nF
+\]
+
+and:
+
+\[
+C_2=1.0\,nF
+\]
+
+gives:
+
+\[
+Q=\frac12\sqrt{6.8}\approx1.304
+\]
+
+The larger feedback-side capacitor means its impedance becomes lower than in the low-Q stage for the same frequency:
+
+\[
+|Z_C|=\frac{1}{2\pi fC}
+\]
+
+At 10 kHz:
+
+\[
+|Z_{6.8nF}|\approx2.34\,k\Omega
+\]
+
+while:
+
+\[
+|Z_{1.0nF}|\approx15.9\,k\Omega
+\]
+
+Therefore the N1B-to-OUTB feedback interaction is much stronger near the 10–15 kHz region than it was in the low-Q section.
+
+That stronger frequency-dependent feedback produces much less damping and therefore the higher Q.
+
+The natural frequency nevertheless remains close to 15 kHz because the resistor values are reduced to 4.07 kΩ:
+
+\[
+f_0=
+\frac{1}
+{2\pi(4.07\,k\Omega)\sqrt{6.8\,nF\cdot1.0\,nF}}
+\approx15.0\,kHz
+\]
+
+The design therefore changes Q strongly while keeping the pole pair in approximately the same frequency region.
+
+The completed high-Q section is:
+
+\`\`\`text
+OUTA ─ R3 4.07k ─ N1B ─ R4 4.07k ─ N2B ─ U1B pin 5 (+)
+                     │          │
+                   6.8 nF     1.0 nF
+                     │          │
+                     │       GND_MEAS
+                     │
+                     └──────── OUTB pin 7
+
+OUTB pin 7 ───────── U1B pin 6 (−)
+\`\`\`
