@@ -1,12 +1,18 @@
-ERC report (2026-09-14T13:51:58, Encoding UTF8)
+ERC report (2026-09-30T16:54:25, Encoding UTF8)
 Report includes: Errors, Warnings, Exclusions
 
 ***** Sheet /
-[lib_symbol_issues]: Symbol 'Pololu_4048_ACS724_05AU' not found in symbol library 'actuator_health'
+[pin_not_connected]: Pin not connected
+    ; error
+    @(6050 mils, 4500 mils): Symbol U2 Pin 1 [IP+, Passive, Line]
+[pin_not_connected]: Pin not connected
+    ; error
+    @(6050 mils, 5000 mils): Symbol U2 Pin 2 [IP-, Passive, Line]
+[unconnected_wire_endpoint]: Unconnected wire endpoint
     ; warning
-    @(7500 mils, 4750 mils): Symbol U2 [Pololu_4048_ACS724_05AU]
+    @(7400 mils, 4450 mils): Horizontal Wire, length 100 mils
 
- ** ERC messages: 1  Errors 0  Warnings 1
+ ** ERC messages: 3  Errors 2  Warnings 1
 
  ** Ignored checks:
     - Global label only appears once in the schematic
