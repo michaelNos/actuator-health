@@ -494,3 +494,8 @@ Amplitude ratio:
 Thus the isolated coupling bank transfers about 98.4% of the 1 kHz amplitude into a 1 kOhm load. This is consistent with the intended nominal total capacitance of approximately 1 uF and confirms that the 10 x 100 nF capacitor bank itself is functioning correctly.
 
 Engineering conclusion: **capacitor-bank isolation gate PASS.** The earlier loss of the 1 kHz signal occurred elsewhere in the bias-network / node implementation or measurement placement, not inside the capacitor bank itself.
+
+
+### Biased source validation at 1 kHz
+
+With R1 disconnected, CH1 measured the AFG side and CH2 the biased node. Observed: CH1 496 mVpp at 1.000 kHz; CH2 480 mVpp at 1.000 kHz; CH2 mean about 414.2 mV. The amplitude ratio is 480/496 = 0.968. Both traces are clean sinusoids. Result: temporary biased-source gate PASS at 1 kHz. This is a source-fixture result, not yet an AFE transfer measurement.
