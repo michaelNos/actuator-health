@@ -145,17 +145,20 @@ The next AC-validation step requires an explicit external bias/injection network
 
 ## Direct zero-centered AFG connection — invalid stimulus observation
 
-A brief direct connection of the DOS1102S AFG output to \`TP_SENSOR\` produced a new observation:
+A brief direct connection of the DOS1102S AFG output to `TP_SENSOR` produced a new observation:
 
 - AFG measured alone: approximately **520 mVpp**, mean approximately **-8 mV**.
-- After connecting AFG OUT directly to \`TP_SENSOR\`: measured mean became approximately **+171 mV**.
+- After connecting AFG OUT directly to `TP_SENSOR`: measured mean became approximately **+171 mV**.
+- The user subsequently confirmed that **ACS724 VOUT and AFG OUT were both connected to TP_SENSOR at the same time**.
 
-This demonstrates that the waveform is being materially altered by the powered AFE/input interaction when a zero-centered signal is applied directly.
+Interpretation:
 
-The exact mechanism is not established from the mean measurement alone. Possible mechanisms include negative-half-cycle limiting/clamping or another loading/source interaction. Therefore this result must **not** be interpreted as an AFE transfer measurement.
+This was **source contention**: two active voltage outputs were connected to one node. ACS724 VOUT was attempting to hold the node near its approximately 0.49 V zero-current output while the AFG was attempting to impose a zero-centered sine. The observed +171 mV mean is therefore not an AFE transfer result.
+
+The earlier tentative suggestion that the AFE itself might be clamping the negative half-cycle is superseded by the confirmed wiring condition above.
 
 Engineering conclusion:
 
-**Direct zero-centered DOS1102S AFG injection into \`TP_SENSOR\` is rejected as the AC-validation method.**
+**This measurement is invalid for AFE characterization because two active sources drove TP_SENSOR simultaneously.**
 
-The AFG should be disconnected from \`TP_SENSOR\` until a verified positive-biased stimulus method is implemented.
+For independent AFE testing, only one active source may drive TP_SENSOR at a time. If the AFG is used, ACS724 VOUT must be disconnected first.
