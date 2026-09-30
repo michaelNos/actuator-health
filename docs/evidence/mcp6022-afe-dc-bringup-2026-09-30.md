@@ -354,3 +354,18 @@ CH2 is not a clean 100 Hz sine, so its automatic frequency readout is not interp
 The approximately 1.10 V CH2 DC level is inconsistent with the previously verified divider-alone bias of 0.44 V. A correctly functioning series coupling capacitor should not intentionally shift the divider's DC operating point from 0.44 V to 1.10 V.
 
 Therefore this capture is **not accepted as coupling-network transfer evidence**. The next diagnostic is to measure the actual DC voltage at the bias-node / R1 input with a multimeter while the AFG/coupling bank is connected and running, to distinguish a real DC-node shift from a scope-node/measurement-placement issue.
+
+
+### DC multimeter check with AFG and coupling bank connected
+
+With the AFG running at 100 Hz / 0.5 Vpp and the 10 × 100 nF coupling bank connected, the user measured the R1-input / bias node with a multimeter in DC-voltage mode:
+
+- observed DC voltage: approximately **0.57–0.60 V**.
+
+This differs materially from the divider-alone value of **0.44 V**.
+
+For an ideal series coupling capacitor, the divider should establish the DC operating point independently of the AFG's zero-centered DC level. Therefore the observed upward shift indicates that the present coupling/bias implementation or its connected load is altering the DC node.
+
+No AFE transfer conclusion is drawn from this state.
+
+Next diagnostic: isolate the bias/coupling source from the AFE by disconnecting R1 from the bias node, leaving only the divider + capacitor bank + AFG, and remeasure the bias node DC voltage. This distinguishes a source-network problem from loading/nonlinearity in the AFE path.
