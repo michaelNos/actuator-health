@@ -305,3 +305,18 @@ Not yet established:
 Next action:
 
 Implement and verify a bias/coupling fixture whose own high-pass corner is well below the 100 Hz baseline, then validate the biased source at the R1 input **before** measuring \`TP_AFE\`.
+
+
+### Clarification — powered vs unpowered bias reading
+
+The user clarified that the earlier approximately **0.41 V** reading at the R1 input was taken with the **PSU OFF** and must not be treated as the operating bias voltage.
+
+With the same temporary bias network and the **PSU ON**, the R1 input/bias node measured **0.44 V**.
+
+Therefore the valid powered divider result remains:
+
+- supply side approximately 4.8 V;
+- bias node approximately 0.44 V;
+- agreement with the 10 kΩ / 1 kΩ divider prediction is good.
+
+The unpowered 0.41 V observation is not used for bias validation.
