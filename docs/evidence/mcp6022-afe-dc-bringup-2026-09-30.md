@@ -499,3 +499,17 @@ Engineering conclusion: **capacitor-bank isolation gate PASS.** The earlier loss
 ### Biased source validation at 1 kHz
 
 With R1 disconnected, CH1 measured the AFG side and CH2 the biased node. Observed: CH1 496 mVpp at 1.000 kHz; CH2 480 mVpp at 1.000 kHz; CH2 mean about 414.2 mV. The amplitude ratio is 480/496 = 0.968. Both traces are clean sinusoids. Result: temporary biased-source gate PASS at 1 kHz. This is a source-fixture result, not yet an AFE transfer measurement.
+
+
+### Biased source with R1 reconnected — PASS
+
+With R1 reconnected to the validated temporary biased source, CH1 remained on the AFG-side bus and CH2 measured the bias node / R1 input.
+
+Observed from the scope image:
+
+- CH1: 496 mVpp, 1.001 kHz, mean about -7.879 mV.
+- CH2: 500 mVpp, 1.000 kHz, mean about 428.5 mV.
+
+The biased source remains clean and essentially unchanged when loaded by the AFE input through R1. Therefore the temporary source is now validated under the actual R1-connected condition.
+
+The previous approximately 4.608 V CH2 reading is superseded by this verified bias-node measurement and is not used as the operating-point value.
