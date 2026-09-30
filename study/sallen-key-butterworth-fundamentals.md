@@ -1929,3 +1929,81 @@ The accepted design therefore separates the jobs:
 \`\`\`
 
 The two networks solve different problems.
+
+
+---
+
+## AFE test injection at TP_SENSOR: why two active sources must never drive the node together
+
+Stage B requires the MCP6022 AFE to be characterized independently before it is integrated with the ACS724.
+
+The final product-level signal path remains:
+
+\`\`\`text
+ACS724 VIOUT → TP_SENSOR → AFE
+\`\`\`
+
+For independent AFE testing, a known clean AFG signal is temporarily injected at the same TP_SENSOR node.
+
+A practical test connector can therefore expose:
+
+\`\`\`text
+AFG signal → TP_SENSOR
+AFG ground → GND_MEAS
+\`\`\`
+
+However, the AFG and ACS724 output must **not** actively drive TP_SENSOR at the same time.
+
+### Why?
+
+Both the ACS724 VIOUT pin and the AFG output behave approximately as low-impedance voltage sources.
+
+If one source attempts to hold the node at one voltage while the other source attempts to force a different voltage, current flows between the two output stages.
+
+For example:
+
+\`\`\`text
+ACS724 output trying to hold 0.50 V
+             │
+          TP_SENSOR
+             │
+AFG output trying to force 2.00 V
+\`\`\`
+
+The node is no longer a valid controlled test condition. Instead, the two sources fight each other.
+
+Possible consequences include:
+
+- distorted stimulus amplitude;
+- invalid measurements;
+- current limiting by one of the sources;
+- excessive output-stage current;
+- possible device stress or damage.
+
+### Correct Stage-B use
+
+During independent AFE bring-up:
+
+\`\`\`text
+AFG → TP_SENSOR → AFE
+\`\`\`
+
+and the ACS724 VIOUT connection is physically absent/disconnected from that node.
+
+During integrated sensor operation:
+
+\`\`\`text
+ACS724 VIOUT → TP_SENSOR → AFE
+\`\`\`
+
+and the AFG is not connected.
+
+The schematic may show both the sensor path and the passive test connector because the connector does not itself drive the net. The operating procedure determines which external source is actually connected.
+
+The rule is:
+
+\`\`\`text
+ONE active voltage source at TP_SENSOR at a time.
+\`\`\`
+
+This is a test-configuration rule, not a change to the accepted product architecture.
