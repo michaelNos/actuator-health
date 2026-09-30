@@ -1325,3 +1325,184 @@ N1A → 1.2 nF → OUTA
 \`\`\`
 
 Together with the two 9.76 kΩ resistors and unity-gain follower they form one complete second-order Sallen-Key low-pass section.
+
+
+---
+
+## Complete low-Q Sallen-Key stage: what the finished first section now does
+
+The low-Q section is now:
+
+\`\`\`text
+TP_SENSOR ─ R1 9.76k ─ N1A ─ R2 9.76k ─ N2A ─ U1A pin 3 (+)
+                         │          │
+                       C3 1.2nF   C2 1.0nF
+                         │          │
+                         │       GND_MEAS
+                         │
+                         └──────── OUTA pin 1
+
+OUTA pin 1 ───────────── U1A pin 2 (−)
+\`\`\`
+
+This is one complete second-order unity-gain Sallen-Key low-pass section.
+
+### DC behavior
+
+At DC, both capacitors behave approximately as open circuits.
+
+Therefore almost no current flows through R1 and R2, so there is essentially no resistor voltage drop:
+
+\[
+V_{TP\_SENSOR}\approx V_{N1A}\approx V_{N2A}
+\]
+
+The op-amp is configured as a voltage follower:
+
+\[
+V_{OUTA}\approx V_{N2A}
+\]
+
+Therefore:
+
+\[
+V_{OUTA}\approx V_{TP\_SENSOR}
+\]
+
+The section preserves the sensor's DC level, which is essential because current is encoded in the ACS724 output's DC voltage.
+
+### Frequency-dependent behavior
+
+As frequency increases, both capacitor impedances decrease:
+
+\[
+|Z_C|=\frac{1}{2\pi fC}
+\]
+
+The capacitor from N2A to GND_MEAS increasingly shunts high-frequency current toward ground.
+
+The capacitor from N1A to OUTA does something different: because OUTA follows N2A, current through this capacitor depends on the difference between N1A and the actively driven output voltage.
+
+That active interaction determines the damping and therefore the quality factor Q.
+
+### Natural frequency and Q
+
+For this topology:
+
+\[
+f_0=
+\frac{1}
+{2\pi\sqrt{R_1R_2C_1C_2}}
+\]
+
+and:
+
+\[
+Q=
+\frac{\sqrt{R_1R_2C_1C_2}}
+{C_2(R_1+R_2)}
+\]
+
+For equal resistors:
+
+\[
+R_1=R_2=R
+\]
+
+the expressions simplify to:
+
+\[
+f_0=
+\frac{1}
+{2\pi R\sqrt{C_1C_2}}
+\]
+
+and:
+
+\[
+Q=
+\frac12\sqrt{\frac{C_1}{C_2}}
+\]
+
+Using the low-Q values:
+
+\[
+R=9.76\,k\Omega
+\]
+
+\[
+C_1=1.2\,nF
+\]
+
+\[
+C_2=1.0\,nF
+\]
+
+gives:
+
+\[
+f_0\approx14.886\,kHz
+\]
+
+and:
+
+\[
+Q\approx0.548
+\]
+
+### Important: natural frequency is not the -3 dB frequency of this individual stage
+
+For a unity-DC-gain second-order low-pass section, at its natural frequency:
+
+\[
+|H(f_0)|=Q
+\]
+
+For this low-Q section:
+
+\[
+|H(f_0)|\approx0.548
+\]
+
+which is about:
+
+\[
+20\log_{10}(0.548)\approx-5.23\,dB
+\]
+
+So seeing roughly -5.2 dB around 14.9 kHz from this first stage alone is expected.
+
+The approximately -3 dB at 15 kHz requirement applies to the complete fourth-order Butterworth filter after the low-Q and high-Q sections are cascaded.
+
+### Nominal low-Q transfer predictions
+
+Using the accepted component values, the ideal stage response is approximately:
+
+| Frequency | Magnitude | Gain | Phase |
+|---:|---:|---:|---:|
+| DC | 1.000 | 0 dB | 0° |
+| 1 kHz | 0.997 | -0.026 dB | -7.0° |
+| 5 kHz | 0.927 | -0.656 dB | -34.7° |
+| 10 kHz | 0.744 | -2.566 dB | -65.9° |
+| 15 kHz | 0.544 | -5.295 dB | -90.5° |
+| 50 kHz | 0.0835 | -21.56 dB | -149.2° |
+
+For a 100 mVpp sinusoidal input, this predicts approximately:
+
+\`\`\`text
+1 kHz  → 99.7 mVpp
+5 kHz  → 92.7 mVpp
+10 kHz → 74.4 mVpp
+15 kHz → 54.4 mVpp
+50 kHz → 8.35 mVpp
+\`\`\`
+
+These are prediction values for later bench comparison, not measured values.
+
+### Why this first stage is intentionally low-Q
+
+The first section is deliberately strongly damped. It begins attenuating before 15 kHz and does not peak.
+
+The second, high-Q section will have the opposite tendency near its natural frequency. When the two stages are cascaded, their responses multiply and produce the intended flat fourth-order Butterworth response.
+
+So the first stage should not be judged against the complete-filter response by itself.
