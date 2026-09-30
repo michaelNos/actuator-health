@@ -962,11 +962,11 @@ Good. Removing the temporary capacitor bank is actually cleaner. Your schematic 
 
 I checked the screenshot carefully:
 
-- \`R1 = 9.76k\` is correct.
-- \`R2 = 9.76k\` is correct.
-- \`TP_SENSOR → R1 → N1A → R2 → N2A → U1A pin 3\` is correct.
+- `R1 = 9.76k` is correct.
+- `R2 = 9.76k` is correct.
+- `TP_SENSOR → R1 → N1A → R2 → N2A → U1A pin 3` is correct.
 - U1A **pin 1 → pin 2** feedback is correct.
-- \`5V_MEAS/GND_MEAS\` and C1 decoupling are correct.
+- `5V_MEAS/GND_MEAS` and C1 decoupling are correct.
 - ACS724 C12 = 4.7 nF and its updated note are consistent.
 - The title block is now correctly changed to **Stage B – MCP6022 AFE bring-up**.
 
@@ -976,30 +976,30 @@ Now we add the first capacitor.
 
 Place:
 
-\`\`\`text id="uydude"
+```text id="uydude"
 C13 = 1.0 nF
-\`\`\`
+```
 
 from:
 
-\`\`\`text id="e3707j"
+```text id="e3707j"
 N2A
  │
 C13 1.0 nF
  │
 GND_MEAS
-\`\`\`
+```
 
 So this part becomes:
 
-\`\`\`text id="0aug3d"
+```text id="0aug3d"
 TP_SENSOR ─ R1 ─ N1A ─ R2 ─ N2A ── pin 3 (+)
                                    │
                                  C13
                                  1.0nF
                                    │
                                GND_MEAS
-\`\`\`
+```
 
 Do **not add the 1.2 nF capacitor yet**.
 
@@ -1027,11 +1027,11 @@ So C13 behaves almost like an open circuit.
 
 At DC:
 
-\`\`\`text id="3ed3j6"
+```text id="3ed3j6"
 N2A ── C13 ── GND
         ↑
    effectively open
-\`\`\`
+```
 
 Almost no current flows through it.
 
@@ -1053,7 +1053,7 @@ As frequency increases:
 
 gets smaller.
 
-For \`C = 1 nF\`:
+For `C = 1 nF`:
 
 At 1 kHz:
 
@@ -1087,7 +1087,7 @@ At high frequency its impedance becomes comparable to — and eventually much lo
 
 So high-frequency current increasingly finds a path:
 
-\`\`\`text id="2jo2w2"
+```text id="2jo2w2"
 signal
   ↓
 R1 → R2 → N2A
@@ -1095,9 +1095,9 @@ R1 → R2 → N2A
             C13
              │
          GND_MEAS
-\`\`\`
+```
 
-That starts pulling the high-frequency voltage at \`N2A\` downward.
+That starts pulling the high-frequency voltage at `N2A` downward.
 
 This is the fundamental low-pass behavior.
 
@@ -1109,9 +1109,9 @@ With only this capacitor installed, we do not yet have the complete Sallen-Key s
 
 The important second capacitor will connect:
 
-\`\`\`text id="3o4k0g"
+```text id="3o4k0g"
 N1A → capacitor → OUTA
-\`\`\`
+```
 
 That creates the frequency-dependent feedback interaction which gives us the second pole and the required Q.
 
@@ -1129,13 +1129,13 @@ In the design equations/documentation this capacitor is called the low-Q section
 C_2=1.0\,nF
 \]
 
-But in KiCad it will be **C13**, because \`C1–C12\` have already been used historically.
+But in KiCad it will be **C13**, because `C1–C12` have already been used historically.
 
 So:
 
-\`\`\`text id="bothra"
+```text id="bothra"
 mathematical C2 = KiCad C13 = 1.0 nF
-\`\`\`
+```
 
 That distinction will save us confusion later.
 
