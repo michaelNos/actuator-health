@@ -1142,3 +1142,186 @@ That distinction will save us confusion later.
 Add only **C13 = 1.0 nF from N2A to GND_MEAS**, then send me the screenshot.
 
 Next we add the much more interesting **1.2 nF capacitor from N1A to U1A output**, and I'll derive why that connection determines Q instead of merely adding another ordinary RC pole.
+
+
+---
+
+## Completing the low-Q Sallen-Key section: why the second capacitor goes to OUTA
+
+At this stage of the schematic, the low-Q section has:
+
+\`\`\`text
+TP_SENSOR ─ R1 9.76k ─ N1A ─ R2 9.76k ─ N2A ─ U1A pin 3 (+)
+
+U1A pin 1 (OUTA) ─────────────── U1A pin 2 (−)
+\`\`\`
+
+The capacitor from \`N2A\` to \`GND_MEAS\` is the first energy-storage element:
+
+\`\`\`text
+N2A
+ │
+1.0 nF
+ │
+GND_MEAS
+\`\`\`
+
+The second capacitor must **not** also go to ground. It must connect:
+
+\`\`\`text
+N1A → 1.2 nF → OUTA
+\`\`\`
+
+This difference is what turns the network from a pair of simple RC sections into the intended unity-gain Sallen-Key second-order filter.
+
+### Why not put both capacitors to ground?
+
+If both capacitors were simply shunt capacitors to ground, the network would behave like two passive RC low-pass sections interacting through the resistor chain.
+
+That is not the accepted Sallen-Key topology and it would not realize the required pole quality factor \(Q\).
+
+The Sallen-Key topology deliberately makes the first capacitor see the **op-amp output** rather than ground.
+
+The complete low-Q section is:
+
+\`\`\`text
+TP_SENSOR ── R1 ── N1A ── R2 ── N2A ───── pin 3 (+)
+                       │          │
+                     1.2 nF     1.0 nF
+                       │          │
+                       │       GND_MEAS
+                       │
+                       └──────── OUTA pin 1
+
+OUTA pin 1 ───────────── pin 2 (−)
+\`\`\`
+
+### What does the capacitor from N1A to OUTA actually do?
+
+At low frequency the 1.2 nF capacitor has very high impedance, so almost no current flows through it.
+
+The op-amp behaves as a voltage follower and:
+
+\[
+V_{OUTA}\approx V_{N2A}\approx V_{TP\_SENSOR}
+\]
+
+As frequency increases, the capacitor impedance decreases:
+
+\[
+|Z_C|=\frac{1}{2\pi fC}
+\]
+
+Now current can flow between \`N1A\` and \`OUTA\`.
+
+But \`OUTA\` is not ground. It is an actively driven voltage that follows \`N2A\`.
+
+Therefore the current through this capacitor depends on:
+
+\[
+V_{N1A}-V_{OUTA}
+\]
+
+rather than simply:
+
+\[
+V_{N1A}-0
+\]
+
+That creates a frequency-dependent interaction between the resistor chain and the op-amp output.
+
+This interaction changes the **damping** of the two-pole system. In other words, it sets the section's \(Q\).
+
+### Transfer-function connection
+
+For the unity-gain topology used here:
+
+\[
+H(s)=
+\frac{1}
+{1+sC_2(R_1+R_2)+s^2R_1R_2C_1C_2}
+\]
+
+where:
+
+- \(C_1\) is the capacitor from \`N1A\` to \`OUTA\`;
+- \(C_2\) is the capacitor from \`N2A\` to \`GND_MEAS\`.
+
+Comparing this with the standard second-order denominator:
+
+\[
+1+\frac{s}{Q\omega_0}+\frac{s^2}{\omega_0^2}
+\]
+
+gives:
+
+\[
+\omega_0=
+\frac{1}{\sqrt{R_1R_2C_1C_2}}
+\]
+
+and therefore:
+
+\[
+f_0=
+\frac{1}
+{2\pi\sqrt{R_1R_2C_1C_2}}
+\]
+
+The quality factor is:
+
+\[
+Q=
+\frac{\sqrt{R_1R_2C_1C_2}}
+{C_2(R_1+R_2)}
+\]
+
+For equal resistors \(R_1=R_2=R\):
+
+\[
+Q=
+\frac{1}{2}\sqrt{\frac{C_1}{C_2}}
+\]
+
+This is the key relationship.
+
+For the low-Q section:
+
+\[
+C_1=1.2\,nF
+\]
+
+\[
+C_2=1.0\,nF
+\]
+
+so:
+
+\[
+Q=
+\frac{1}{2}\sqrt{\frac{1.2}{1.0}}
+\approx0.548
+\]
+
+That is the required low-Q behavior.
+
+The resistor values then place the natural frequency near 15 kHz:
+
+\[
+f_0=
+\frac{1}
+{2\pi(9.76\,k\Omega)\sqrt{1.2\,nF\cdot1.0\,nF}}
+\approx14.9\,kHz
+\]
+
+So the two capacitor connections have different jobs:
+
+\`\`\`text
+N2A → 1.0 nF → GND_MEAS
+    establishes the direct frequency-dependent shunt path
+
+N1A → 1.2 nF → OUTA
+    creates the output-dependent interaction that sets the required Q
+\`\`\`
+
+Together with the two 9.76 kΩ resistors and unity-gain follower they form one complete second-order Sallen-Key low-pass section.
