@@ -141,3 +141,21 @@ The built-in DOS1102S AFG is operating essentially zero-centered in this configu
 A zero-centered 520 mVpp sine would extend below \`GND_MEAS\`, so it must **not** be connected directly to \`TP_SENSOR\` for Rev-1 AFE validation.
 
 The next AC-validation step requires an explicit external bias/injection network or another verified positive-biased source. Per project method, that physical test network must be represented and understood before bench connection.
+
+
+## Direct zero-centered AFG connection — invalid stimulus observation
+
+A brief direct connection of the DOS1102S AFG output to \`TP_SENSOR\` produced a new observation:
+
+- AFG measured alone: approximately **520 mVpp**, mean approximately **-8 mV**.
+- After connecting AFG OUT directly to \`TP_SENSOR\`: measured mean became approximately **+171 mV**.
+
+This demonstrates that the waveform is being materially altered by the powered AFE/input interaction when a zero-centered signal is applied directly.
+
+The exact mechanism is not established from the mean measurement alone. Possible mechanisms include negative-half-cycle limiting/clamping or another loading/source interaction. Therefore this result must **not** be interpreted as an AFE transfer measurement.
+
+Engineering conclusion:
+
+**Direct zero-centered DOS1102S AFG injection into \`TP_SENSOR\` is rejected as the AC-validation method.**
+
+The AFG should be disconnected from \`TP_SENSOR\` until a verified positive-biased stimulus method is implemented.
