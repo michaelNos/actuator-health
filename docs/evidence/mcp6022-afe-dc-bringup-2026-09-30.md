@@ -851,3 +851,21 @@ Therefore the temporary bias divider is not physically wired as documented. The 
 `5V_MEAS -> 10 kOhm -> BIAS_NODE -> 1 kOhm -> GND_MEAS`.
 
 This is a confirmed wiring discrepancy in the temporary test fixture. No further AFE frequency-response conclusions should be drawn until the bias-side end of the 10 kOhm resistor is connected to BIAS_NODE and the divider is revalidated.
+
+
+### Correction: 10 kOhm continuity interpretation was premature
+
+The previous entry incorrectly treated a no-beep result involving the 10 kOhm divider resistor as proof that the resistor was disconnected from BIAS_NODE.
+
+That conclusion is withdrawn.
+
+A continuity tester commonly does not beep through a 10 kOhm resistor, so a measurement path that includes the resistor can legitimately produce no beep even when the divider is wired correctly.
+
+The correct verification is node-to-lead continuity:
+
+- directly probe the physical 5V-side resistor lead to the 5V_MEAS node;
+- directly probe the physical BIAS-side resistor lead to the BIAS_NODE row.
+
+Those checks should test only the wiring connection on each side and must not include the 10 kOhm resistance itself.
+
+No physical rewiring is authorized from the previous no-beep result alone.
