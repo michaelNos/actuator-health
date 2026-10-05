@@ -869,3 +869,17 @@ The correct verification is node-to-lead continuity:
 Those checks should test only the wiring connection on each side and must not include the 10 kOhm resistance itself.
 
 No physical rewiring is authorized from the previous no-beep result alone.
+
+
+### Bias fixture continuity check 2 — 10 kOhm BIAS-side connection PASS
+
+With PSU power OFF, direct continuity was checked between:
+
+- the physical metal lead of the 10 kOhm divider resistor on the BIAS_NODE side; and
+- the BIAS_NODE breadboard row.
+
+Continuity was present.
+
+This confirms that the 10 kOhm resistor's BIAS-side lead is physically connected to BIAS_NODE as intended. The earlier no-beep observation was therefore consistent with probing across the 10 kOhm resistance rather than indicating an open connection.
+
+Next check: directly verify the 1 kOhm resistor's GND-side lead to GND_MEAS.
