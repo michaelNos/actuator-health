@@ -577,3 +577,17 @@ which corresponds to approximately:
 For the physical low-Q implementation with R1 = R2 = 10 kOhm and the intended 1.2 nF / 1.0 nF capacitors, the predicted 5 kHz magnitude is approximately 0.924 (about -0.69 dB).
 
 Therefore the observed attenuation is materially larger than predicted. The excessive 5 kHz attenuation is already present in the first low-Q stage, so the next diagnostic should isolate whether the MCP6022 follower itself is reproducing N2A correctly or whether the error lies in the passive Sallen-Key network/component values/wiring.
+
+
+### Pin-3 diagnostic capture invalid because stimulus disappeared
+
+For the intended next diagnostic, CH1 was to remain on the biased R1 input and CH2 was moved to MCP6022 pin 3 / N2A while the AFG should remain at 5 kHz, 0.5 Vpp.
+
+The submitted scope capture did not contain the expected 5 kHz stimulus:
+
+- CH1: about 33.6 mVpp, mean about 476.7 mV, auto-frequency about 220.8 Hz.
+- CH2: about 110 mVpp, mean about 30.8 mV, auto-frequency about 1.974 kHz.
+
+Neither waveform is a clean 5 kHz sine, so this capture is not used to characterize N2A or the op-amp follower.
+
+Next action: without moving either probe, verify that the AFG output remains ON at 5.000 kHz and 0.500 Vpp, then repeat the screen capture.
