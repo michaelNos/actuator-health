@@ -660,3 +660,24 @@ Measured ratio across the R1 input-to-N1A interval:
 Within the scope's displayed amplitude resolution, there is no measurable 5 kHz amplitude loss across R1. Therefore the excessive attenuation previously seen at OUTA is not introduced across R1.
 
 Next localization step: keep CH1 at the biased R1 input and move CH2 from N1A to N2A / MCP6022 pin 3. This isolates the R2 / N2A portion of the low-Q network under a valid biased operating condition.
+
+
+### 5 kHz N2A localization — node pulled near ground
+
+Configuration:
+
+- CH1: biased R1 input.
+- CH2: N2A / MCP6022 pin 3.
+- AFG: 5.000 kHz, 0.500 Vpp.
+- PSU ON.
+
+Observed from the scope image:
+
+- CH1: 504 mVpp, 5.000 kHz, mean about 463.9 mV.
+- CH2: 64.0 mVpp, mean about 16.84 mV; automatic frequency did not lock.
+
+This is not accepted as normal low-pass behavior. The preceding N1A measurement was approximately 512 mVpp with mean about 467.7 mV, so the signal and DC bias are healthy through R1. At N2A, however, both the AC amplitude and especially the DC bias collapse close to ground.
+
+In the intended topology, the N2A-to-GND capacitor is 1.0 nF. At DC it should act effectively open, so N2A should remain close to the input bias voltage through R1/R2. A mean near 16.8 mV therefore indicates an unintended DC path to ground, wrong physical node, wrong component/wiring, or similar fault around N2A.
+
+Next diagnostic: with power OFF, check continuity between N2A / MCP6022 pin 3 and GND_MEAS before changing any wiring.
