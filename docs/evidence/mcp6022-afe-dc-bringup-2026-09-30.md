@@ -635,3 +635,28 @@ Although the raw AC ratio is `440/512 ≈ 0.859`, this capture is not accepted a
 With the MCP6022 operating from a single positive supply, a zero-centered ~0.5 Vpp stimulus drives part of the waveform below ground and invalidates the intended linear AFE test condition.
 
 Next action: do not change the filter wiring. Verify the DC voltage of the physical bias node / R1 input relative to GND_MEAS with a multimeter while the PSU and AFG are connected as intended. Expected value is approximately 0.4-0.45 V.
+
+
+### Valid 5 kHz N1A localization after restoring PSU power
+
+The operator confirmed that the PSU had mistakenly been OFF during the previous zero-bias capture. With the PSU restored, the intended external bias returned.
+
+Diagnostic configuration:
+
+- CH1: biased R1 input.
+- CH2: N1A, the node between R1 and R2.
+- AFG: 5.000 kHz, 0.500 Vpp.
+- PSU ON.
+
+Observed from the scope image:
+
+- CH1: 512 mVpp, 5.000 kHz, mean about 472.0 mV.
+- CH2: 512 mVpp, 5.000 kHz, mean about 467.7 mV.
+
+Measured ratio across the R1 input-to-N1A interval:
+
+`512 / 512 = 1.000`
+
+Within the scope's displayed amplitude resolution, there is no measurable 5 kHz amplitude loss across R1. Therefore the excessive attenuation previously seen at OUTA is not introduced across R1.
+
+Next localization step: keep CH1 at the biased R1 input and move CH2 from N1A to N2A / MCP6022 pin 3. This isolates the R2 / N2A portion of the low-Q network under a valid biased operating condition.
