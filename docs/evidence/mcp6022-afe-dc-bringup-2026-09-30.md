@@ -883,3 +883,17 @@ Continuity was present.
 This confirms that the 10 kOhm resistor's BIAS-side lead is physically connected to BIAS_NODE as intended. The earlier no-beep observation was therefore consistent with probing across the 10 kOhm resistance rather than indicating an open connection.
 
 Next check: directly verify the 1 kOhm resistor's GND-side lead to GND_MEAS.
+
+
+### Bias fixture continuity check 3 — 1 kOhm GND-side connection PASS
+
+With PSU power OFF, direct continuity was checked between:
+
+- the physical metal lead of the 1 kOhm divider resistor on the GND side; and
+- GND_MEAS.
+
+Continuity was present.
+
+This confirms the 1 kOhm resistor's ground-side lead is physically connected to GND_MEAS as intended.
+
+Next check: directly verify the 1 kOhm resistor's BIAS-side lead to BIAS_NODE.
