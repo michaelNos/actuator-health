@@ -549,3 +549,31 @@ Measured magnitude ratio:
 For the present implementation, using 10 kOhm in the low-Q section while retaining the intended capacitor values and high-Q stage, the predicted complete AFE magnitude at 5 kHz remains approximately unity (about 0.999, roughly -0.01 dB). Therefore the observed -2.45 dB is not accepted as valid designed behavior.
 
 Next diagnostic: keep CH1 at the R1 input and move CH2 from pin 7 to MCP6022 pin 1 / OUTA to measure the low-Q stage alone. This will localize whether the excessive attenuation appears already in stage A or is introduced in the high-Q stage.
+
+
+### 5 kHz low-Q stage isolation — excessive attenuation already present in stage A
+
+Diagnostic configuration:
+
+- AFG: 5 kHz, 0.5 Vpp.
+- CH1: actual biased R1 input.
+- CH2: MCP6022 pin 1 / OUTA.
+- Grounds unchanged.
+
+Observed from the scope image:
+
+- CH1: 512 mVpp, 5.000 kHz.
+- CH2: 420 mVpp, 5.000 kHz.
+- CH2 mean: about 436.7 mV.
+
+Measured low-Q stage magnitude ratio:
+
+`420 / 512 ≈ 0.820`
+
+which corresponds to approximately:
+
+`20*log10(0.820) ≈ -1.72 dB`.
+
+For the physical low-Q implementation with R1 = R2 = 10 kOhm and the intended 1.2 nF / 1.0 nF capacitors, the predicted 5 kHz magnitude is approximately 0.924 (about -0.69 dB).
+
+Therefore the observed attenuation is materially larger than predicted. The excessive 5 kHz attenuation is already present in the first low-Q stage, so the next diagnostic should isolate whether the MCP6022 follower itself is reproducing N2A correctly or whether the error lies in the passive Sallen-Key network/component values/wiring.
