@@ -772,3 +772,32 @@ Within the oscilloscope's displayed amplitude resolution, OUTA reproduces the N2
 The remaining discrepancy is upstream in the passive low-Q network and/or its implemented component values/wiring.
 
 Next diagnostic: keep CH2 on N2A / pin 3 and move CH1 from OUTA / pin 1 to N1A. This gives a simultaneous N1A-to-N2A ratio across the R2/C2 portion of the stage. For R2 = 10 kOhm and C2 = 1.0 nF at 5 kHz, the ideal ratio |N1A/N2A| is approximately sqrt(1 + (2*pi*f*R2*C2)^2) ≈ 1.048.
+
+
+### 5 kHz simultaneous N1A-to-N2A check
+
+Configuration:
+
+- CH1: N1A.
+- CH2: N2A / MCP6022 pin 3.
+- AFG: 5.000 kHz, 0.500 Vpp.
+- PSU ON.
+
+Observed from the scope image:
+
+- CH1 / N1A: 448 mVpp, 5.000 kHz, mean about 462.4 mV.
+- CH2 / N2A: 392 mVpp, 5.000 kHz, mean about 438.8 mV.
+
+Measured ratio:
+
+`N2A/N1A = 392/448 ≈ 0.875`.
+
+For the intended R2 = 10 kOhm and C2 = 1.0 nF, the ideal relation at N2A is
+
+`|N2A/N1A| = 1/sqrt(1 + (2*pi*f*R2*C2)^2)`
+
+which at 5 kHz gives approximately 0.954.
+
+Therefore the measured 0.875 is materially lower than expected. The discrepancy is now localized to the R2/C2 portion of the low-Q stage or its implemented component values/wiring.
+
+Next diagnostic: with power OFF, measure the resistance directly across R2. The intended value is 10 kOhm.
