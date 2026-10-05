@@ -1,0 +1,609 @@
+(kicad_sch
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "6e6fe289-b219-47c8-90d3-94fcb5d80261")
+	(paper "A4")
+	(title_block
+		(title "Actuator Health Monitoring System")
+		(date "2026-10-05")
+		(rev "Bench fixture 1")
+		(comment 1 "Temporary AFG AC-coupling + DC-bias fixture for AFE validation")
+	)
+	(lib_symbols
+		(symbol "Device:C"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0.254)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "C"
+				(at 0.635 2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "C"
+				(at 0.635 -2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" ""
+				(at 0.9652 -3.81 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Unpolarized capacitor"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "cap capacitor"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "C_*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "C_0_1"
+				(polyline
+					(pts
+						(xy -2.032 0.762) (xy 2.032 0.762)
+					)
+					(stroke
+						(width 0.508)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -2.032 -0.762) (xy 2.032 -0.762)
+					)
+					(stroke
+						(width 0.508)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "C_1_1"
+				(pin passive line
+					(at 0 3.81 270)
+					(length 2.794)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -3.81 90)
+					(length 2.794)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "Device:R"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "R"
+				(at 2.032 0 90)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "R"
+				(at 0 0 90)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at -1.778 0 90)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Resistor"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "R res resistor"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "R_*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "R_0_1"
+				(rectangle
+					(start -1.016 -2.54)
+					(end 1.016 2.54)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "R_1_1"
+				(pin passive line
+					(at 0 3.81 270)
+					(length 1.27)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -3.81 90)
+					(length 1.27)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "power:GND"
+			(power global)
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "#PWR"
+				(at 0 -6.35 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "GND"
+				(at 0 -3.81 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "GND_0_1"
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 -1.27) (xy 1.27 -1.27) (xy 0 -2.54) (xy -1.27 -1.27) (xy 0 -1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "GND_1_1"
+				(pin power_in line
+					(at 0 0 270)
+					(length 0)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+	)
+
+	(junction
+		(at 130 90)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "0f31a09f-f878-4f53-9c22-a1fcabcb3db5")
+	)
+
+	(wire
+		(pts (xy 130 65) (xy 130 71.19))
+		(stroke (width 0) (type default))
+		(uuid "fa3c2daa-87be-4e95-952e-8d27517e6ee7")
+	)
+	(wire
+		(pts (xy 130 78.81) (xy 130 90))
+		(stroke (width 0) (type default))
+		(uuid "46214dad-2e54-47d9-ae59-bc3e2c1d2a12")
+	)
+	(wire
+		(pts (xy 130 90) (xy 130 101.19))
+		(stroke (width 0) (type default))
+		(uuid "88db6c9f-ef0f-4caf-98a6-b51446f1f8c4")
+	)
+	(wire
+		(pts (xy 130 108.81) (xy 130 115))
+		(stroke (width 0) (type default))
+		(uuid "a2a83691-a33f-43ed-a993-078008c8520a")
+	)
+	(wire
+		(pts (xy 95 90) (xy 106.19 90))
+		(stroke (width 0) (type default))
+		(uuid "49b03755-3d37-44da-b429-5b439132a882")
+	)
+	(wire
+		(pts (xy 113.81 90) (xy 130 90))
+		(stroke (width 0) (type default))
+		(uuid "5785a9e7-1371-4a95-86f7-96b7edbb27dd")
+	)
+	(wire
+		(pts (xy 130 90) (xy 155 90))
+		(stroke (width 0) (type default))
+		(uuid "c2486c63-3924-4dc2-ab77-9ce26cf6edff")
+	)
+
+	(label "5V_MEAS"
+		(at 130 65 0)
+		(effects (font (size 1.27 1.27)) (justify left bottom))
+		(uuid "176471e5-1d93-4810-bc30-23189256437d")
+	)
+	(label "GND_MEAS"
+		(at 130 115 0)
+		(effects (font (size 1.27 1.27)) (justify left bottom))
+		(uuid "ff4fccec-a239-46dd-9434-b5b30a4929b1")
+	)
+	(label "AFG_OUT"
+		(at 95 90 180)
+		(effects (font (size 1.27 1.27)) (justify right bottom))
+		(uuid "f664ca26-3af7-4733-9f10-53ec22c8ae48")
+	)
+	(label "BIAS_NODE"
+		(at 130 90 0)
+		(effects (font (size 1.27 1.27)) (justify left bottom))
+		(uuid "0566583f-3cf1-4b05-a995-d9720b83c8ac")
+	)
+	(label "R1_AFE_INPUT"
+		(at 155 90 0)
+		(effects (font (size 1.27 1.27)) (justify left bottom))
+		(uuid "d7a2e75a-9ff9-478a-9360-8bb7b9555370")
+	)
+
+	(symbol
+		(lib_id "Device:R")
+		(at 130 75 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board no)
+		(in_pos_files no)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "b34d5892-c7c8-4314-8c6b-4fc98791ad4a")
+		(property "Reference" "R1"
+			(at 133.81 73.73 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects (font (size 1.27 1.27)) (justify left))
+		)
+		(property "Value" "10k"
+			(at 133.81 76.27 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects (font (size 1.27 1.27)) (justify left))
+		)
+		(property "Footprint" "" (at 131.778 75 0) (hide yes)
+			(show_name no) (do_not_autoplace no) (effects (font (size 1.27 1.27))))
+		(property "Datasheet" "" (at 130 75 0) (hide yes)
+			(show_name no) (do_not_autoplace no) (effects (font (size 1.27 1.27))))
+		(property "Description" "Temporary bias-divider top resistor"
+			(at 130 75 0) (hide yes) (show_name no) (do_not_autoplace no)
+			(effects (font (size 1.27 1.27))))
+		(pin "1" (uuid "97b0e409-a966-493b-a193-48fcd1f87e20"))
+		(pin "2" (uuid "817fd716-63df-4e0c-8dbd-d77e71e77313"))
+		(instances
+			(project "afe-bias-test-fixture"
+				(path "/6e6fe289-b219-47c8-90d3-94fcb5d80261" (reference "R1") (unit 1))
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 130 105 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board no)
+		(in_pos_files no)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "1b0e07ed-7899-4734-a6dd-263bd5a2473a")
+		(property "Reference" "R2"
+			(at 133.81 103.73 0)
+			(show_name no) (do_not_autoplace no)
+			(effects (font (size 1.27 1.27)) (justify left)))
+		(property "Value" "1k"
+			(at 133.81 106.27 0)
+			(show_name no) (do_not_autoplace no)
+			(effects (font (size 1.27 1.27)) (justify left)))
+		(property "Footprint" "" (at 131.778 105 0) (hide yes)
+			(show_name no) (do_not_autoplace no) (effects (font (size 1.27 1.27))))
+		(property "Datasheet" "" (at 130 105 0) (hide yes)
+			(show_name no) (do_not_autoplace no) (effects (font (size 1.27 1.27))))
+		(property "Description" "Temporary bias-divider bottom resistor"
+			(at 130 105 0) (hide yes) (show_name no) (do_not_autoplace no)
+			(effects (font (size 1.27 1.27))))
+		(pin "1" (uuid "12fd5fa7-52e9-410f-92b4-fd55400d18dc"))
+		(pin "2" (uuid "ba1a3d7f-eb2d-40f8-a69f-2b3bfcb30cc2"))
+		(instances
+			(project "afe-bias-test-fixture"
+				(path "/6e6fe289-b219-47c8-90d3-94fcb5d80261" (reference "R2") (unit 1))
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 110 90 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board no)
+		(in_pos_files no)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "77e81826-31f2-4ea0-aa79-f31255a264b2")
+		(property "Reference" "C1"
+			(at 110 84.92 90)
+			(show_name no) (do_not_autoplace no)
+			(effects (font (size 1.27 1.27))))
+		(property "Value" "1uF (10x100nF parallel)"
+			(at 110 87.46 90)
+			(show_name no) (do_not_autoplace no)
+			(effects (font (size 1.27 1.27))))
+		(property "Footprint" "" (at 113.81 89.0348 90) (hide yes)
+			(show_name no) (do_not_autoplace no) (effects (font (size 1.27 1.27))))
+		(property "Datasheet" "" (at 110 90 0) (hide yes)
+			(show_name no) (do_not_autoplace no) (effects (font (size 1.27 1.27))))
+		(property "Description" "Temporary AC coupling capacitor bank; ten 100 nF ceramic capacitors in parallel"
+			(at 110 90 0) (hide yes) (show_name no) (do_not_autoplace no)
+			(effects (font (size 1.27 1.27))))
+		(pin "1" (uuid "2754c423-fb56-4ee5-8180-a83ae62dbe29"))
+		(pin "2" (uuid "4cbe8b6f-ab87-44ae-b390-7db45317fc9d"))
+		(instances
+			(project "afe-bias-test-fixture"
+				(path "/6e6fe289-b219-47c8-90d3-94fcb5d80261" (reference "C1") (unit 1))
+			)
+		)
+	)
+
+	(sheet_instances
+		(path "/" (page "1"))
+	)
+	(embedded_fonts no)
+)
