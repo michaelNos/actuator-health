@@ -615,3 +615,23 @@ The screenshot is too blurred to extract trustworthy numerical scope readouts, s
 This localizes the excessive attenuation upstream of the op-amp follower, within the passive low-Q Sallen-Key input network / its wiring, rather than at the MCP6022 voltage-follower action itself.
 
 Next diagnostic: keep CH1 at the R1 input and move CH2 from N2A to N1A, the node between R1 and R2. This determines whether the signal is already lost across R1 or later across the R2/N2A portion of the network.
+
+
+### N1A diagnostic capture — invalid because input DC bias is absent
+
+Intended configuration:
+
+- CH1: biased R1 input.
+- CH2: N1A, the node between R1 and R2.
+- AFG: 5.000 kHz, 0.500 Vpp.
+
+Observed from the scope image:
+
+- CH1: 512 mVpp, 5.000 kHz, mean about -6.14 mV.
+- CH2: 440 mVpp, 5.000 kHz, mean about -9.01 mV.
+
+Although the raw AC ratio is `440/512 ≈ 0.859`, this capture is not accepted as a valid low-Q-node transfer result because the intended external DC bias is absent. Earlier valid biased-input captures showed the R1 input mean near 0.42 V; here CH1 is centered near 0 V.
+
+With the MCP6022 operating from a single positive supply, a zero-centered ~0.5 Vpp stimulus drives part of the waveform below ground and invalidates the intended linear AFE test condition.
+
+Next action: do not change the filter wiring. Verify the DC voltage of the physical bias node / R1 input relative to GND_MEAS with a multimeter while the PSU and AFG are connected as intended. Expected value is approximately 0.4-0.45 V.
