@@ -823,3 +823,17 @@ With measured R2 = 9.76 kOhm and nominal C2 = 1.0 nF, the expected 5 kHz N2A/N1A
 If interpreted as a simple R2-C2 relation, the measured ratio corresponds to an effective capacitance of roughly 1.8 nF. This does not prove that C2 itself is 1.8 nF; unintended parallel capacitance or wiring around N2A can produce the same effect.
 
 Next diagnostic: power OFF and verify C2 wiring by continuity: one C2 lead must connect to N2A / pin 3, and the other C2 lead must connect to GND_MEAS.
+
+
+### Bias fixture continuity check 1 — PASS
+
+With PSU power OFF, the operator verified that all four intended BIAS_NODE points have continuity with each other:
+
+- bottom of the 10 kOhm divider resistor;
+- top of the 1 kOhm divider resistor;
+- output side of the 10 x 100 nF coupling-capacitor bank;
+- AFE R1 input.
+
+This confirms that the physical breadboard implements the common BIAS_NODE connection shown in the dedicated temporary fixture schematic.
+
+Next check: verify continuity from the top of the 10 kOhm resistor to 5V_MEAS.
