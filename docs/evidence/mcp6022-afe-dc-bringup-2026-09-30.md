@@ -837,3 +837,17 @@ With PSU power OFF, the operator verified that all four intended BIAS_NODE point
 This confirms that the physical breadboard implements the common BIAS_NODE connection shown in the dedicated temporary fixture schematic.
 
 Next check: verify continuity from the top of the 10 kOhm resistor to 5V_MEAS.
+
+
+### Bias-fixture verification found missing 10 kOhm-to-BIAS_NODE connection
+
+With PSU power OFF, continuity checks against the dedicated temporary bias-fixture schematic showed:
+
+- 5V_MEAS to one physical end of the 10 kOhm resistor: continuity present.
+- the opposite physical end of the 10 kOhm resistor to BIAS_NODE: no continuity.
+
+Therefore the temporary bias divider is not physically wired as documented. The required topology is:
+
+`5V_MEAS -> 10 kOhm -> BIAS_NODE -> 1 kOhm -> GND_MEAS`.
+
+This is a confirmed wiring discrepancy in the temporary test fixture. No further AFE frequency-response conclusions should be drawn until the bias-side end of the 10 kOhm resistor is connected to BIAS_NODE and the divider is revalidated.
