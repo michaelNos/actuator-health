@@ -690,3 +690,31 @@ With PSU power OFF, continuity between N2A / MCP6022 pin 3 and GND_MEAS produced
 A continuity beep alone is not yet accepted as proof of a hard short because the meter can respond transiently while capacitive or semiconductor paths charge. The next diagnostic is therefore a direct resistance measurement from N2A to GND_MEAS, held long enough for the reading to settle.
 
 For the intended topology, the N2A-to-ground capacitor is only 1.0 nF and should not provide a steady DC low-resistance path. A settled low resistance would indicate an unintended DC path or wiring/component fault; a reading that rises toward high resistance / OL would instead indicate a transient continuity response.
+
+
+### Critical correction: recent intended pin-3 measurements were actually taken on pin 4 / GND
+
+The operator identified a probe-placement error: the recent measurements described as MCP6022 pin 3 / N2A were physically taken on MCP6022 pin 4, which is VSS / GND.
+
+Therefore the following observations and interpretations are invalid and must not be used for engineering conclusions:
+
+- the apparent loss of the 5 kHz signal at "pin 3 / N2A";
+- the approximately 64 mVpp / approximately 16.8 mV mean capture attributed to N2A;
+- the inferred conclusion that N2A was being pulled toward ground;
+- the inferred localization of a passive low-Q network fault between N1A and N2A;
+- the continuity-beep observation attributed to N2A-to-GND, because the probe was actually on pin 4 / GND and a beep is therefore expected.
+
+These measurements are retained only as traceability of the probe-placement mistake.
+
+The valid 5 kHz evidence established before this mistake remains:
+
+- R1 input: approximately 512 mVpp.
+- N1A: approximately 512 mVpp with the PSU ON and normal bias restored.
+- OUTA / pin 1: approximately 420 mVpp.
+
+The correct next diagnostic is to measure MCP6022 pin 3 / N2A physically, using the verified DIP orientation:
+
+- pin 4 = VSS / GND, bottom-left;
+- pin 3 = +IN A, immediately above pin 4 on the left side.
+
+No further fault conclusion is accepted until the true pin-3 measurement is repeated.
