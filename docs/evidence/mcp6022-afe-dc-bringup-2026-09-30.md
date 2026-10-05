@@ -718,3 +718,32 @@ The correct next diagnostic is to measure MCP6022 pin 3 / N2A physically, using 
 - pin 3 = +IN A, immediately above pin 4 on the left side.
 
 No further fault conclusion is accepted until the true pin-3 measurement is repeated.
+
+
+### Correct 5 kHz pin-3 / N2A measurement
+
+After correcting the earlier probe-placement mistake, CH2 was placed on the actual MCP6022 pin 3 / N2A.
+
+Configuration:
+
+- CH1: biased R1 input.
+- CH2: MCP6022 pin 3 / N2A.
+- AFG: 5.000 kHz, 0.500 Vpp.
+- PSU ON.
+
+Observed from the scope image:
+
+- CH1: 496 mVpp, 5.000 kHz, mean about 473.4 mV.
+- CH2: 376 mVpp, 5.000 kHz, mean about 446.6 mV.
+
+Measured ratio:
+
+`376 / 496 ≈ 0.758`
+
+which corresponds to approximately:
+
+`20*log10(0.758) ≈ -2.41 dB`.
+
+This confirms that substantial attenuation is already present at N2A. However, a direct simultaneous N2A-versus-OUTA comparison is still required before deciding whether the MCP6022 follower is behaving correctly or whether the discrepancy lies exclusively in the passive Sallen-Key network.
+
+Next diagnostic: keep CH2 on pin 3 / N2A and move CH1 from the R1 input to pin 1 / OUTA. At 5 kHz the follower should reproduce the pin-3 waveform essentially 1:1.
