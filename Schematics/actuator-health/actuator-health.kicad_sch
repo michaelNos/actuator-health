@@ -1681,6 +1681,12 @@
 		(uuid "b9f354e1-52ec-4741-b965-0e3e6276e0a1")
 	)
 	(junction
+		(at 178.51 124.46)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ca598e15-6480-4769-a340-d2005188725d")
+	)
+	(junction
 		(at 223.52 67.31)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2078,6 +2084,16 @@
 	)
 	(wire
 		(pts
+			(xy 178.51 124.46) (xy 178.51 135.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6441d6b2-a0a1-4a7a-a41e-9fb5a1589f4a")
+	)
+	(wire
+		(pts
 			(xy 223.52 44.45) (xy 223.52 67.31)
 		)
 		(stroke
@@ -2208,6 +2224,16 @@
 	)
 	(wire
 		(pts
+			(xy 162.32 124.46) (xy 178.51 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8d97af06-ea7c-4f39-825b-3cad7c15bd42")
+	)
+	(wire
+		(pts
 			(xy 241.3 27.94) (xy 254 27.94)
 		)
 		(stroke
@@ -2328,6 +2354,16 @@
 	)
 	(wire
 		(pts
+			(xy 178.51 113.27) (xy 178.51 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a68da749-6be4-4bf2-91ad-d4356c92d650")
+	)
+	(wire
+		(pts
 			(xy 96.52 148.59) (xy 105.41 148.59)
 		)
 		(stroke
@@ -2335,6 +2371,16 @@
 			(type default)
 		)
 		(uuid "a99f1be5-e3b9-4d34-8f48-fb28496b1487")
+	)
+	(wire
+		(pts
+			(xy 178.51 99.46) (xy 178.51 105.65)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a9dd9400-596e-4420-a7f6-32d4c7afe52a")
 	)
 	(wire
 		(pts
@@ -2395,6 +2441,16 @@
 			(type default)
 		)
 		(uuid "b7355918-a626-474f-9be4-fe43abdb211d")
+	)
+	(wire
+		(pts
+			(xy 178.51 143.27) (xy 178.51 149.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b82cae5f-8de2-4123-bea0-5a0312074ded")
 	)
 	(wire
 		(pts
@@ -2548,6 +2604,16 @@
 	)
 	(wire
 		(pts
+			(xy 178.51 124.46) (xy 203.51 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dfef8bc8-4297-475e-81a5-99f5978eb547")
+	)
+	(wire
+		(pts
 			(xy 140.97 57.15) (xy 140.97 60.96)
 		)
 		(stroke
@@ -2565,6 +2631,16 @@
 			(type default)
 		)
 		(uuid "e21b4800-1c8c-41b9-bb6e-940dbe211e16")
+	)
+	(wire
+		(pts
+			(xy 143.51 124.46) (xy 154.7 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ecf41667-42a8-4678-a788-7d8c75fd683d")
 	)
 	(wire
 		(pts
@@ -2646,6 +2722,16 @@
 		)
 		(uuid "0f22298a-fc89-4bad-b01d-e56e2fb1a081")
 	)
+	(label "5V_MEAS"
+		(at 178.51 99.46 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "1abff0d4-7c21-4985-8abf-3729e376bc65")
+	)
 	(label "OUTA"
 		(at 259.08 81.28 0)
 		(effects
@@ -2655,6 +2741,26 @@
 			(justify left bottom)
 		)
 		(uuid "1dd7d16c-73ad-492e-b165-f237d8b3b3d9")
+	)
+	(label "GND_MEAS"
+		(at 178.51 149.46 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "3117df20-7cea-4c19-82d4-e016da04b56b")
+	)
+	(label "R1_AFE_INPUT"
+		(at 203.51 124.46 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "3aa939fd-76e0-45b0-888e-2d9176782955")
 	)
 	(label "TP_SENSOR"
 		(at 260.35 130.81 0)
@@ -2716,6 +2822,16 @@
 		)
 		(uuid "99b7ecd6-0608-47ae-9c0a-27282ed7f0ed")
 	)
+	(label "AFG_OUT"
+		(at 143.51 124.46 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "dc2319f4-3066-4bd9-8822-1573fe678c58")
+	)
 	(label "N1A"
 		(at 223.52 54.61 0)
 		(effects
@@ -2735,6 +2851,16 @@
 			(justify left bottom)
 		)
 		(uuid "f4d9b966-43d1-4e20-af01-3510d0b0dd2e")
+	)
+	(label "BIAS_NODE"
+		(at 178.51 124.46 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f9257e82-428f-4c04-b05b-7a2042dea4a9")
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x02")
@@ -3137,6 +3263,86 @@
 			(project "actuator-health"
 				(path "/c0636471-f081-420d-b24b-5dc40f2522ea"
 					(reference "C8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 158.51 124.46 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board no)
+		(in_pos_files no)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "1bb7a94c-c5a3-45bc-9a62-3c383c5065b4")
+		(property "Reference" "C9"
+			(at 158.51 119.38 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "1uF (10x100nF parallel)"
+			(at 158.51 121.92 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 162.32 123.4948 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 158.51 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Temporary AC coupling capacitor bank; ten 100 nF ceramic capacitors in parallel"
+			(at 158.51 124.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "02847d19-6806-4525-a507-d89d044a126f")
+		)
+		(pin "2"
+			(uuid "3ae4e5c6-2fae-44de-95ae-bdaf5bfda677")
+		)
+		(instances
+			(project "actuator-health"
+				(path "/c0636471-f081-420d-b24b-5dc40f2522ea"
+					(reference "C9")
 					(unit 1)
 				)
 			)
@@ -3873,6 +4079,88 @@
 			(project "actuator-health"
 				(path "/c0636471-f081-420d-b24b-5dc40f2522ea"
 					(reference "TP2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 178.51 109.46 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board no)
+		(in_pos_files no)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "5db26d7a-8ee7-4e1e-a025-5bd3b73ff7c4")
+		(property "Reference" "R6"
+			(at 182.32 108.19 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10k"
+			(at 182.32 110.73 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 180.288 109.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 178.51 109.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Temporary bias-divider top resistor"
+			(at 178.51 109.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "af356a67-436f-4a32-9acf-9c7523b1ac56")
+		)
+		(pin "2"
+			(uuid "3524d354-e971-4fd1-8b68-3ce722bdf0a9")
+		)
+		(instances
+			(project "actuator-health"
+				(path "/c0636471-f081-420d-b24b-5dc40f2522ea"
+					(reference "R6")
 					(unit 1)
 				)
 			)
@@ -4780,6 +5068,88 @@
 			(project "actuator-health"
 				(path "/c0636471-f081-420d-b24b-5dc40f2522ea"
 					(reference "#FLG01")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 178.51 139.46 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board no)
+		(in_pos_files no)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "a931246a-3b44-49c0-b240-aabc51feb716")
+		(property "Reference" "R7"
+			(at 182.32 138.19 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1k"
+			(at 182.32 140.73 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 180.288 139.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 178.51 139.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Temporary bias-divider bottom resistor"
+			(at 178.51 139.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "e3ce6266-0eab-4ff3-a77f-2c2904d6e56b")
+		)
+		(pin "2"
+			(uuid "f261fe60-d1e6-4add-8526-5808d407f76d")
+		)
+		(instances
+			(project "actuator-health"
+				(path "/c0636471-f081-420d-b24b-5dc40f2522ea"
+					(reference "R7")
 					(unit 1)
 				)
 			)
