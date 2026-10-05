@@ -1651,16 +1651,16 @@
 		(uuid "8dc9fdf2-9106-4a2d-aac7-9b3f7e4fb56b")
 	)
 	(junction
-		(at 191.77 40.64)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "8ecc9c88-36f1-4589-a98d-6f8d8f69b9db")
-	)
-	(junction
 		(at 254 153.67)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "a47f2161-4dc5-4ec0-958e-b8c862993eb9")
+	)
+	(junction
+		(at 191.77 40.64)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "aa1143c6-305d-42e6-b928-77d957ebcdec")
 	)
 	(junction
 		(at 158.75 44.45)
@@ -2098,7 +2098,7 @@
 	)
 	(wire
 		(pts
-			(xy 195.58 31.75) (xy 195.58 40.64)
+			(xy 191.77 31.75) (xy 191.77 40.64)
 		)
 		(stroke
 			(width 0)
@@ -2125,16 +2125,6 @@
 			(type default)
 		)
 		(uuid "6caf50c9-7b1c-474a-b1bb-f4ed54b97582")
-	)
-	(wire
-		(pts
-			(xy 191.77 40.64) (xy 195.58 40.64)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6cfb8245-41d8-4b8d-b53d-3aea6e3518f5")
 	)
 	(wire
 		(pts
@@ -2920,7 +2910,7 @@
 				)
 			)
 		)
-		(property "Value" "4.07k"
+		(property "Value" "4.7k"
 			(at 60.96 134.62 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3401,7 +3391,7 @@
 				)
 			)
 		)
-		(property "Value" "4.07k"
+		(property "Value" "4.7k"
 			(at 36.83 134.62 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3801,7 +3791,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 195.58 31.75 0)
+		(at 191.77 31.75 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3812,7 +3802,7 @@
 		(fields_autoplaced yes)
 		(uuid "59df757e-1378-4853-8080-33c2c0ca6077")
 		(property "Reference" "TP2"
-			(at 198.12 27.1779 0)
+			(at 194.31 27.1779 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3823,7 +3813,7 @@
 			)
 		)
 		(property "Value" "TP_GND"
-			(at 198.12 29.7179 0)
+			(at 194.31 29.7179 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3834,7 +3824,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 200.66 31.75 0)
+			(at 196.85 31.75 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3845,7 +3835,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 200.66 31.75 0)
+			(at 196.85 31.75 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3856,7 +3846,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 195.58 31.75 0)
+			(at 191.77 31.75 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3970,7 +3960,7 @@
 		(dnp no)
 		(uuid "76672464-fbb6-4d0a-9d59-cb7c23bbe22d")
 		(property "Reference" "R1"
-			(at 214.63 57.15 90)
+			(at 206.756 68.834 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3979,7 +3969,7 @@
 				)
 			)
 		)
-		(property "Value" "9.76k"
+		(property "Value" "10k"
 			(at 207.01 71.12 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4807,7 +4797,7 @@
 				)
 			)
 		)
-		(property "Value" "9.76k"
+		(property "Value" "10k"
 			(at 231.14 63.5 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5144,7 +5134,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "1.2 nF"
+		(property "Value" "1.0 nF"
 			(at 227.33 41.9099 0)
 			(show_name no)
 			(do_not_autoplace no)
