@@ -600,3 +600,18 @@ The operator confirmed that the AFG was physically disconnected during the prior
 That capture remains invalid for transfer characterization, but it must not be interpreted as evidence of an AFE fault.
 
 After reconnecting the AFG, the source waveform visibly returned. The next controlled diagnostic is to place CH1 back on the biased R1 input while keeping CH2 on MCP6022 pin 3 / N2A, with the AFG at 5 kHz and 0.5 Vpp.
+
+
+### Correction: post-reconnect screenshot already used R1-input / pin-3 probe placement
+
+The operator clarified that the latest screenshot after reconnecting the AFG already used the intended diagnostic configuration:
+
+- CH1 on the biased R1 input.
+- CH2 on MCP6022 pin 3 / N2A.
+- AFG at 5 kHz, 0.5 Vpp, output ON.
+
+The screenshot is too blurred to extract trustworthy numerical scope readouts, so no numeric Vpp values are accepted from it. Qualitatively, however, CH1 clearly contains the strong periodic 5 kHz stimulus while CH2 at N2A does not show a comparable clean sine.
+
+This localizes the excessive attenuation upstream of the op-amp follower, within the passive low-Q Sallen-Key input network / its wiring, rather than at the MCP6022 voltage-follower action itself.
+
+Next diagnostic: keep CH1 at the R1 input and move CH2 from N2A to N1A, the node between R1 and R2. This determines whether the signal is already lost across R1 or later across the R2/N2A portion of the network.
