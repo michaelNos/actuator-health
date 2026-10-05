@@ -747,3 +747,28 @@ which corresponds to approximately:
 This confirms that substantial attenuation is already present at N2A. However, a direct simultaneous N2A-versus-OUTA comparison is still required before deciding whether the MCP6022 follower is behaving correctly or whether the discrepancy lies exclusively in the passive Sallen-Key network.
 
 Next diagnostic: keep CH2 on pin 3 / N2A and move CH1 from the R1 input to pin 1 / OUTA. At 5 kHz the follower should reproduce the pin-3 waveform essentially 1:1.
+
+
+### 5 kHz direct N2A-to-OUTA follower check — PASS
+
+Configuration:
+
+- CH2: MCP6022 pin 3 / N2A.
+- CH1: MCP6022 pin 1 / OUTA.
+- AFG: 5.000 kHz, 0.500 Vpp.
+- PSU ON.
+
+Observed from the scope image:
+
+- CH1 / OUTA: 440 mVpp, 5.000 kHz, mean about 459.5 mV.
+- CH2 / N2A: 432 mVpp, 5.000 kHz, mean about 447.6 mV.
+
+Measured follower ratio:
+
+`440 / 432 ≈ 1.019`.
+
+Within the oscilloscope's displayed amplitude resolution, OUTA reproduces the N2A waveform closely. Therefore the MCP6022 channel-A voltage follower is not the primary cause of the excessive 5 kHz attenuation.
+
+The remaining discrepancy is upstream in the passive low-Q network and/or its implemented component values/wiring.
+
+Next diagnostic: keep CH2 on N2A / pin 3 and move CH1 from OUTA / pin 1 to N1A. This gives a simultaneous N1A-to-N2A ratio across the R2/C2 portion of the stage. For R2 = 10 kOhm and C2 = 1.0 nF at 5 kHz, the ideal ratio |N1A/N2A| is approximately sqrt(1 + (2*pi*f*R2*C2)^2) ≈ 1.048.
