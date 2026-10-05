@@ -897,3 +897,14 @@ Continuity was present.
 This confirms the 1 kOhm resistor's ground-side lead is physically connected to GND_MEAS as intended.
 
 Next check: directly verify the 1 kOhm resistor's BIAS-side lead to BIAS_NODE.
+
+
+### Bias-fixture continuity fault found
+
+During continuity verification of the temporary external AFG bias fixture, the user reported:
+
+- bias-side leg of the 10 kOhm divider resistor -> intended BIAS_NODE: **no continuity beep**
+
+Expected: direct continuity, because these points must be the same electrical node.
+
+Interpretation: the temporary bias fixture is not currently wired according to its intended schematic at this connection. Further AC transfer diagnosis is paused until this connection is corrected and continuity is confirmed.
