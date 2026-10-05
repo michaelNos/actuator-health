@@ -681,3 +681,12 @@ This is not accepted as normal low-pass behavior. The preceding N1A measurement 
 In the intended topology, the N2A-to-GND capacitor is 1.0 nF. At DC it should act effectively open, so N2A should remain close to the input bias voltage through R1/R2. A mean near 16.8 mV therefore indicates an unintended DC path to ground, wrong physical node, wrong component/wiring, or similar fault around N2A.
 
 Next diagnostic: with power OFF, check continuity between N2A / MCP6022 pin 3 and GND_MEAS before changing any wiring.
+
+
+### Power-off N2A-to-ground continuity check
+
+With PSU power OFF, continuity between N2A / MCP6022 pin 3 and GND_MEAS produced a beep.
+
+A continuity beep alone is not yet accepted as proof of a hard short because the meter can respond transiently while capacitive or semiconductor paths charge. The next diagnostic is therefore a direct resistance measurement from N2A to GND_MEAS, held long enough for the reading to settle.
+
+For the intended topology, the N2A-to-ground capacitor is only 1.0 nF and should not provide a steady DC low-resistance path. A settled low resistance would indicate an unintended DC path or wiring/component fault; a reading that rises toward high resistance / OL would instead indicate a transient continuity response.
