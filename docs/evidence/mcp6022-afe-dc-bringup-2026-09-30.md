@@ -591,3 +591,12 @@ The submitted scope capture did not contain the expected 5 kHz stimulus:
 Neither waveform is a clean 5 kHz sine, so this capture is not used to characterize N2A or the op-amp follower.
 
 Next action: without moving either probe, verify that the AFG output remains ON at 5.000 kHz and 0.500 Vpp, then repeat the screen capture.
+
+
+### Correction to invalid pin-3 capture
+
+The operator confirmed that the AFG was physically disconnected during the prior pin-3 diagnostic capture. Therefore the disappearance of the 5 kHz stimulus was caused by the disconnected source, not by the AFE.
+
+That capture remains invalid for transfer characterization, but it must not be interpreted as evidence of an AFE fault.
+
+After reconnecting the AFG, the source waveform visibly returned. The next controlled diagnostic is to place CH1 back on the biased R1 input while keeping CH2 on MCP6022 pin 3 / N2A, with the AFG at 5 kHz and 0.5 Vpp.
