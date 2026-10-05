@@ -801,3 +801,14 @@ which at 5 kHz gives approximately 0.954.
 Therefore the measured 0.875 is materially lower than expected. The discrepancy is now localized to the R2/C2 portion of the low-Q stage or its implemented component values/wiring.
 
 Next diagnostic: with power OFF, measure the resistance directly across R2. The intended value is 10 kOhm.
+
+
+### R2 resistance check
+
+With PSU power OFF, R2 was measured directly as approximately 9.76 kOhm.
+
+This matches the original schematic value of 9.76 kOhm and rules out an incorrect R2 resistance as the cause of the excessive N1A-to-N2A attenuation.
+
+This measurement also corrects the earlier working assumption that the physical low-Q R2 was 10 kOhm: the measured physical value is 9.76 kOhm.
+
+Next diagnostic: verify the actual C2 value/marking for the capacitor from N2A to GND_MEAS. The intended value is 1.0 nF.
