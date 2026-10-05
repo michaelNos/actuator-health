@@ -812,3 +812,14 @@ This matches the original schematic value of 9.76 kOhm and rules out an incorrec
 This measurement also corrects the earlier working assumption that the physical low-Q R2 was 10 kOhm: the measured physical value is 9.76 kOhm.
 
 Next diagnostic: verify the actual C2 value/marking for the capacitor from N2A to GND_MEAS. The intended value is 1.0 nF.
+
+
+### C2 marking check
+
+The capacitor connected as C2 in the low-Q N2A-to-ground position is marked `102`, corresponding to a nominal capacitance of 1.0 nF.
+
+With measured R2 = 9.76 kOhm and nominal C2 = 1.0 nF, the expected 5 kHz N2A/N1A magnitude is approximately 0.956. The measured ratio was approximately 0.875.
+
+If interpreted as a simple R2-C2 relation, the measured ratio corresponds to an effective capacitance of roughly 1.8 nF. This does not prove that C2 itself is 1.8 nF; unintended parallel capacitance or wiring around N2A can produce the same effect.
+
+Next diagnostic: power OFF and verify C2 wiring by continuity: one C2 lead must connect to N2A / pin 3, and the other C2 lead must connect to GND_MEAS.
