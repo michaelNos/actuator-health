@@ -549,3 +549,362 @@ Measured magnitude ratio:
 For the present implementation, using 10 kOhm in the low-Q section while retaining the intended capacitor values and high-Q stage, the predicted complete AFE magnitude at 5 kHz remains approximately unity (about 0.999, roughly -0.01 dB). Therefore the observed -2.45 dB is not accepted as valid designed behavior.
 
 Next diagnostic: keep CH1 at the R1 input and move CH2 from pin 7 to MCP6022 pin 1 / OUTA to measure the low-Q stage alone. This will localize whether the excessive attenuation appears already in stage A or is introduced in the high-Q stage.
+
+
+### 5 kHz low-Q stage isolation — excessive attenuation already present in stage A
+
+Diagnostic configuration:
+
+- AFG: 5 kHz, 0.5 Vpp.
+- CH1: actual biased R1 input.
+- CH2: MCP6022 pin 1 / OUTA.
+- Grounds unchanged.
+
+Observed from the scope image:
+
+- CH1: 512 mVpp, 5.000 kHz.
+- CH2: 420 mVpp, 5.000 kHz.
+- CH2 mean: about 436.7 mV.
+
+Measured low-Q stage magnitude ratio:
+
+`420 / 512 ≈ 0.820`
+
+which corresponds to approximately:
+
+`20*log10(0.820) ≈ -1.72 dB`.
+
+For the physical low-Q implementation with R1 = R2 = 10 kOhm and the intended 1.2 nF / 1.0 nF capacitors, the predicted 5 kHz magnitude is approximately 0.924 (about -0.69 dB).
+
+Therefore the observed attenuation is materially larger than predicted. The excessive 5 kHz attenuation is already present in the first low-Q stage, so the next diagnostic should isolate whether the MCP6022 follower itself is reproducing N2A correctly or whether the error lies in the passive Sallen-Key network/component values/wiring.
+
+
+### Pin-3 diagnostic capture invalid because stimulus disappeared
+
+For the intended next diagnostic, CH1 was to remain on the biased R1 input and CH2 was moved to MCP6022 pin 3 / N2A while the AFG should remain at 5 kHz, 0.5 Vpp.
+
+The submitted scope capture did not contain the expected 5 kHz stimulus:
+
+- CH1: about 33.6 mVpp, mean about 476.7 mV, auto-frequency about 220.8 Hz.
+- CH2: about 110 mVpp, mean about 30.8 mV, auto-frequency about 1.974 kHz.
+
+Neither waveform is a clean 5 kHz sine, so this capture is not used to characterize N2A or the op-amp follower.
+
+Next action: without moving either probe, verify that the AFG output remains ON at 5.000 kHz and 0.500 Vpp, then repeat the screen capture.
+
+
+### Correction to invalid pin-3 capture
+
+The operator confirmed that the AFG was physically disconnected during the prior pin-3 diagnostic capture. Therefore the disappearance of the 5 kHz stimulus was caused by the disconnected source, not by the AFE.
+
+That capture remains invalid for transfer characterization, but it must not be interpreted as evidence of an AFE fault.
+
+After reconnecting the AFG, the source waveform visibly returned. The next controlled diagnostic is to place CH1 back on the biased R1 input while keeping CH2 on MCP6022 pin 3 / N2A, with the AFG at 5 kHz and 0.5 Vpp.
+
+
+### Correction: post-reconnect screenshot already used R1-input / pin-3 probe placement
+
+The operator clarified that the latest screenshot after reconnecting the AFG already used the intended diagnostic configuration:
+
+- CH1 on the biased R1 input.
+- CH2 on MCP6022 pin 3 / N2A.
+- AFG at 5 kHz, 0.5 Vpp, output ON.
+
+The screenshot is too blurred to extract trustworthy numerical scope readouts, so no numeric Vpp values are accepted from it. Qualitatively, however, CH1 clearly contains the strong periodic 5 kHz stimulus while CH2 at N2A does not show a comparable clean sine.
+
+This localizes the excessive attenuation upstream of the op-amp follower, within the passive low-Q Sallen-Key input network / its wiring, rather than at the MCP6022 voltage-follower action itself.
+
+Next diagnostic: keep CH1 at the R1 input and move CH2 from N2A to N1A, the node between R1 and R2. This determines whether the signal is already lost across R1 or later across the R2/N2A portion of the network.
+
+
+### N1A diagnostic capture — invalid because input DC bias is absent
+
+Intended configuration:
+
+- CH1: biased R1 input.
+- CH2: N1A, the node between R1 and R2.
+- AFG: 5.000 kHz, 0.500 Vpp.
+
+Observed from the scope image:
+
+- CH1: 512 mVpp, 5.000 kHz, mean about -6.14 mV.
+- CH2: 440 mVpp, 5.000 kHz, mean about -9.01 mV.
+
+Although the raw AC ratio is `440/512 ≈ 0.859`, this capture is not accepted as a valid low-Q-node transfer result because the intended external DC bias is absent. Earlier valid biased-input captures showed the R1 input mean near 0.42 V; here CH1 is centered near 0 V.
+
+With the MCP6022 operating from a single positive supply, a zero-centered ~0.5 Vpp stimulus drives part of the waveform below ground and invalidates the intended linear AFE test condition.
+
+Next action: do not change the filter wiring. Verify the DC voltage of the physical bias node / R1 input relative to GND_MEAS with a multimeter while the PSU and AFG are connected as intended. Expected value is approximately 0.4-0.45 V.
+
+
+### Valid 5 kHz N1A localization after restoring PSU power
+
+The operator confirmed that the PSU had mistakenly been OFF during the previous zero-bias capture. With the PSU restored, the intended external bias returned.
+
+Diagnostic configuration:
+
+- CH1: biased R1 input.
+- CH2: N1A, the node between R1 and R2.
+- AFG: 5.000 kHz, 0.500 Vpp.
+- PSU ON.
+
+Observed from the scope image:
+
+- CH1: 512 mVpp, 5.000 kHz, mean about 472.0 mV.
+- CH2: 512 mVpp, 5.000 kHz, mean about 467.7 mV.
+
+Measured ratio across the R1 input-to-N1A interval:
+
+`512 / 512 = 1.000`
+
+Within the scope's displayed amplitude resolution, there is no measurable 5 kHz amplitude loss across R1. Therefore the excessive attenuation previously seen at OUTA is not introduced across R1.
+
+Next localization step: keep CH1 at the biased R1 input and move CH2 from N1A to N2A / MCP6022 pin 3. This isolates the R2 / N2A portion of the low-Q network under a valid biased operating condition.
+
+
+### 5 kHz N2A localization — node pulled near ground
+
+Configuration:
+
+- CH1: biased R1 input.
+- CH2: N2A / MCP6022 pin 3.
+- AFG: 5.000 kHz, 0.500 Vpp.
+- PSU ON.
+
+Observed from the scope image:
+
+- CH1: 504 mVpp, 5.000 kHz, mean about 463.9 mV.
+- CH2: 64.0 mVpp, mean about 16.84 mV; automatic frequency did not lock.
+
+This is not accepted as normal low-pass behavior. The preceding N1A measurement was approximately 512 mVpp with mean about 467.7 mV, so the signal and DC bias are healthy through R1. At N2A, however, both the AC amplitude and especially the DC bias collapse close to ground.
+
+In the intended topology, the N2A-to-GND capacitor is 1.0 nF. At DC it should act effectively open, so N2A should remain close to the input bias voltage through R1/R2. A mean near 16.8 mV therefore indicates an unintended DC path to ground, wrong physical node, wrong component/wiring, or similar fault around N2A.
+
+Next diagnostic: with power OFF, check continuity between N2A / MCP6022 pin 3 and GND_MEAS before changing any wiring.
+
+
+### Power-off N2A-to-ground continuity check
+
+With PSU power OFF, continuity between N2A / MCP6022 pin 3 and GND_MEAS produced a beep.
+
+A continuity beep alone is not yet accepted as proof of a hard short because the meter can respond transiently while capacitive or semiconductor paths charge. The next diagnostic is therefore a direct resistance measurement from N2A to GND_MEAS, held long enough for the reading to settle.
+
+For the intended topology, the N2A-to-ground capacitor is only 1.0 nF and should not provide a steady DC low-resistance path. A settled low resistance would indicate an unintended DC path or wiring/component fault; a reading that rises toward high resistance / OL would instead indicate a transient continuity response.
+
+
+### Critical correction: recent intended pin-3 measurements were actually taken on pin 4 / GND
+
+The operator identified a probe-placement error: the recent measurements described as MCP6022 pin 3 / N2A were physically taken on MCP6022 pin 4, which is VSS / GND.
+
+Therefore the following observations and interpretations are invalid and must not be used for engineering conclusions:
+
+- the apparent loss of the 5 kHz signal at "pin 3 / N2A";
+- the approximately 64 mVpp / approximately 16.8 mV mean capture attributed to N2A;
+- the inferred conclusion that N2A was being pulled toward ground;
+- the inferred localization of a passive low-Q network fault between N1A and N2A;
+- the continuity-beep observation attributed to N2A-to-GND, because the probe was actually on pin 4 / GND and a beep is therefore expected.
+
+These measurements are retained only as traceability of the probe-placement mistake.
+
+The valid 5 kHz evidence established before this mistake remains:
+
+- R1 input: approximately 512 mVpp.
+- N1A: approximately 512 mVpp with the PSU ON and normal bias restored.
+- OUTA / pin 1: approximately 420 mVpp.
+
+The correct next diagnostic is to measure MCP6022 pin 3 / N2A physically, using the verified DIP orientation:
+
+- pin 4 = VSS / GND, bottom-left;
+- pin 3 = +IN A, immediately above pin 4 on the left side.
+
+No further fault conclusion is accepted until the true pin-3 measurement is repeated.
+
+
+### Correct 5 kHz pin-3 / N2A measurement
+
+After correcting the earlier probe-placement mistake, CH2 was placed on the actual MCP6022 pin 3 / N2A.
+
+Configuration:
+
+- CH1: biased R1 input.
+- CH2: MCP6022 pin 3 / N2A.
+- AFG: 5.000 kHz, 0.500 Vpp.
+- PSU ON.
+
+Observed from the scope image:
+
+- CH1: 496 mVpp, 5.000 kHz, mean about 473.4 mV.
+- CH2: 376 mVpp, 5.000 kHz, mean about 446.6 mV.
+
+Measured ratio:
+
+`376 / 496 ≈ 0.758`
+
+which corresponds to approximately:
+
+`20*log10(0.758) ≈ -2.41 dB`.
+
+This confirms that substantial attenuation is already present at N2A. However, a direct simultaneous N2A-versus-OUTA comparison is still required before deciding whether the MCP6022 follower is behaving correctly or whether the discrepancy lies exclusively in the passive Sallen-Key network.
+
+Next diagnostic: keep CH2 on pin 3 / N2A and move CH1 from the R1 input to pin 1 / OUTA. At 5 kHz the follower should reproduce the pin-3 waveform essentially 1:1.
+
+
+### 5 kHz direct N2A-to-OUTA follower check — PASS
+
+Configuration:
+
+- CH2: MCP6022 pin 3 / N2A.
+- CH1: MCP6022 pin 1 / OUTA.
+- AFG: 5.000 kHz, 0.500 Vpp.
+- PSU ON.
+
+Observed from the scope image:
+
+- CH1 / OUTA: 440 mVpp, 5.000 kHz, mean about 459.5 mV.
+- CH2 / N2A: 432 mVpp, 5.000 kHz, mean about 447.6 mV.
+
+Measured follower ratio:
+
+`440 / 432 ≈ 1.019`.
+
+Within the oscilloscope's displayed amplitude resolution, OUTA reproduces the N2A waveform closely. Therefore the MCP6022 channel-A voltage follower is not the primary cause of the excessive 5 kHz attenuation.
+
+The remaining discrepancy is upstream in the passive low-Q network and/or its implemented component values/wiring.
+
+Next diagnostic: keep CH2 on N2A / pin 3 and move CH1 from OUTA / pin 1 to N1A. This gives a simultaneous N1A-to-N2A ratio across the R2/C2 portion of the stage. For R2 = 10 kOhm and C2 = 1.0 nF at 5 kHz, the ideal ratio |N1A/N2A| is approximately sqrt(1 + (2*pi*f*R2*C2)^2) ≈ 1.048.
+
+
+### 5 kHz simultaneous N1A-to-N2A check
+
+Configuration:
+
+- CH1: N1A.
+- CH2: N2A / MCP6022 pin 3.
+- AFG: 5.000 kHz, 0.500 Vpp.
+- PSU ON.
+
+Observed from the scope image:
+
+- CH1 / N1A: 448 mVpp, 5.000 kHz, mean about 462.4 mV.
+- CH2 / N2A: 392 mVpp, 5.000 kHz, mean about 438.8 mV.
+
+Measured ratio:
+
+`N2A/N1A = 392/448 ≈ 0.875`.
+
+For the intended R2 = 10 kOhm and C2 = 1.0 nF, the ideal relation at N2A is
+
+`|N2A/N1A| = 1/sqrt(1 + (2*pi*f*R2*C2)^2)`
+
+which at 5 kHz gives approximately 0.954.
+
+Therefore the measured 0.875 is materially lower than expected. The discrepancy is now localized to the R2/C2 portion of the low-Q stage or its implemented component values/wiring.
+
+Next diagnostic: with power OFF, measure the resistance directly across R2. The intended value is 10 kOhm.
+
+
+### R2 resistance check
+
+With PSU power OFF, R2 was measured directly as approximately 9.76 kOhm.
+
+This matches the original schematic value of 9.76 kOhm and rules out an incorrect R2 resistance as the cause of the excessive N1A-to-N2A attenuation.
+
+This measurement also corrects the earlier working assumption that the physical low-Q R2 was 10 kOhm: the measured physical value is 9.76 kOhm.
+
+Next diagnostic: verify the actual C2 value/marking for the capacitor from N2A to GND_MEAS. The intended value is 1.0 nF.
+
+
+### C2 marking check
+
+The capacitor connected as C2 in the low-Q N2A-to-ground position is marked `102`, corresponding to a nominal capacitance of 1.0 nF.
+
+With measured R2 = 9.76 kOhm and nominal C2 = 1.0 nF, the expected 5 kHz N2A/N1A magnitude is approximately 0.956. The measured ratio was approximately 0.875.
+
+If interpreted as a simple R2-C2 relation, the measured ratio corresponds to an effective capacitance of roughly 1.8 nF. This does not prove that C2 itself is 1.8 nF; unintended parallel capacitance or wiring around N2A can produce the same effect.
+
+Next diagnostic: power OFF and verify C2 wiring by continuity: one C2 lead must connect to N2A / pin 3, and the other C2 lead must connect to GND_MEAS.
+
+
+### Bias fixture continuity check 1 — PASS
+
+With PSU power OFF, the operator verified that all four intended BIAS_NODE points have continuity with each other:
+
+- bottom of the 10 kOhm divider resistor;
+- top of the 1 kOhm divider resistor;
+- output side of the 10 x 100 nF coupling-capacitor bank;
+- AFE R1 input.
+
+This confirms that the physical breadboard implements the common BIAS_NODE connection shown in the dedicated temporary fixture schematic.
+
+Next check: verify continuity from the top of the 10 kOhm resistor to 5V_MEAS.
+
+
+### Bias-fixture verification found missing 10 kOhm-to-BIAS_NODE connection
+
+With PSU power OFF, continuity checks against the dedicated temporary bias-fixture schematic showed:
+
+- 5V_MEAS to one physical end of the 10 kOhm resistor: continuity present.
+- the opposite physical end of the 10 kOhm resistor to BIAS_NODE: no continuity.
+
+Therefore the temporary bias divider is not physically wired as documented. The required topology is:
+
+`5V_MEAS -> 10 kOhm -> BIAS_NODE -> 1 kOhm -> GND_MEAS`.
+
+This is a confirmed wiring discrepancy in the temporary test fixture. No further AFE frequency-response conclusions should be drawn until the bias-side end of the 10 kOhm resistor is connected to BIAS_NODE and the divider is revalidated.
+
+
+### Correction: 10 kOhm continuity interpretation was premature
+
+The previous entry incorrectly treated a no-beep result involving the 10 kOhm divider resistor as proof that the resistor was disconnected from BIAS_NODE.
+
+That conclusion is withdrawn.
+
+A continuity tester commonly does not beep through a 10 kOhm resistor, so a measurement path that includes the resistor can legitimately produce no beep even when the divider is wired correctly.
+
+The correct verification is node-to-lead continuity:
+
+- directly probe the physical 5V-side resistor lead to the 5V_MEAS node;
+- directly probe the physical BIAS-side resistor lead to the BIAS_NODE row.
+
+Those checks should test only the wiring connection on each side and must not include the 10 kOhm resistance itself.
+
+No physical rewiring is authorized from the previous no-beep result alone.
+
+
+### Bias fixture continuity check 2 — 10 kOhm BIAS-side connection PASS
+
+With PSU power OFF, direct continuity was checked between:
+
+- the physical metal lead of the 10 kOhm divider resistor on the BIAS_NODE side; and
+- the BIAS_NODE breadboard row.
+
+Continuity was present.
+
+This confirms that the 10 kOhm resistor's BIAS-side lead is physically connected to BIAS_NODE as intended. The earlier no-beep observation was therefore consistent with probing across the 10 kOhm resistance rather than indicating an open connection.
+
+Next check: directly verify the 1 kOhm resistor's GND-side lead to GND_MEAS.
+
+
+### Bias fixture continuity check 3 — 1 kOhm GND-side connection PASS
+
+With PSU power OFF, direct continuity was checked between:
+
+- the physical metal lead of the 1 kOhm divider resistor on the GND side; and
+- GND_MEAS.
+
+Continuity was present.
+
+This confirms the 1 kOhm resistor's ground-side lead is physically connected to GND_MEAS as intended.
+
+Next check: directly verify the 1 kOhm resistor's BIAS-side lead to BIAS_NODE.
+
+
+### Bias-fixture continuity fault found
+
+During continuity verification of the temporary external AFG bias fixture, the user reported:
+
+- bias-side leg of the 10 kOhm divider resistor -> intended BIAS_NODE: **no continuity beep**
+
+Expected: direct continuity, because these points must be the same electrical node.
+
+Interpretation: the temporary bias fixture is not currently wired according to its intended schematic at this connection. Further AC transfer diagnosis is paused until this connection is corrected and continuity is confirmed.
