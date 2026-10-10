@@ -1,3 +1,3 @@
 # Project Rules
 
-1. Use schematic terminology only when referring to circuit components or nodes (for example: R1, C3, N1A, MCP6022 pin 3). Do not identify components by their values unless explicitly asked.
+1. Use schematic terminology only. Refer only to physically probeable points/components (for example: C2 N2A leg, R2 N1A leg, MCP6022 pin 3). Do not use wire/net names alone as probe instructions, and do not identify components by values unless explicitly asked.
