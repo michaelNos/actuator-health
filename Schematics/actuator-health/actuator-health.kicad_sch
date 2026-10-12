@@ -4248,7 +4248,7 @@
 		(dnp no)
 		(uuid "76672464-fbb6-4d0a-9d59-cb7c23bbe22d")
 		(property "Reference" "R1"
-			(at 206.756 68.834 90)
+			(at 206.502 68.834 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
