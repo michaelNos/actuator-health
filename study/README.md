@@ -59,6 +59,7 @@ Keep chat explanations brief; use the study notes for the fuller explanation, pr
 - [`mcp6022-pinout-and-fixture.md`](mcp6022-pinout-and-fixture.md) — physical pin orientation, all eight pin functions, supply connections, and how the two amplifiers implement the fixture.
 
 - [`sampling-phase-spectrum-transfer-fundamentals-2026-09-18.md`](sampling-phase-spectrum-transfer-fundamentals-2026-09-18.md) — practical calculation of sample interval/rate, Nyquist and record planning, residuals, manual phase measurement, sine/cosine fitting, FFT/harmonics, dB, complex transfer phasors, FILTER corner behavior, scope channel skew, normalized frequency response, and ACS724 dynamic timing terms.
+- [`sampling-phase-spectrum-transfer-expanded-review-2026-10-12.md`](sampling-phase-spectrum-transfer-expanded-review-2026-10-12.md) — expanded worked review of 21 questions covering manual acquisition planning, transfer/residual interpretation, manual phase and Fourier analysis, harmonics, Nyquist, dB, phasors, FILTER behavior, timing terms, delay/phase, and RC corner frequency with full calculations.
 
 ## Initial study queue
 
