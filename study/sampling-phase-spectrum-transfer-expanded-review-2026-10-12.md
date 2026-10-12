@@ -880,7 +880,7 @@ $$
 $$
 
 $$
-=5\%
+=0.05
 $$
 
 That is deterministic distortion at 3$f_0$, not necessarily noise.
@@ -1305,13 +1305,13 @@ $$
 So:
 
 $$
-\boxed{A_2\approx94.5\%\,A_1}
+\boxed{A_2\approx0.945\,A_1}
 $$
 
 Amplitude reduction:
 
 $$
-100-94.5=5.5\%
+1-0.945=0.055
 $$
 
 So $-0.49dB$ means approximately **5.5% lower amplitude than the chosen reference**.
@@ -1537,7 +1537,7 @@ $$
 So about:
 
 $$
-\boxed{84\%}
+\boxed{0.84}
 $$
 
 still passes.
@@ -1684,7 +1684,7 @@ $$
 $$
 
 $$
-=7.8\%
+=0.078
 $$
 
 In dB:
@@ -1757,9 +1757,9 @@ $$
 \boxed{
 t_{pd}
 =
-t_{OUT,20\%}
+t_{OUT,20}
 -
-t_{IN,20\%}
+t_{IN,20}
 }
 $$
 
@@ -1788,9 +1788,9 @@ $$
 \boxed{
 t_{response}
 =
-t_{OUT,90\%}
+t_{OUT,90}
 -
-t_{IN,90\%}
+t_{IN,90}
 }
 $$
 
@@ -1817,7 +1817,7 @@ Rise time belongs to the **output itself**:
 
 $$
 \boxed{
-t_r=t_{OUT,90\%}-t_{OUT,10\%}
+t_r=t_{OUT,90}-t_{OUT,10}
 }
 $$
 
@@ -2095,7 +2095,7 @@ T=1000\mu s
 $$
 
 $$
-\frac{2}{1000}=0.2\%
+\frac{2}{1000}=0.002
 $$
 
 For 10 kHz:
@@ -2105,7 +2105,7 @@ T=100\mu s
 $$
 
 $$
-\frac2{100}=2\%
+\frac2{100}=0.02
 $$
 
 Ten times larger fraction of a cycle.
@@ -2211,7 +2211,7 @@ $$
 So output amplitude is:
 
 $$
-\boxed{70.7\%}
+\boxed{0.707}
 $$
 
 of the low-frequency value.
