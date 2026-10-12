@@ -823,3 +823,88 @@ With measured R2 = 9.76 kOhm and nominal C2 = 1.0 nF, the expected 5 kHz N2A/N1A
 If interpreted as a simple R2-C2 relation, the measured ratio corresponds to an effective capacitance of roughly 1.8 nF. This does not prove that C2 itself is 1.8 nF; unintended parallel capacitance or wiring around N2A can produce the same effect.
 
 Next diagnostic: power OFF and verify C2 wiring by continuity: one C2 lead must connect to N2A / pin 3, and the other C2 lead must connect to GND_MEAS.
+
+
+### Bias fixture continuity check 1 — PASS
+
+With PSU power OFF, the operator verified that all four intended BIAS_NODE points have continuity with each other:
+
+- bottom of the 10 kOhm divider resistor;
+- top of the 1 kOhm divider resistor;
+- output side of the 10 x 100 nF coupling-capacitor bank;
+- AFE R1 input.
+
+This confirms that the physical breadboard implements the common BIAS_NODE connection shown in the dedicated temporary fixture schematic.
+
+Next check: verify continuity from the top of the 10 kOhm resistor to 5V_MEAS.
+
+
+### Bias-fixture verification found missing 10 kOhm-to-BIAS_NODE connection
+
+With PSU power OFF, continuity checks against the dedicated temporary bias-fixture schematic showed:
+
+- 5V_MEAS to one physical end of the 10 kOhm resistor: continuity present.
+- the opposite physical end of the 10 kOhm resistor to BIAS_NODE: no continuity.
+
+Therefore the temporary bias divider is not physically wired as documented. The required topology is:
+
+`5V_MEAS -> 10 kOhm -> BIAS_NODE -> 1 kOhm -> GND_MEAS`.
+
+This is a confirmed wiring discrepancy in the temporary test fixture. No further AFE frequency-response conclusions should be drawn until the bias-side end of the 10 kOhm resistor is connected to BIAS_NODE and the divider is revalidated.
+
+
+### Correction: 10 kOhm continuity interpretation was premature
+
+The previous entry incorrectly treated a no-beep result involving the 10 kOhm divider resistor as proof that the resistor was disconnected from BIAS_NODE.
+
+That conclusion is withdrawn.
+
+A continuity tester commonly does not beep through a 10 kOhm resistor, so a measurement path that includes the resistor can legitimately produce no beep even when the divider is wired correctly.
+
+The correct verification is node-to-lead continuity:
+
+- directly probe the physical 5V-side resistor lead to the 5V_MEAS node;
+- directly probe the physical BIAS-side resistor lead to the BIAS_NODE row.
+
+Those checks should test only the wiring connection on each side and must not include the 10 kOhm resistance itself.
+
+No physical rewiring is authorized from the previous no-beep result alone.
+
+
+### Bias fixture continuity check 2 — 10 kOhm BIAS-side connection PASS
+
+With PSU power OFF, direct continuity was checked between:
+
+- the physical metal lead of the 10 kOhm divider resistor on the BIAS_NODE side; and
+- the BIAS_NODE breadboard row.
+
+Continuity was present.
+
+This confirms that the 10 kOhm resistor's BIAS-side lead is physically connected to BIAS_NODE as intended. The earlier no-beep observation was therefore consistent with probing across the 10 kOhm resistance rather than indicating an open connection.
+
+Next check: directly verify the 1 kOhm resistor's GND-side lead to GND_MEAS.
+
+
+### Bias fixture continuity check 3 — 1 kOhm GND-side connection PASS
+
+With PSU power OFF, direct continuity was checked between:
+
+- the physical metal lead of the 1 kOhm divider resistor on the GND side; and
+- GND_MEAS.
+
+Continuity was present.
+
+This confirms the 1 kOhm resistor's ground-side lead is physically connected to GND_MEAS as intended.
+
+Next check: directly verify the 1 kOhm resistor's BIAS-side lead to BIAS_NODE.
+
+
+### Bias-fixture continuity fault found
+
+During continuity verification of the temporary external AFG bias fixture, the user reported:
+
+- bias-side leg of the 10 kOhm divider resistor -> intended BIAS_NODE: **no continuity beep**
+
+Expected: direct continuity, because these points must be the same electrical node.
+
+Interpretation: the temporary bias fixture is not currently wired according to its intended schematic at this connection. Further AC transfer diagnosis is paused until this connection is corrected and continuity is confirmed.
