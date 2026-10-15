@@ -477,6 +477,52 @@ A fast transfer cannot repair incorrect input settling. A good conversion also d
 
 **Next lesson:** Understand how an RA4M1 hardware timer can start ADC measurements at fixed 10 µs intervals. Choose and test the exact hardware later, after reviewing the manual and the schematic.
 
+### 10.8 How a SAR ADC finds a number
+
+The RA4M1 uses a **Successive Approximation Register (SAR)** ADC. Its circuits work together:
+
+1. A switch connects the ADC input to a small sampling capacitor. The capacitor charges toward the input voltage.
+2. The switch opens. The ADC holds the sampled voltage on the capacitor.
+3. An internal **DAC** (digital-to-analog converter) creates a test voltage.
+4. A **comparator** checks whether the held input is above or below that test voltage.
+5. SAR logic keeps or clears a binary bit. It repeats this for the next bit, from largest to smallest.
+6. The finished binary code is placed into the ADC result register.
+
+Why use this method? For 14 bits, an ADC has 16,384 possible output codes. A SAR ADC can find the code by testing bits in order rather than counting through all 16,384 codes.
+
+**Worked example: 4-bit ADC, 0–5 V input range, measuring 3.2 V.** One code step is $5/16 = 0.3125$ V.
+
+| Bit tested | Trial binary | Test voltage | Comparison with 3.2 V | Decision |
+| --- | --- | ---: | --- | --- |
+| Highest bit | 1000 | 2.5000 V | Input higher | Keep |
+| Next bit | 1100 | 3.7500 V | Input lower | Clear |
+| Next bit | 1010 | 3.1250 V | Input higher | Keep |
+| Last bit | 1011 | 3.4375 V | Input lower | Clear |
+
+Final code: **1010** (decimal 10), representing $10\times0.3125=3.125$ V. The difference between 3.2 V and 3.125 V is due to the size of a single 4-bit step.
+
+A 14-bit ADC uses the same principle, with smaller voltage steps. The sampled voltage stays stored during the comparisons, even if the input signal changes.
+
+Further reading: [Renesas: SAR ADCs](https://www.renesas.com/en/blogs/sar-adcs-high-sampling-rate-applications) and [Analog Devices: Successive Approximation ADCs](https://www.analog.com/en/resources/analog-dialogue/articles/successive-approximation-adcs.html).
+
+### 10.9 How one measurement finishes before the next starts
+
+A **hardware timer** starts each ADC measurement. The ADC then samples, holds, compares, and saves the result. At 100 kS/s, the timer starts measurements at 0, 10, 20, 30 µs, and so on.
+
+The time between starts is $T_s=1/100{,}000=10$ µs. **This is not the time required for one conversion.** If sampling and conversion take 2 µs, a measurement started at 0 µs completes around 2 µs; the next starts at 10 µs and completes around 12 µs.
+
+The ADC uses its own clock, called **ADCLK**. The RA4M1 manual provides these timing parts for 14-bit high-speed operation:
+
+- Sampling time: $(\text{ADSSTRn}+0.5)/f_{\text{ADCLK}}$.
+- SAR comparison time: $37.5/f_{\text{ADCLK}}$.
+- Sampling plus comparison: $(\text{ADSSTRn}+38)/f_{\text{ADCLK}}$.
+
+For an ADC clock of 48 MHz and an ADSSTR value of 13, sampling takes $13.5/48=0.28125$ µs and SAR comparison takes $37.5/48=0.78125$ µs. Together they take $51/48=1.0625$ µs, matching the approximately **1.06 µs** figure in the RA4M1 datasheet for that specified case.
+
+The scan start/end delays and transfer time also matter. Before firmware implementation we will verify the actual **A0 / AN009** sampling requirements, ADC clock, and input settling. The external ADC interface includes a 1 kΩ series resistor, so we cannot copy a short sampling-time setting without checking its effect.
+
+References: [RA4M1 hardware manual](https://www.renesas.com/en/document/mah/renesas-ra4m1-group-users-manual-hardware) and [RA4M1 datasheet](https://www.renesas.com/en/document/dst/ra4m1-group-datasheet).
+
 ## 11. Hardware timer: start a new ADC measurement every 10 µs
 
 ### 11.1 What is a hardware timer?
@@ -598,11 +644,11 @@ Only after timing is established will we add the hardware-assisted RAM transfer 
 
 ### 12.1 The problem we need to solve
 
-The ADC gives us a new number every 10 µs. The number appears in an **ADC result register**, which is a small storage location inside the microcontroller.
+With the ADC and timer correctly configured, each completed measurement gives a new number in the **ADC result register**, which is a small storage location inside the microcontroller.
 
 But our analysis needs many numbers in order:
 
-| Sample time | ADC result |
+| Measurement start time | Result when conversion finishes |
 | --- | --- |
 | 0 µs | 1604 |
 | 10 µs | 1612 |
