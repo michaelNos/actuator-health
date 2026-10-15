@@ -12,7 +12,7 @@ Actuator Health Monitoring System — study note, 2026-10-12.
 
 ### What is an MCU?
 
-A **microcontroller (MCU)** is a small computer on one chip: CPU, RAM, program storage, GPIO, timers, analog peripherals, and interrupt mechanisms. The **Arduino UNO R4 WiFi** is the development board; the **Renesas RA4M1** is the main MCU that performs our measurements and calculations. Arduino provides convenient libraries, but our strict sampling cadence must ultimately be enforced by MCU hardware, not the speed of a user-written loop.
+A **microcontroller (MCU)** is a small computer on one chip: CPU, RAM, program storage, GPIO, timers, analog peripherals, and interrupt mechanisms. The **Arduino UNO R4 WiFi** is the development board; the **Renesas RA4M1** is the main MCU that performs our measurements and calculations. Arduino provides convenient libraries, but our regular sampling times must be controlled by MCU hardware, not the speed of a user-written loop.
 
 The project specifies an RA4M1 operating at **48 MHz**. This is the CPU/peripheral clock scale given in Phase 6, **not** the ADC sampling frequency.
 
@@ -322,3 +322,158 @@ Everything numerical in this lesson is either an **accepted design target** or a
 4. Record measured results and selected implementation details separately from this study note.
 
 No wiring, schematic edit, firmware upload, or bench measurement is requested by this educational PR.
+
+## 10. Inside the RA4M1 ADC: sampling, conversion, and timing
+
+**Study goal:** Understand what happens between an analog voltage arriving at A0 and a digital value becoming available. This is a detailed explanation of the next part of the acquisition system. It does **not** define the final register values.
+
+### 10.1 A0 is a physical input, not the ADC itself
+
+On the UNO R4 WiFi board, the **A0** header connects to **RA4M1 P014**, which supports **analog input AN009**. This is the pin mapping shown in the official Arduino UNO R4 WiFi pinout.
+
+A0 is the outside connection where the signal enters the board. The ADC is a circuit *inside* the RA4M1. The ADC needs to be configured to measure the correct input channel.
+
+Arduino pinout: https://docs.arduino.cc/resources/pinouts/ABX00087-full-pinout.pdf
+
+### 10.2 Two stages: sample first, convert second
+
+**Sampling** means allowing the ADC's internal measurement circuit to follow the input voltage. A small internal capacitor is charged toward that voltage. An internal switch then separates the stored voltage from the changing input.
+
+**Conversion** means using the captured voltage to calculate a digital code. The RA4M1's ADC14 is a 14-bit ADC. A full conversion produces one number in the range expected by its selected operating mode.
+
+Why separate them? Because the motor current can change while the ADC is working. The conversion must represent the voltage measured at a known time, rather than an unknown mixture of voltages from different times.
+
+A useful simple model is:
+
+1. A timer sends a start event at the planned time.
+2. The ADC opens its sampling switch for the configured sampling time.
+3. The ADC closes the switch and converts the stored voltage.
+4. A completed digital value becomes available.
+5. The transfer system copies the value to RAM.
+
+This is a **conceptual explanation**, not proof of the exact internal event order or register settings selected for Rev-1. Real hardware timing must be checked against the RA4M1 manual.
+
+### 10.3 Why the input needs time to settle
+
+An internal sampling capacitor does not change voltage instantly. It charges or discharges through resistance in the input path.
+
+For a simplified resistor-capacitor model, the error remaining after time $t$ is:
+
+$$
+e(t)=e(0)e^{-t/(RC)}
+$$
+
+Here $R$ is the total effective resistance, $C$ the effective sampling capacitance, and $e(0)$ the voltage error when sampling begins. **These are simplified model values, not measured RA4M1 values.**
+
+The time constant is:
+
+$$
+\tau=RC
+$$
+
+After one time constant, the remaining error is about 36.8% of its initial value. After five time constants, it is about 0.67%. For a **14-bit ideal example** with an initial full-scale step and a target smaller than half an LSB:
+
+$$
+e^{-t/\tau}\leq\frac{1}{2^{15}}
+$$
+
+Taking the natural logarithm of both sides:
+
+$$
+-\frac{t}{\tau}\leq-\ln(2^{15})
+$$
+
+Therefore:
+
+$$
+t\geq\tau\ln(2^{15})\approx10.40\tau
+$$
+
+**Why 15 in the power?** A 14-bit full-scale range has $2^{14}$ steps. Half of one ideal step is $1/(2\times2^{14})=1/2^{15}$ of the full range.
+
+For an **imaginary** effective $RC=0.10\,\mu\text{s}$:
+
+$$
+t_{\text{sample}}\geq10.40\times0.10\,\mu\text{s}=1.04\,\mu\text{s}
+$$
+
+This calculation teaches the method only. We have **not** established that the real RA4M1 ADC input has that effective RC value. The external 1 kΩ / 100 pF ADC interface has its own behavior and cannot, by itself, be used to set the internal ADC sampling time.
+
+### 10.4 How a 14-bit result is formed
+
+For an ideal ADC covering an **assumed** 0–5 V range:
+
+$$
+q=\frac{5\,\text{V}}{2^{14}}\approx0.305\,\text{mV}
+$$
+
+One code step is therefore about 0.305 mV in this ideal example. A measured voltage near 2.00 V corresponds to approximately:
+
+$$
+k=\left\lfloor\frac{2.00}{5.00}\times16{,}384\right\rfloor=6553
+$$
+
+The real answer depends on the actual reference voltage, ADC settings, input noise, and calibration. **14-bit precision in a register is not the same as 14-bit accuracy at the input.**
+
+### 10.5 Why 100 kS/s does not mean a conversion lasts 10 µs
+
+The project requires:
+
+$$
+f_s=100{,}000\,\text{samples/s}
+$$
+
+$$
+T_s=\frac{1}{f_s}=10\,\mu\text{s}
+$$
+
+This tells us **when the next measurement must start**. It does not tell us how long sampling and conversion take separately.
+
+For example, imagine these **made-up timing values**:
+
+- Sampling: 2 µs.
+- Conversion: 3 µs.
+- Total time to complete one result: 5 µs.
+- Time between successive measurement starts: 10 µs.
+
+Then the ADC has:
+
+$$
+10\,\mu\text{s}-5\,\mu\text{s}=5\,\mu\text{s}
+$$
+
+before the next start event. In this simple model, the ADC finishes in time.
+
+But if sampling plus conversion took **12 µs**, a new event would arrive before the earlier measurement had finished. We would need to change the ADC configuration or sampling approach rather than simply claiming the system achieves 100 kS/s.
+
+The actual RA4M1 sampling time depends on the **ADC clock (ADCLK)** and its sampling-time setting. The sampling time is set in ADC clock periods. The hardware manual describes the **ADSSTRn** sampling-state registers. We must check the correct channel setting, clock, minimum allowed period, conversion time, and trigger behavior before choosing a numeric register value.
+
+RA4M1 reference manual: https://www.renesas.com/en/document/mah/ra4m1-group-users-manual-hardware
+
+### 10.6 Where the number goes next
+
+After a conversion completes, the result is made available in the ADC's result register. The planned hardware-assisted data transfer then copies the result to RAM.
+
+Do not confuse these two jobs:
+
+- **ADC:** changes a voltage into a number.
+- **DTC/DMA-class transfer:** moves the number into a RAM buffer.
+
+A fast transfer cannot repair incorrect input settling. A good conversion also does not prevent data loss if the next buffer is still in use. All parts must work correctly.
+
+### 10.7 What we know and what we still need to verify
+
+| Item | Status |
+| --- | --- |
+| A0 maps to RA4M1 P014 / AN009 | Confirmed by Arduino pinout |
+| 14-bit conversion | Accepted project requirement |
+| One sample start every 10 µs | Accepted project target |
+| Internal ADC sampling-time register concept | Documented in RA4M1 hardware reference |
+| Exact ADC clock and sampling-state count | Not selected |
+| Exact time to complete an A0 conversion | Not measured or accepted |
+| Real input settling with the Rev-1 AFE and ADC interface | Not measured |
+| Hardware timer/ADC trigger configuration | Not selected |
+| Measured 100 kS/s stream without lost samples | Not yet demonstrated |
+
+**Next lesson:** Understand how an RA4M1 hardware timer can start ADC measurements at fixed 10 µs intervals. Choose and test the exact hardware later, after reviewing the manual and the schematic.
+
