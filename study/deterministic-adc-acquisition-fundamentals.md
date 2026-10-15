@@ -477,3 +477,120 @@ A fast transfer cannot repair incorrect input settling. A good conversion also d
 
 **Next lesson:** Understand how an RA4M1 hardware timer can start ADC measurements at fixed 10 µs intervals. Choose and test the exact hardware later, after reviewing the manual and the schematic.
 
+## 11. Hardware timer: start a new ADC measurement every 10 µs
+
+### 11.1 What is a hardware timer?
+
+A hardware timer is a counter inside the microcontroller. It counts clock ticks without needing the main program to tell it to count again.
+
+We need it to start each ADC measurement at regular times:
+
+| Measurement | Start time |
+| --- | ---: |
+| 1 | 0 µs |
+| 2 | 10 µs |
+| 3 | 20 µs |
+| 4 | 30 µs |
+| 5 | 40 µs |
+
+The timer continues counting while the CPU works on other tasks. This is different from calling \`analogRead()\` repeatedly in a software loop, where the time between reads depends on what the program is doing.
+
+### 11.2 How do we calculate the timer period?
+
+Let:
+
+- $f_{\text{timer}}$ = frequency at which the timer counts, in ticks per second;
+- $f_s$ = required number of ADC samples per second;
+- $N$ = number of timer ticks between two ADC start events.
+
+Then:
+
+$$
+N=\frac{f_{\text{timer}}}{f_s}
+$$
+
+For our project, $f_s=100{,}000\,\text{samples/s}$.
+
+If the timer counts at $48\,\text{MHz}$:
+
+$$
+N=\frac{48{,}000{,}000}{100{,}000}=480\,\text{ticks}
+$$
+
+The time for one tick is:
+
+$$
+T_{\text{tick}}=\frac{1}{48{,}000{,}000}
+\approx20.83\,\text{ns}
+$$
+
+Thus:
+
+$$
+480\times20.83\,\text{ns}\approx10\,\mu\text{s}
+$$
+
+A timer may also use a **clock divider**. For example, with a divider of 8:
+
+$$
+f_{\text{timer}}=\frac{48\,\text{MHz}}{8}=6\,\text{MHz}
+$$
+
+$$
+N=\frac{6{,}000{,}000}{100{,}000}=60\,\text{ticks}
+$$
+
+Both calculations give a 10 µs period. The correct register setting depends on how the selected timer counts (for example, from zero to its period value), its clock source, and supported divider settings.
+
+The CPU clock, timer clock, and ADC clock are not automatically the same thing. We must check their actual configuration before writing firmware.
+
+### 11.3 What happens at each timer event?
+
+The intended hardware path is:
+
+**Timer reaches its set count → timer produces an event → ADC starts measuring A0 → ADC completes → result can be copied to RAM.**
+
+An **event** is an internal hardware signal meaning that something happened, such as the timer reaching a chosen count. It does not need to be an electrical pulse on a board pin.
+
+The RA4M1 has hardware features for linking supported peripheral events. We must check that the timer and ADC trigger route we select is supported before relying on it.
+
+The main program may process an older set of samples or send information over USB without changing when the next ADC measurement begins.
+
+### 11.4 Why not use a timer interrupt to call the ADC?
+
+An **interrupt** tells the CPU to stop its current task and run a short piece of code.
+
+A timer interrupt can occur every 10 µs, but if its code starts the ADC, the start time may change slightly depending on interrupt handling and other tasks.
+
+A **hardware trigger** avoids making the CPU responsible for starting every single measurement. This is the accepted project design.
+
+The timer event must repeat at 100 kHz; the ADC must also finish its work before the next measurement. Fast timer events alone do not guarantee a valid 100 kS/s data stream.
+
+### 11.5 What does timing error do to our measurements?
+
+The ideal sampling times are:
+
+$$
+t_n=nT_s
+$$
+
+With timing error:
+
+$$
+t_n=nT_s+\epsilon_n
+$$
+
+The term $\epsilon_n$ describes how early or late a sample is. A changing timing error is called **jitter**.
+
+For a sine wave, even a small time error matters more as the signal frequency rises. That is why we want the ADC to start at fixed times and why later tests must check the actual time spacing.
+
+### 11.6 How will we check this during implementation?
+
+We will first check the timer by itself. A useful test is to configure a timer-controlled output, where supported, and view its timing with the oscilloscope.
+
+Then we will connect the timer's internal event to the ADC and check the resulting **completed samples**. This second check matters: a correctly running timer does not prove that conversions and data transfers are keeping up.
+
+Only after timing is established will we add the hardware-assisted RAM transfer and double buffers.
+
+**Next study topic:** How DTC/DMA-style hardware moves completed ADC results to RAM without asking the CPU to copy every sample.
+
