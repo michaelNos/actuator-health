@@ -594,3 +594,168 @@ Only after timing is established will we add the hardware-assisted RAM transfer 
 
 **Next study topic:** How DTC/DMA-style hardware moves completed ADC results to RAM without asking the CPU to copy every sample.
 
+## 12. How DTC/DMA moves ADC samples into RAM
+
+### 12.1 The problem we need to solve
+
+The ADC gives us a new number every 10 µs. The number appears in an **ADC result register**, which is a small storage location inside the microcontroller.
+
+But our analysis needs many numbers in order:
+
+| Sample time | ADC result |
+| --- | --- |
+| 0 µs | 1604 |
+| 10 µs | 1612 |
+| 20 µs | 1620 |
+| 30 µs | 1616 |
+
+These numbers show the idea of recording a changing voltage. We need to copy each completed result into **RAM (random-access memory)** before the next result replaces it.
+
+The CPU could copy every sample, but that would require it to react around **100,000 times each second**. Instead, we want hardware to move the data while the CPU works on complete groups of samples.
+
+### 12.2 What are DTC and DMA?
+
+**DMA** means *Direct Memory Access*. **DTC** means *Data Transfer Controller*. They are two hardware methods for moving data without writing a CPU instruction for every sample.
+
+The RA4M1 has both a **DTC** and a **DMA controller (DMAC)**. The product design prefers a hardware-assisted transfer; Stage B will choose the actual method.
+
+The jobs are different:
+
+- **Timer:** decides when a new ADC measurement starts.
+- **ADC:** converts the voltage into a number.
+- **DTC or DMAC:** copies the finished number to RAM.
+- **CPU:** processes completed samples and checks for errors.
+
+The transfer device **does not** decide when to measure the voltage. Moving data quickly cannot fix incorrect ADC sampling times.
+
+### 12.3 How does the transfer device know what to copy?
+
+Before starting, firmware configures a **transfer description**. It tells the hardware:
+
+1. **Source:** where to read from, such as the result register for the selected ADC channel.
+2. **Destination:** where to write, such as the start of a RAM array.
+3. **Size:** how many bytes to copy each time.
+4. **Addresses:** whether the source and destination stay fixed or move to the next position.
+5. **Count:** how many transfers to perform.
+6. **Start event:** which hardware event means that a new result is ready.
+
+For raw 14-bit ADC codes, a convenient storage type is **16 bits = 2 bytes** per sample. The extra two bits are simply unused or defined by the ADC result format.
+
+Example of five completed conversions:
+
+| ADC result | Source address | RAM destination |
+| ---: | --- | --- |
+| 1604 | Same ADC register | Buffer A, position 0 |
+| 1612 | Same ADC register | Buffer A, position 1 |
+| 1620 | Same ADC register | Buffer A, position 2 |
+| 1616 | Same ADC register | Buffer A, position 3 |
+| 1608 | Same ADC register | Buffer A, position 4 |
+
+The **source stays fixed** because each result appears in the ADC's register. The **destination moves forward by 2 bytes** because each stored result needs two bytes.
+
+If the first RAM address were $A_0$, the destination for sample $n$ would be:
+
+$$
+A_n=A_0+2n
+$$
+
+For $n=4$, the address is $A_0+8$ bytes.
+
+This is why the transfer device needs rules for source and destination addresses. It is not calculating current or filtering data; it is copying numbers.
+
+### 12.4 Which event starts the copy?
+
+The **ADC completion event** should start the transfer: the new result must be ready before we copy it.
+
+Conceptually:
+
+**Timer event → ADC starts → ADC completes → DTC/DMAC copies result → RAM**
+
+The timer event and ADC completion event have **different purposes**. If the transfer ran before the conversion finished, it could read an old result.
+
+The RA4M1 provides event and interrupt mechanisms for hardware transfers. We will check the exact ADC completion signal and supported DTC/DMAC connections when implementing firmware.
+
+### 12.5 How fast is the raw data stream?
+
+Our sampling rate is:
+
+$$
+f_s=100{,}000\,\text{samples/s}
+$$
+
+With two bytes stored for each sample:
+
+$$
+R=100{,}000\times2=200{,}000\,\text{bytes/s}
+$$
+
+So RAM receives **200 kB of raw ADC data per second**, or about **195 KiB/s** when using 1024 bytes per KiB.
+
+For a buffer with 1,000 samples:
+
+$$
+M=1000\times2=2000\,\text{bytes}
+$$
+
+$$
+T=\frac{1000}{100{,}000}=10\,\text{ms}
+$$
+
+These calculations tell us the required memory size and how often the software needs a completed buffer.
+
+### 12.6 Why not let the transfer write forever into one buffer?
+
+RAM has a limited size. After 1,000 transfers the example buffer is full.
+
+If the hardware starts writing at the beginning again immediately, old values disappear. If the CPU is still using those values, it can get a mixture of old and new samples.
+
+The project therefore uses **two buffers**:
+
+| Time | Hardware transfer | CPU |
+| --- | --- | --- |
+| 0–10 ms | Fill A | Other work |
+| 10–20 ms | Fill B | Process A |
+| 20–30 ms | Fill A | Process B |
+
+This is called **double buffering** or **ping-pong buffering**.
+
+At each buffer boundary, the program must safely give the hardware the next free buffer and mark the completed buffer ready for processing.
+
+A key detail: **DTC/DMAC does not automatically give us safe double buffering merely because it can transfer data.** The final firmware must explicitly manage buffer addresses, transfer completion, and ownership.
+
+### 12.7 How will we know if data was lost?
+
+Suppose a 1,000-sample buffer fills every 10 ms. If processing one completed buffer takes 15 ms, software might still be reading buffer A when the hardware needs to fill A again.
+
+That is an **overrun**. We must detect it and mark the affected samples invalid.
+
+A useful design is to track:
+
+- **Buffer state:** FREE, FILLING, READY, or IN_USE.
+- **Block number:** 0, 1, 2, 3, ... for complete buffers.
+- **Error count:** increases when a completed buffer cannot be saved or the next buffer is not free.
+
+Missing block numbers show where sample continuity was broken. A later FFT must not join samples across such a gap as though nothing happened.
+
+### 12.8 Why not send each ADC value directly over USB?
+
+USB communication can vary in speed and may pause. It must not control when we measure the input.
+
+RAM buffers give the ADC a place to store samples immediately. USB can later send selected waveforms or processed values. If a USB task is slow, sampling should continue as long as RAM and processing can keep up.
+
+### 12.9 What must Stage B choose?
+
+The accepted design tells us **what behavior we need**, but the firmware must still choose the exact transfer hardware and settings:
+
+- DTC or DMAC, with a supported ADC-result-ready event;
+- correct ADC result-register address and 16-bit sample format;
+- fixed source and increasing destination addresses;
+- transfer count, buffer size, and safe buffer switching;
+- how software learns that one buffer is complete;
+- detection of lost samples and failed transfers.
+
+A successful test will show that samples are copied in the correct order into RAM at 100 kS/s while the CPU performs other work. We will also deliberately make processing too slow and verify that an overrun is reported.
+
+**Hardware reference:** [Renesas RA4M1 Group User's Manual: Hardware](https://www.renesas.com/en/document/mah/renesas-ra4m1-group-users-manual-hardware), especially *DMA Controller (DMAC)*, *Data Transfer Controller (DTC)*, and *ADC14*. The choice of transfer method will be made during implementation.
+
+**Next study topic:** Double-buffer ownership, how an overrun is detected, and how buffer size changes our processing time.
