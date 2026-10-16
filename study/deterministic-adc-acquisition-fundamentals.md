@@ -805,3 +805,136 @@ A successful test will show that samples are copied in the correct order into RA
 **Hardware reference:** [Renesas RA4M1 Group User's Manual: Hardware](https://www.renesas.com/en/document/mah/renesas-ra4m1-group-users-manual-hardware), especially *DMA Controller (DMAC)*, *Data Transfer Controller (DTC)*, and *ADC14*. The choice of transfer method will be made during implementation.
 
 **Next study topic:** Double-buffer ownership, how an overrun is detected, and how buffer size changes our processing time.
+
+## 13. Double buffering in detail: safe processing without losing samples
+
+### 13.1 Why a single buffer causes a problem
+
+At 100 kS/s, a new ADC measurement starts every 10 µs. The transfer hardware saves the completed result into RAM.
+
+If we give the transfer hardware only one buffer, it eventually fills. Reusing it immediately can overwrite values the CPU is still reading. If the CPU stops sampling to process the buffer instead, we lose the continuous signal.
+
+The accepted solution is **two buffers**: one is written by the transfer hardware; the other can be read by the CPU.
+
+### 13.2 Follow one complete cycle
+
+Consider two buffers, **A** and **B**, with 1,000 sample positions each. At 100,000 samples/s:
+
+$$
+T_{\text{fill}}=\frac{1000}{100000}=0.010\,\text{s}=10\,\text{ms}
+$$
+
+A sample stored as a 16-bit value occupies 2 bytes:
+
+$$
+M_{\text{one buffer}}=1000\times2=2000\,\text{bytes}
+$$
+
+$$
+M_{\text{two buffers}}=2\times2000=4000\,\text{bytes}
+$$
+
+| Time interval | Transfer hardware | CPU |
+| --- | --- | --- |
+| 0–10 ms | Writes samples 0–999 into A | Other work |
+| 10–20 ms | Writes samples 1000–1999 into B | Reads and processes A |
+| 20–30 ms | Writes samples 2000–2999 into A | Reads and processes B |
+| 30–40 ms | Writes samples 3000–3999 into B | Reads and processes A |
+
+This only works if the CPU is **finished using A before A is reused**, and similarly for B.
+
+At the end of each fill, the transfer hardware or a completion event must tell the firmware which buffer is ready. Changing to the other destination must also finish before the next sample needs to be stored.
+
+### 13.3 Who is allowed to use each buffer?
+
+A safe design tracks the state of each buffer:
+
+- **FREE:** not being read or written; safe for the next transfer.
+- **FILLING:** transfer hardware owns it and is writing new samples.
+- **READY:** all positions are complete; waiting for CPU processing.
+- **IN_USE:** CPU is reading the completed samples.
+
+Normal state changes follow:
+
+**FREE → FILLING → READY → IN_USE → FREE**
+
+A buffer must **never** be FILLING and IN_USE at the same time.
+
+Once transfer hardware marks A READY, the CPU may take A for processing. Meanwhile B can be FILLING. The CPU marks A FREE only after it finishes reading all data it needs from A.
+
+The software must make these changes safely so the CPU and transfer hardware cannot both claim the same buffer. The exact interrupt and DTC/DMAC setup will be chosen during implementation.
+
+### 13.4 What happens if the CPU is too slow?
+
+Suppose A finishes filling at 10 ms and the CPU needs 15 ms to process it. The CPU would finish at 25 ms.
+
+But at 20 ms the transfer hardware needs A again. A is still IN_USE.
+
+**This is an acquisition overrun:** new samples have nowhere safe to go within the two-buffer design.
+
+The correct behavior is to detect the problem and report lost or invalid data rather than silently overwrite A. The later firmware may stop acquisition or follow another explicitly defined recovery method. Either way, it must not claim uninterrupted samples.
+
+The available processing time for each block is approximately one buffer-fill period:
+
+$$
+T_{\text{available}}=\frac{N}{f_s}
+$$
+
+For $N=1000$, the CPU has about **10 ms** to finish using the other buffer. Buffer switching, interrupts, and other tasks also consume time, so the actual processing work needs extra margin.
+
+### 13.5 How do we detect and record an overrun?
+
+Besides the state of A and B, the firmware can store a **block number** and **first sample number** with every completed buffer.
+
+For 1,000-sample blocks:
+
+| Block | First sample number | Last sample number |
+| --- | ---: | ---: |
+| 0 | 0 | 999 |
+| 1 | 1000 | 1999 |
+| 2 | 2000 | 2999 |
+| 3 | 3000 | 3999 |
+
+The expected first sample of block $b$ is:
+
+$$
+n_{\text{first}}=bN
+$$
+
+When the next complete block does not follow the previous block without a gap, the software marks the missing part. A counter records each detected overrun or lost block.
+
+Block numbers help us track continuity, but they **do not by themselves prove** that every ADC result was transferred correctly. We also need transfer-completion checks and tests with known waveforms.
+
+If we perform an FFT, we must not treat two blocks separated by missing samples as a single continuous waveform. That would create false frequency information.
+
+### 13.6 Why buffer size matters
+
+| Samples per buffer | Fill time at 100 kS/s | RAM for two buffers |
+| ---: | ---: | ---: |
+| 256 | 2.56 ms | 1,024 bytes |
+| 512 | 5.12 ms | 2,048 bytes |
+| 1,000 | 10.00 ms | 4,000 bytes |
+| 1,024 | 10.24 ms | 4,096 bytes |
+
+**Small buffers:** use less RAM and deliver data for processing sooner, but the CPU must handle completed buffers more often.
+
+**Large buffers:** give the CPU more time between buffer changes, but consume more RAM and delay when a completed block first becomes available.
+
+The size of a **RAM acquisition buffer** does not have to equal the number of samples used later for an FFT. The CPU can combine consecutive valid buffers into a longer analysis window.
+
+### 13.7 What do we need to build and verify later?
+
+The firmware must:
+
+1. Start filling a free buffer.
+2. Report when that buffer is complete.
+3. Change to another free buffer safely.
+4. Give the completed block to the CPU for processing.
+5. Return the processed buffer to FREE.
+6. Detect when no free buffer is available.
+7. Preserve block order and report invalid or missing data.
+
+During testing, we will deliberately slow down processing to cause an overrun and check that the firmware detects it.
+
+**Main point:** Two buffers allow measurement and processing to happen at the same time, but the system must control which part is allowed to use each buffer.
+
